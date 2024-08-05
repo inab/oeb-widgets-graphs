@@ -1,0 +1,113 @@
+{
+    "_id": "OEBD00700000NI",
+    "_schema": "https://www.elixir-europe.org/excelerate/WP2/json-schemas/1.0/Dataset",
+    "challenge_ids": [
+        "OEBX0070000014"
+    ],
+    "community_ids": [
+        "OEBC007"
+    ],
+
+        "inline_data": {
+            "challenge_participants": [
+                {
+                    "tool_id": "APAtrap",
+                    "metric_value": 8.80130949383027,
+                    "stderr": 0
+                },
+                {
+                    "tool_id": "DaPars2",
+                    "metric_value": 12.93754721732561,
+                    "stderr": 0
+                },
+                {
+                    "tool_id": "DaPars",
+                    "metric_value": 8.876857214807353,
+                    "stderr": 0
+                },
+                {
+                    "tool_id": "GETUTR",
+                    "metric_value": 0.24553009317552255,
+                    "stderr": 0
+                },
+                {
+                    "tool_id": "IsoSCM",
+                    "metric_value": 10.104507680684966,
+                    "stderr": 0
+                },
+                {
+                    "tool_id": "TAPAS",
+                    "metric_value": 13.31528582221103,
+                    "stderr": 0
+                }
+            ],
+            "visualization": {
+                "metric": "percentage_genes_w_correct_nPAS",
+                "type": "bar-plot"
+            },
+            "labels": [
+                {
+                    "label": "APAtrap",
+                    "dataset_orig_id": "APAeval:Identification_2021:GTEXsim_cerebellum_R1.all.hg38_v26:APAtrap_P"
+                },
+                {
+                    "label": "DaPars2",
+                    "dataset_orig_id": "APAeval:Identification_2021:GTEXsim_cerebellum_R1.all.hg38_v26:DaPars2_P"
+                },
+                {
+                    "label": "DaPars",
+                    "dataset_orig_id": "APAeval:Identification_2021:GTEXsim_cerebellum_R1.all.hg38_v26:DaPars_P"
+                },
+                {
+                    "label": "GETUTR",
+                    "dataset_orig_id": "APAeval:Identification_2021:GTEXsim_cerebellum_R1.all.hg38_v26:GETUTR_P"
+                },
+                {
+                    "label": "IsoSCM",
+                    "dataset_orig_id": "APAeval:Identification_2021:GTEXsim_cerebellum_R1.all.hg38_v26:IsoSCM_P"
+                },
+                {
+                    "label": "TAPAS",
+                    "dataset_orig_id": "APAeval:Identification_2021:GTEXsim_cerebellum_R1.all.hg38_v26:TAPAS_P"
+                }
+            ]
+    },
+    "dataset_contact_ids": [
+        "Christina.J.Herrmann",
+        "Mihaela.Zavolan"
+    ],
+    "dates": {
+        "creation": "2023-05-26T20:12:32Z",
+        "modification": "2023-05-27T19:34:43+00:00"
+    },
+    "depends_on": {
+        "tool_id": "OEBT0070000009",
+        "metrics_id": "OEBM007000000Z",
+        "rel_dataset_ids": [
+            {
+                "dataset_id": "OEBD00700000LO"
+            },
+            {
+                "dataset_id": "OEBD0070000289"
+            },
+            {
+                "dataset_id": "OEBD00700002P0"
+            },
+            {
+                "dataset_id": "OEBD007000036H"
+            },
+            {
+                "dataset_id": "OEBD00700003LS"
+            },
+            {
+                "dataset_id": "OEBD00700005IF"
+            }
+        ]
+    },
+    "description": "Summary dataset that aggregates all results from participants in challenge: GTEXsim_cerebellum_R1.all.hg38_v26. Metrics: percentage_genes_w_correct_nPAS",
+    "name": "Summary dataset for challenge: GTEXsim_cerebellum_R1.all.hg38_v26. Metrics: percentage_genes_w_correct_nPAS",
+    "orig_id": "APAeval:Identification_2021:GTEXsim_cerebellum_R1.all.hg38_v26:Aggregation:percentage_genes_w_correct_nPAS",
+    "type": "aggregation",
+    "version": "1",
+    "visibility": "public"
+}
