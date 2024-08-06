@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'url'
 import { defineConfig } from 'vite'
+import path from 'path'
 
 export default defineConfig({
     resolve: {
@@ -11,10 +12,17 @@ export default defineConfig({
         "bootstrap/dist/css/bootstrap.min.css",
     ],
     build: {
-        rollupOptions: {
-        input: {
-            app: './src/demo/index.html',
+        manifest: true,
+        minify: true,
+        reportCompressedSize: true,
+        lib: {
+            entry: path.resolve(__dirname, "./src/widget-element.js"),
+            name: "oeb-widgets-graphs",
+            fileName: (format) => `oeb-widgets-graphs.${format}.js`,
+            formats: ["es", "cjs"],
         },
+        rollupOptions: {
+            external: []
         },
     },
     server: {
