@@ -1,7 +1,7 @@
 import {html, css, LitElement} from 'lit';
 import { Task } from '@lit/task';
 
-import { WidgetElement } from '../widget-element';
+import { WidgetElement } from '../widget-element.js';
 import { fetchDataInfo } from '../utils.js';
 
 export default class WidgetTest extends LitElement {
