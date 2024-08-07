@@ -14,7 +14,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/inab/oeb-widgets-graphs"
+    "url": "git+https://github.com/inab/oeb-widgets-graphs.git"
   },
   "bugs": {
     "url": "https://github.com/inab/oeb-widgets-graphs/issues"
@@ -24,6 +24,10 @@
     "build": "vite build",
     "preview": "vite preview"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "devDependencies": {
     "vite": "^5.3.4"
   },
@@ -31,7 +35,11 @@
     "@lit/task": "^1.0.1",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.3",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.2",
     "lit": "^3.1.4",
+    "pareto-frontier": "^1.1.1",
     "plotly.js-dist": "^2.34.0"
   },
   "main": "./src/widget-element.js",

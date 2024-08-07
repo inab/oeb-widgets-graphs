@@ -5,7 +5,7 @@ import { WidgetElement } from '../widget-element.js';
 import { fetchDataInfo } from '../utils.js';
 
 export default class WidgetTest extends LitElement {
-    dataJSON = './OEBD00700000NI.json';
+    dataJSON = './OEBD00200002UK.json';
 
     static properties = {
         _data: { state: true }
@@ -55,6 +55,27 @@ export default class WidgetTest extends LitElement {
             dataObj.inline_data.visualization = {
                 metric: visualization.metric,
                 type: visualization.type
+            };
+        } else if(type === '2D-plot') {
+            // Process challenge_participants data for ScatterPlot
+            data.inline_data.challenge_participants.forEach(participant => {
+                const preparedParticipant = {
+                    tool_id: participant.tool_id,
+                    metric_x: participant.metric_x,
+                    stderr_x: participant.stderr_x,
+                    metric_y: participant.metric_y,
+                    stderr_y: participant.stderr_y
+                };
+                dataObj.inline_data.challenge_participants.push(preparedParticipant);
+            });
+            // Process visualization data for ScatterPlot
+            const visualization = data.inline_data.visualization;
+            // const metrics_names = await this.getMetricsNames(visualization.x_axis, visualization.y_axis);
+            dataObj.inline_data.visualization = {
+                type: visualization.type,
+                x_axis: visualization.x_axis,
+                y_axis: visualization.y_axis,
+                optimization: visualization.optimization
             };
         }
     

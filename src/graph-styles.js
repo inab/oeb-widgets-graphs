@@ -281,20 +281,19 @@ export const graphStyles = css`
     --bs-breakpoint-xxl: 1400px;
     }
 
-    .row {
+    .graph-row {
         display: flex;
-        flex-wrap: wrap;
         flex: 1 1 auto;
         margin: -12px;
     }
 
-    .row > * {
-    flex-shrink: 0;
-    width: 100%;
-    max-width: 100%;
-    padding-right: calc(var(--bs-gutter-x) * 0.5);
-    padding-left: calc(var(--bs-gutter-x) * 0.5);
-    margin-top: var(--bs-gutter-y);
+    .graph-row > * {
+        flex-shrink: 0;
+        width: 100%;
+        max-width: 100%;
+        padding-right: calc(var(--bs-gutter-x) * 0.5);
+        padding-left: calc(var(--bs-gutter-x) * 0.5);
+        margin-top: var(--bs-gutter-y);
     }
 
     .col {
@@ -1348,6 +1347,10 @@ export const graphStyles = css`
         font-weight: bold;
     }
 
+    .btn-group.btn-graphs .btn:hover {
+        background-color: #ddd;
+    }
+
     .oeb-graph {
         font-family: "Roboto", sans-serif;
         padding: 10px;
@@ -1431,4 +1434,54 @@ export const graphStyles = css`
         padding: 5px 25px;
     }
 
+    .dropbtn {
+        background-color: rgb(247, 247, 247);
+        border: 1px solid rgb(223, 227, 238);
+        font-size: 12px;
+        font-weight: bold;
+        height: 100%;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-top-right-radius: 0.375rem;
+        border-bottom-right-radius: 0.375rem;
+        padding: 0.375rem 0.75rem;
+    }
+
+    .first-btn {
+        border-top-left-radius: 0.375rem;
+        border-bottom-left-radius: 0.375rem;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        font-size: 12px;
+    }
+
+    .dropdown-content div {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        cursor: pointer;
+    }
+
+    .dropdown-content div:hover { 
+        background-color: #ddd;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
 `;

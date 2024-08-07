@@ -1,6 +1,7 @@
 import {html, css, LitElement} from 'lit';
 
 import { BarPlot } from './bar-plot'
+import { ScatterPlot } from './scatter-plot';
 
 export class WidgetElement extends LitElement {
   static properties = {
@@ -19,6 +20,8 @@ export class WidgetElement extends LitElement {
   renderComponent() {
     if(this.type == 'bar-plot') {
       return html`<bar-plot data = ${ this.data }></bar-plot>`
+    } else if(this.type == '2D-plot') {
+      return html`<scatter-plot data = ${ this.data }></scatter-plot>`
     } else {
       return html`<p>No element</p>`
     }

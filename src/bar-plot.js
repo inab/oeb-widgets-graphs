@@ -1,9 +1,11 @@
-import { html, css, LitElement, unsafeCSS  } from 'lit';
+import { html, LitElement } from 'lit';
 import Plotly from 'plotly.js-dist'
 import { plotlyStyles } from "./plotly-styles.js";
 import { graphStyles } from './graph-styles.js';
 import { oebIcon } from './utils';
-import { Tooltip } from './ui-tooltip.js';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import html2canvas from 'html2canvas';
 
 export class BarPlot extends LitElement {
     imgLogo = oebIcon
@@ -17,9 +19,10 @@ export class BarPlot extends LitElement {
 
     static properties = {
         data: '',
-        datasetId : '',
+        datasetId: '',
         sorted: false,
-        showAdditionalTable : false
+        showAdditionalTable: false,
+        isOptimal: false
     };
 
     constructor() {
@@ -32,6 +35,10 @@ export class BarPlot extends LitElement {
         this.sortOrder = 'raw';
         this.optimal = 'no';
         this.quartileDataArray = [];
+        this.sortText = 'Sort & Classify Data';
+        this.sortTextRaw = 'Return To Raw Results';
+        this.optimalText = 'Optimal View';
+        this.optimalTextReset = 'Original View';
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
@@ -41,6 +48,8 @@ export class BarPlot extends LitElement {
 
     updated() {
         this.graphDiv = this.shadowRoot.querySelector('#bar-chart');
+        this.todoDownload = this.shadowRoot.querySelector('#todownload');
+        this.chartCapture = this.shadowRoot.querySelector('#chartCapture');
         this.myPlot = Plotly.newPlot(this.graphDiv, [], this.layout, { displayModeBar: false, responsive: true, hovermode: false });
         this.renderChart();
     }
@@ -48,7 +57,6 @@ export class BarPlot extends LitElement {
     renderChart() {
         if(this.data) {
             const data = this.data.inline_data;
-
             this.datasetId = this.data._id;
             this.datasetModDate = this.data.dates.modification;
             this.originalData = this.data;
@@ -175,8 +183,6 @@ export class BarPlot extends LitElement {
                 const update = { 'marker': { color: unhoverColors } };
                 Plotly.restyle(graph, update);
             });
-
-            
         });
     }
 
@@ -292,6 +298,70 @@ export class BarPlot extends LitElement {
         }
 
         this.sortOrder = this.sortOrder === 'raw' ? 'sorted' : 'raw';
+    }
+
+    async toggleOptimal() {
+        try {
+            if(this.optimal === 'no') {
+                this.isOptimal = true;
+                Plotly.Plots.resize(this.graphDiv);
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                let data;
+                if (this.sortOrder !== 'raw') {
+                    // If data has been sorted, use the sorted data
+                    data = this.originalData.inline_data.challenge_participants.slice().sort((a, b) => b.metric_value - a.metric_value);
+                } else {
+                    // Otherwise, use the original data
+                    data = this.originalData.inline_data.challenge_participants;
+                }
+
+                const metricValues = data.map(entry => entry.metric_value);
+                const minMetric = Math.min(...metricValues);
+                const maxMetric = Math.max(...metricValues);
+
+                // Calculate range between min and max metrics
+                const metricRange = maxMetric - minMetric;
+
+                // Calculate new y-axis range with a slight buffer based on metric range
+                const minY = Math.max(0, minMetric - metricRange * 0.2);
+                const maxY = maxMetric + metricRange * 0.08;
+
+                // Update plot layout with new y-axis range
+                Plotly.relayout(this.graphDiv, { 'yaxis.range': [minY, maxY] });
+
+                // Animate the bars
+                this.animateBars(data);
+            } else {
+                this.isOptimal = false;
+
+                let data;
+                if (this.sortOrder !== 'raw') {
+                    // If data has been sorted, use the sorted data
+                    data = this.originalData.inline_data.challenge_participants.slice().sort((a, b) => b.metric_value - a.metric_value);
+                } else {
+                    // Otherwise, use the original data
+                    data = this.originalData.inline_data.challenge_participants;
+                }
+                // Return to original data view by restoring the original y-axis range
+                const originalLayout = {
+                    'yaxis.range': [0, Math.max(...data.map(entry => entry.metric_value)) + 0.1]
+                };
+
+                // Update plot layout with original y-axis range
+                Plotly.relayout(this.graphDiv, originalLayout);
+
+                // Animate the bars after adjusting the y-axis range
+                this.animateBars(data);
+            }
+
+            // Update optimal value to indicate original view is active
+            this.optimal = this.optimal === 'no' ? 'yes' : 'no';
+
+            //this.isOptimal = this.optimal === 'yes' ? true : false;
+        } catch (error) {
+            console.error('Error in optimalView:', error);
+        }
     }
 
     getQuartileData(data) {
@@ -517,19 +587,166 @@ export class BarPlot extends LitElement {
         Plotly.relayout(this.graphDiv, { annotations: layout.annotations });
     }
 
+    async downloadChart(format) {
+        try {
+            const layout = this.graphDiv.layout;
+            layout.images[0].opacity = 0.5;
+            Plotly.update(this.graphDiv, layout);
+
+            if (format === 'pdf') {
+                const pdf = new jsPDF();
+                pdf.setFontSize(12);
+                pdf.setFont(undefined, 'bold');
+                pdf.text(`Benchmarking Results of ${this.datasetId} at ${this.formatDateString(this.datasetModDate)}`, 105, 10, null, null, 'center');
+
+                // Get chart image as base64 data URI
+                const chartImageURI = await Plotly.toImage(this.graphDiv, { format: 'png', width: 750, height: 600 });
+
+                pdf.addImage(chartImageURI, 'PNG', 10, 20);
+
+                if (this.sortOrder === 'sorted' && Object.keys(this.quartileData).length > 1) {
+                    // Define your columns
+                    const columns = ["Participants", "Quartile"];
+
+                    // Extract data from quartileDataArray
+                    const rows = this.quartileDataArray.map(q => [q.tool, q.quartile.quartile]);
+
+                    // Generate autoTable with custom styles
+                    pdf.autoTable({
+                        head: [columns],
+                        body: rows,
+                        startY: 190,
+                        theme: 'grid',
+                        tableWidth: 'auto',
+                        styles: {
+                        cellPadding: 1,
+                        fontSize: 8,
+                        overflow: 'linebreak',
+                        halign: 'center'
+                        },
+                        headStyles: {
+                            fillColor: [108, 117, 125]
+                        },
+                        willDrawCell: function (data) {
+                            if (data.row.section === 'body') {
+                                // Check if the column header matches 'Quartile'
+                                if (data.column.dataKey === 1) {
+                                    // Access the raw value of the cell
+                                    const quartileValue = data.cell.raw;
+                                    if (quartileValue === 1) {
+                                        pdf.setFillColor(237, 248, 233)
+                                    } else if (quartileValue === 2) {
+                                        pdf.setFillColor(186, 228, 179)
+                                    } else if (quartileValue === 3) {
+                                        pdf.setFillColor(116, 196, 118)
+                                    } else if (quartileValue === 4) {
+                                        pdf.setFillColor(35, 139, 69)
+                                    }
+                                }
+                            }
+                        },
+                    });
+
+                    // Save the PDF
+                    pdf.save(`benchmarking_chart__quartiles_${this.datasetId}.${format}`);
+                } else {
+                    // Save the PDF
+                    pdf.save(`benchmarking_chart_${this.datasetId}.${format}`);
+                }
+            } else if (format === 'svg') {
+                Plotly.downloadImage(this.graphDiv, { format: 'svg', width: 800, height: 600, filename: `benchmarking_chart_${this.datasetId}` });
+            } else {
+                // Download chart with table
+                if (this.sortOrder === 'sorted' && Object.keys(this.quartileData).length > 1) {
+                    const toDownloadDiv = this.todoDownload;
+                    const downloadCanvas = await html2canvas(toDownloadDiv, {
+                        scrollX: 0,
+                        scrollY: 0,
+                        width: toDownloadDiv.offsetWidth,
+                        height: toDownloadDiv.offsetHeight,
+                    });
+
+                    const downloadImage = downloadCanvas.toDataURL(`image/${format}`);
+
+                    const link = document.createElement('a');
+                    link.href = downloadImage;
+                    link.download = `benchmarking_chart_${this.datasetId}.${format}`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    const toDownloadChart = this.chartCapture;
+                    const downloadChart = await html2canvas(toDownloadChart, {
+                        scrollX: 0,
+                        scrollY: 0,
+                        width: toDownloadChart.offsetWidth,
+                        height: toDownloadChart.offsetHeight,
+                    });
+                    const chartDownloadImage = downloadChart.toDataURL(`image/${format}`);
+                    const chartLink = document.createElement('a');
+                    chartLink.href = chartDownloadImage;
+                    chartLink.download = `benchmarking_chart_${this.datasetId}.${format}`;
+                    document.body.appendChild(chartLink);
+                    chartLink.click();
+                    document.body.removeChild(chartLink);
+                }
+            }
+        } catch (error) {
+            console.error('Error downloading chart:', error);
+        }
+    }
+
+    getSortText() {
+        if(this.sorted) {
+            return html` ${ this.sortTextRaw } `;
+        } else {
+            return html` ${ this.sortText } `;
+        }
+    }
+
+    getOptimalText() {
+        if(this.isOptimal) {
+            return html` ${ this.optimalTextReset } `;
+        } else {
+            return html` ${ this.optimalText } `;
+        }
+    }
+
     render() {
         return html`
             <div class="bar-plot oeb-graph">
-                <div class="row" id="graph-filters">
+                <div class="graph-row" id="graph-filters">
                     <div class="col-8">
                         <div class="btn-group btn-graphs" role="group" aria-label="Basic example">
-                            <button type="button" id="sortOrderBtn" class="btn btn-secondary" @click="${ this.toggleSortOrder }">Sort & Classify Data</button>
-                            <button type="button" id="optimalBtn" class="btn btn-secondary">Optimal View</button>
-                            <button type="button" id="resetBtn" class="btn btn-secondary">Reset View</button>
+                            <button type="button" id="sortOrderBtn" class="btn btn-secondary"
+                                @click="${ this.toggleSortOrder }">
+                                <span>${ this.getSortText() }</span>
+                            </button>
+                            <button type="button" id="optimalBtn" class="btn btn-secondary"
+                                @click="${ this.toggleOptimal }">
+                                <span>${ this.getOptimalText() }</span>
+                            </button>
+                            <div class="dropdown">
+                                <button type="button" class="btn dropbtn">Download</button>
+                                <div class="dropdown-content">
+                                    <div class=""
+                                        @click="${{handleEvent: () => this.downloadChart('svg'), once: false }}">
+                                        SVG (only plot)
+                                    </div>
+                                    <div class=""
+                                        @click="${{handleEvent: () => this.downloadChart('png'), once: false }}">
+                                        PNG
+                                    </div>
+                                    <div class=""
+                                        @click="${{handleEvent: () => this.downloadChart('pdf'), once: false }}">
+                                        PDF
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="row" id="todownload">
+                <div class="graph-row" id="todownload">
                     <div class=${ this.sorted ? 'col-8': 'col-12' } id="chartCapture">
                         <div class="chart" id="bar-chart"></div>
                         <div class="info-table">
