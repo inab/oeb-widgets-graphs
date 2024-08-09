@@ -5,7 +5,7 @@ import { WidgetElement } from '../widget-element.js';
 import { fetchDataInfo } from '../utils.js';
 
 export default class WidgetTest extends LitElement {
-    dataJSON = './OEBD00200002UK.json';
+    dataJSON = './OEBD01000000QR.json';
 
     static properties = {
         _data: { state: true }
@@ -76,6 +76,29 @@ export default class WidgetTest extends LitElement {
                 x_axis: visualization.x_axis,
                 y_axis: visualization.y_axis,
                 optimization: visualization.optimization
+            };
+        } else if(type === 'box-plot') {
+            // Process challenge_participants data for ScatterPlot
+            data.inline_data.challenge_participants.forEach(participant => {
+                const preparedParticipant = {
+                    name: participant.name,
+                    metric_id: participant.metric_id,
+                    q1: participant.q1,
+                    mean: participant.mean,
+                    median: participant.median,
+                    q3: participant.q3,
+                    lowerfence: participant.lowerfence,
+                    upperfence: participant.upperfence
+                };
+                dataObj.inline_data.challenge_participants.push(preparedParticipant);
+            });
+            // Process visualization data for ScatterPlot
+            const visualization = data.inline_data.visualization;
+            // const metrics_names = await this.getMetricsNames(visualization.x_axis, visualization.y_axis);
+            dataObj.inline_data.visualization = {
+                type: visualization.type,
+                y_axis: visualization.y_axis,
+                optimization: visualization.optimization?visualization.optimization:null
             };
         }
     

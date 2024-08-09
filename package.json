@@ -35,12 +35,16 @@
     "@lit/task": "^1.0.1",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.3",
+    "clusters": "^0.0.4",
+    "d3": "^7.9.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
     "lit": "^3.1.4",
+    "lodash": "^4.17.21",
     "pareto-frontier": "^1.1.1",
-    "plotly.js-dist": "^2.34.0"
+    "plotly.js-dist": "^2.34.0",
+    "simple-statistics": "^7.8.3"
   },
   "main": "./src/widget-element.js",
   "author": "Barcelona Supercomuting Center (BSC)",

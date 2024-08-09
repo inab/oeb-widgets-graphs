@@ -2,14 +2,20 @@ import { html, LitElement } from 'lit';
 import Plotly from 'plotly.js-dist'
 import { plotlyStyles } from "./plotly-styles.js";
 import { graphStyles } from './graph-styles.js';
-import { oebIcon } from './utils';
+import { oebIcon, isBSC } from './utils';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import html2canvas from 'html2canvas';
+import { Tooltip } from './ui-tooltip.js';
+
+const GRAPH_CONFIG = {
+    displayModeBar: false,
+    responsive: true,
+    hovermode: false
+};
+
 
 export class BarPlot extends LitElement {
-    imgLogo = oebIcon
-
     static get styles() {
         return [
             plotlyStyles,
@@ -28,6 +34,7 @@ export class BarPlot extends LitElement {
     constructor() {
         super();
 
+        this.imgLogo = oebIcon;
         this.datasetModDate = '';
         this.originalData = '';
         this.layout = {};
@@ -109,26 +116,7 @@ export class BarPlot extends LitElement {
                     tickfont: { size: 14 }
                 },
                 margin: { l: 50, r: 50, t: 100, b: 110, pad: 4 },
-                images: [
-                    {
-                        source: this.imgLogo,
-                        xref: "paper",
-                        yref: "paper",
-                        x: 0.95,
-                        y: 1.17,
-                        sizex: 0.1,
-                        sizey: 0.3,
-                        xanchor: "right",
-                        yanchor: "top",
-                        opacity: 0
-                    }
-                ]
-            };
-
-            const config = {
-                displayModeBar: false,
-                responsive: true,
-                hovermode: false
+                images: this.getImagePosition()
             };
 
             if(this.showAdditionalTable) {
@@ -137,7 +125,7 @@ export class BarPlot extends LitElement {
             }
 
             this.repaintGraphHover();
-            Plotly.newPlot(this.graphDiv, [initialTrace], this.layout, config);
+            Plotly.newPlot(this.graphDiv, [initialTrace], this.layout, GRAPH_CONFIG);
         }
     }
 
@@ -193,6 +181,21 @@ export class BarPlot extends LitElement {
             month: "long",
             day: "numeric",
         });
+    }
+
+    getImagePosition() {
+        return [{
+            source: this.imgLogo,
+            xref: "paper",
+            yref: "paper",
+            x: 0.98,
+            y: 1.17,
+            sizex: .05,
+            sizey: .15,
+            xanchor: "right",
+            yanchor: "top",
+            opacity: isBSC() ? 0 : .7
+        }]
     }
 
     // ----------------------------------------------------------------
@@ -509,10 +512,7 @@ export class BarPlot extends LitElement {
             const quartile = this.quartileData[tool].quartile;
             quartileCounts[quartile] = (quartileCounts[quartile] || 0) + 1;
         });
-
-        // Identify quartiles with only one tool
-        let uniqueQuartiles = Object.keys(quartileCounts).filter(quartile => quartileCounts[quartile] === 1);
-
+        
         // Set to keep track of added label positions
         const addedLabelPositions = new Set();
 
@@ -727,7 +727,10 @@ export class BarPlot extends LitElement {
                                 <span>${ this.getOptimalText() }</span>
                             </button>
                             <div class="dropdown">
-                                <button type="button" class="btn dropbtn">Download</button>
+                                <button type="button" class="btn dropbtn download-btn">
+                                    <span>Download</span>
+                                    <div class="btn-icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg></div>
+                                </button>
                                 <div class="dropdown-content">
                                     <div class=""
                                         @click="${{handleEvent: () => this.downloadChart('svg'), once: false }}">

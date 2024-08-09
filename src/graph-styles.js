@@ -1447,6 +1447,17 @@ export const graphStyles = css`
         padding: 0.375rem 0.75rem;
     }
 
+    .dropbtn.btn-xl {
+        min-width: 175px;
+    }
+
+    .dropbtn.btn-center {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
     .first-btn {
         border-top-left-radius: 0.375rem;
         border-bottom-left-radius: 0.375rem;
@@ -1454,16 +1465,41 @@ export const graphStyles = css`
         border-bottom-right-radius: 0;
     }
 
+    .dropbtn {
+        display: flex;
+        align-content: baseline;
+        justify-content: center;
+    }
+
+    .dropbtn.first-btn .btn-icon-wrapper,
+    .dropbtn.download-btn .btn-icon-wrapper {
+        padding: 1px 5px 0px 20px;
+    }
+
+    .dropbtn.first-btn svg,
+    .dropbtn.download-btn svg,
+    .dropbtn svg {
+        height: 12px;
+        width: 12px;
+    }
+
     .dropdown {
         position: relative;
         display: inline-block;
+    }
+
+    .download-btn {
+        min-width: 175px;
+        display: flex;
+        align-content: baseline;
+        justify-content: center;
     }
 
     .dropdown-content {
         display: none;
         position: absolute;
         background-color: #f1f1f1;
-        min-width: 160px;
+        min-width: 175px;
         box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
         z-index: 1;
         font-size: 12px;
@@ -1477,11 +1513,92 @@ export const graphStyles = css`
         cursor: pointer;
     }
 
+    .dropdown-content div.active {
+        font-weight: bold;
+    }
+    .dropdown-content div.disabled {
+        color: #ccc;
+        cursor: not-allowed;
+    }
+
     .dropdown-content div:hover { 
         background-color: #ddd;
     }
 
+    .classification-dropdown {
+        min-width: 175px;
+    }
+
+    .classification-dropdown .dropbtn {
+        width: 100%;
+    }
+
     .dropdown:hover .dropdown-content {
         display: block;
+    }
+
+    .dropdown .btn-icon-wrapper {
+        padding-left: 15px;
+    }
+
+    .dropdown .btn-icon-wrapper svg {
+        transition: transform .5s ease-in-out;
+    }
+
+    .dropdown:hover .btn-icon-wrapper svg {
+        transition: transform .5s ease-in-out;
+        transform: rotate(-90deg) translateY(0);
+    }
+
+    .toolColumn {
+        cursor: pointer;
+        position: relative;
+    }
+
+    .toolColumn .color-box {
+        width: 20px;
+        height: 100%;
+        display: inline-block;
+        position: absolute;
+        left: 0px;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .toolColumn span {
+        display: inline-block;
+        margin-left: 25px;
+        transition: transform 0.3s ease;
+    }
+
+    .toolColumn:hover span {
+        transform: translateX(5px);
+        font-style: italic;
+        color: #0A58A2;
+    }
+
+    .quartil-1 {
+        background-color: rgb(237, 248, 233);
+    }
+
+    .quartil-2 {
+        background-color: rgb(186, 228, 179);
+    }
+
+    .quartil-3 {
+        background-color: rgb(116, 196, 118);
+    }
+
+    .quartil-4 {
+        background-color: rgb(35, 139, 69);
+    }
+
+    .quartil-zero {
+        background-color: rgba(237, 231, 231, 0.5);
+    }
+
+    #sortOrderBtn {
+        min-width: 150px;
     }
 `;
