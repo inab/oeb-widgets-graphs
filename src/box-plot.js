@@ -31,7 +31,8 @@ export class BoxPlot extends LitElement {
         viewSelected: "Classification",
         tracesTable: [],
         orientation: 'v',
-        graphStyleSelected: 'empty'
+        graphStyleSelected: 'empty',
+        isDownloading: false,
     };
 
     constructor() {
@@ -65,7 +66,7 @@ export class BoxPlot extends LitElement {
         this.layout = {
             autosize: true,
             height: 600,
-            margin: { l: 60, r: 30, t: 0, b: 10, pad: 4 },
+            margin: { l: 50, r: 50, t: 100, b: 110, pad: 4 },
             legend: {
                 orientation: 'h',
                 x: 0,
@@ -80,6 +81,7 @@ export class BoxPlot extends LitElement {
             images: this.getImagePosition(this.optimalview),
             showlegend: true,
         };
+        this.isDownloading = false;
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
@@ -91,6 +93,7 @@ export class BoxPlot extends LitElement {
         this.graphDiv = this.shadowRoot.querySelector('#box-chart');
         this.todoDownload = this.shadowRoot.querySelector('#todownload');
         this.chartCapture = this.shadowRoot.querySelector('#chartCapture');
+        this.tableColumn = this.shadowRoot.querySelector('#table-column');
         this.benchmarkingTable = this.shadowRoot.querySelector('#benchmarkingTable');
         this.myPlot = Plotly.newPlot(this.graphDiv, [], {}, { displayModeBar: false, responsive: true, hovermode: false });
         this.renderChart();
@@ -101,7 +104,7 @@ export class BoxPlot extends LitElement {
         this.datasetId = this.data._id;
         this.datasetModDate = this.data.dates.modification;
         this.visualizationData = data.visualization;
-        this.originalData = this.data;
+        this.originalTraces = this.data;
         this.optimalview = data.visualization.optimization !== undefined ? data.visualization.optimization : null;
         this.challengeParticipants = data.challenge_participants;
         this.orientation = this.orientationMenu.v;
@@ -149,6 +152,9 @@ export class BoxPlot extends LitElement {
         if(this.sorted) {
             (this.sortedName == 'minimum') ? this.traces.sort((a, b) => a.median[0] > b.median[0]) : this.traces.sort((a, b) => a.median[0] < b.median[0]);
             this.viewSelected = this.viewText[this.sortedName];
+            this.showAdditionalTable = true;
+            this.tracesTable = this.traces;
+            this.isSorted = true;
         }
 
         if(this.orientation == 'Horizontal') {
@@ -185,28 +191,26 @@ export class BoxPlot extends LitElement {
                 title: '',
                 autosize: true,
                 height: 600,
-                legend: {"orientation": "h"},
+                legend: {
+                    "orientation": "h",
+                    x: 0,
+                    y: -0.2,
+                    xref: 'paper',
+                    yref: 'paper',
+                    font: {
+                        size: 16,
+                    },
+                    itemdoubleclick: "toggle",
+                },
                 showlegend: true,
                 margin: { l: 50, r: 50, t: 100, b: 110, pad: 4 },
-                images: [
-                    {
-                        source: this.imgLogo,
-                        xref: "paper",
-                        yref: "paper",
-                        x: 0.95,
-                        y: 1.17,
-                        sizex: 0.1,
-                        sizey: 0.3,
-                        xanchor: "right",
-                        yanchor: "top",
-                        opacity: 0
-                    }
-                ]
+                images: this.getImagePosition(this.optimalview)
             };
         } else {
             layout = this.layout;
             layout.images = this.getImagePosition(this.optimalview);
         }
+
 
         Plotly.newPlot(this.graphDiv, this.traces, layout, GRAPH_CONFIG).then((gd) => {
             // Animate traces from opacity 0 to 1
@@ -316,16 +320,16 @@ export class BoxPlot extends LitElement {
         } else if (sortType === 'maximus') {
             data.sort((a, b) => b.median[0] - a.median[0]);
         } else {
-            data = this.originalData;
+            data = this.originalTraces;
         }
-    
+
         // this.traces = data;
         this.tracesTable = data;
         this.sortedName = sortType;
         this.viewSelected = this.viewText[sortType];
 
         this.isSorted = (sortType != 'default') ? true : false;
-        this.showAdditionalTable = true;
+        this.showAdditionalTable = (sortType != 'default') ? true : false;
 
         this.repaintGraph(data);
     }
@@ -425,6 +429,211 @@ export class BoxPlot extends LitElement {
         }]
     }
 
+    async downloadChart(format) {
+        try {
+            const layout = this.graphDiv.layout;
+            layout.images[0].opacity = 0.5;
+            Plotly.relayout(this.graphDiv, layout);
+
+            if (format === 'pdf') {
+                const pdf = new jsPDF();
+
+                pdf.setFontSize(12);
+                pdf.setFont(undefined, 'bold');
+                pdf.text(`Benchmarking Results of ${this.datasetId} at ${this.formatDateString(this.datasetModDate)}`, 105, 10, null, null, 'center');
+
+                if (this.sorted) {
+                    this.isDownloading = true;
+
+                    // Agregar un pequeño retraso para asegurarse de que los cambios se hayan renderizado
+                    await new Promise(resolve => setTimeout(resolve, 200));
+
+                    let toDownloadDiv = this.todoDownload;
+                    toDownloadDiv.style.width = '100%';
+                    toDownloadDiv.style.display = 'block';
+                    let chartCapture = this.chartCapture;
+                    chartCapture.classList.add('col-12');
+                    chartCapture.classList.remove('col-8');
+                    this.graphDiv.style.display = 'flex';
+                    this.graphDiv.style.justifyContent = 'center';
+                    let tableColumn = this.tableColumn;
+                    tableColumn.classList.add('col-12');
+                    tableColumn.classList.remove('col-4');
+                    tableColumn.style.width = '100%';
+                    tableColumn.style.display = 'flex';
+                    tableColumn.style.justifyContent = 'center';
+
+                    const table = this.benchmarkingTable;
+                    table.style.width = 'auto';
+                    table.style.minWidth = '500px';
+
+                    // Create empty row temporarily
+                    const tableBody = table.querySelector('tbody');
+                    const blankRow = document.createElement('tr');
+                    const numCols = tableBody.rows[0].cells.length;
+                    for (let i = 0; i < numCols; i++) {
+                        const newCell = document.createElement('td');
+                        newCell.innerHTML = '&nbsp;';
+                        newCell.style.border = 'none';
+                        blankRow.appendChild(newCell);
+                    }
+
+                    tableBody.appendChild(blankRow);
+                    const downloadCanvas = await html2canvas(toDownloadDiv, {
+                        scrollX: 0,
+                        scrollY: 0,
+                        width: toDownloadDiv.offsetWidth,
+                        height: toDownloadDiv.offsetHeight,
+                    });
+
+                    // Delete white space line
+                    tableBody.removeChild(blankRow);
+
+                    const downloadImage = downloadCanvas.toDataURL(`image/${format}`);
+
+                    // Get the width and height of the image in pixels
+                    const imgWidth = downloadCanvas.width;
+                    const imgHeight = downloadCanvas.height;
+
+                    // Get the size of the PDF page in mm
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+
+
+                    // Calculate the scaling factor to fit the image within the page
+                    const scaleX = pageWidth / imgWidth;
+                    const scaleY = pageHeight / imgHeight;
+                    let scale = Math.min(scaleX, scaleY);
+
+                    // Calculate the new width and height of the image in mm
+                    const scaledWidth = imgWidth * scale;
+                    const scaledHeight = imgHeight * scale;
+
+                    // Center the image on the page
+                    const xOffset = ((pageWidth - scaledWidth) / 2)>0 ? (pageWidth - scaledWidth) / 2 : 10; // Adjust this value to position the image horizontally as needed
+            
+                    // Adjust this value to position the image vertically as needed
+                    const yOffset = 20;
+
+                    pdf.addImage(downloadImage, 'PNG', xOffset, yOffset, scaledWidth - 20 , scaledHeight);
+
+                    toDownloadDiv.style.display = 'flex';
+                    chartCapture.classList.remove('col-12');
+                    chartCapture.classList.add('col-8');
+                    chartCapture.style.width =  null;
+                    this.graphDiv.style.display = 'flex';
+                    this.graphDiv.style.justifyContent = 'center';
+                    tableColumn.style.width = null;
+                    tableColumn.style.display = 'block';
+                    tableColumn.classList.remove('col-12');
+                    tableColumn.classList.add('col-4');
+                    tableColumn.style.width = null;
+                    tableColumn.style.display = 'block';
+                    table.style.width = '100%';
+                    table.style.minWidth = '100%';
+
+                    this.isDownloading = false;
+
+                    // Save the PDF
+                    pdf.save(`benchmarking_chart__performance_${this.datasetId}.${format}`);
+                } else {
+                    // Get chart image as base64 data URI
+                    const chartImageURI = await Plotly.toImage(this.graphDiv, { format: 'png', width: 750, height: 600 });
+
+                    // Adding image to pdf
+                    pdf.addImage(chartImageURI, 'PNG', 10, 20);
+
+                    // Save the PDF
+                    pdf.save(`benchmarking_chart_${this.datasetId}.${format}`);
+                }
+            } else if (format === 'svg') {
+                Plotly.downloadImage(this.graphDiv, { format: 'svg', filename: `benchmarking_chart_${this.datasetId}.${format}` });
+            } else if (format === 'png') {
+                if(this.sorted) {
+                    this.isDownloading = true;
+
+                    // Agregar un pequeño retraso para asegurarse de que los cambios se hayan renderizado
+                    await new Promise(resolve => setTimeout(resolve, 200));
+
+                    const toDownloadDiv = this.todoDownload;
+                    toDownloadDiv.style.width = '100%';
+                    toDownloadDiv.style.display = 'block';
+                    let chartCapture = this.chartCapture;
+                    chartCapture.classList.add('col-12');
+                    chartCapture.classList.remove('col-8');
+                    let tableColumn = this.tableColumn;
+                    tableColumn.classList.add('col-12');
+                    tableColumn.classList.remove('col-4');
+                    tableColumn.style.width = '100%';
+                    tableColumn.style.display = 'flex';
+                    tableColumn.style.justifyContent = 'center';
+
+                    const table = this.benchmarkingTable;
+                    table.style.width = 'auto';
+                    table.style.minWidth = '400px';
+
+                    // Create empty row temporarily
+                    const tableBody = table.querySelector('tbody');
+                    const blankRow = document.createElement('tr');
+                    const numCols = tableBody.rows[0].cells.length;
+                    for (let i = 0; i < numCols; i++) {
+                        const newCell = document.createElement('td');
+                        newCell.innerHTML = '&nbsp;';
+                        newCell.style.border = 'none';
+                        blankRow.appendChild(newCell);
+                    }
+                    tableBody.appendChild(blankRow);
+
+                    const downloadCanvas = await html2canvas(toDownloadDiv, {
+                        scrollX: 0,
+                        scrollY: 0,
+                        width: toDownloadDiv.offsetWidth,
+                        height: toDownloadDiv.offsetHeight
+                    });
+
+                    // Eliminar la fila en blanco después de la captura
+                    tableBody.removeChild(blankRow);
+
+                    const downloadImage = downloadCanvas.toDataURL(`image/${format}`);
+
+                    const link = document.createElement('a');
+                    link.href = downloadImage;
+                    link.download = `benchmarking_chart_${this.datasetId}.${format}`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    toDownloadDiv.style.display = 'flex';
+                    chartCapture.classList.remove('col-12');
+                    chartCapture.classList.add('col-8');
+                    tableColumn.classList.remove('col-12');
+                    tableColumn.classList.add('col-4');
+                    tableColumn.style.width = null;
+                    tableColumn.style.display = 'block';
+                    table.style.width = '100%';
+                    table.style.minWidth = '100%';
+
+                    this.isDownloading = false;
+
+                } else {
+                    const options = { format, height: 700, width: 800 };
+                    Plotly.toImage(this.$refs.chart, options)
+                    .then((url) => {
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `benchmarking_chart_${this.datasetId}.${format}`;
+                        link.click();
+                    })
+                    .catch((error) => {
+                        console.error(`Error downloading graphic as ${format}`, error);
+                    });
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     render() {
         return html`
             <div class="bar-plot oeb-graph">
@@ -511,10 +720,6 @@ export class BoxPlot extends LitElement {
                                         @click="${{handleEvent: () => this.downloadChart('pdf'), once: false }}">
                                         PDF
                                     </div>
-                                    <div class=""
-                                        @click="${{handleEvent: () => this.downloadChart('json'), once: false }}">
-                                        JSON (raw data)
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -537,7 +742,7 @@ export class BoxPlot extends LitElement {
                         </div>
                     </div>
                     ${ this.showAdditionalTable ? html`
-                        <div class="col-4">
+                        <div class="col-4" id="table-column">
                             <div class="tools-col">
                                 <table class="tools-table" id="benchmarkingTable">
                                     <thead>
@@ -574,6 +779,12 @@ export class BoxPlot extends LitElement {
                         </div>
                     ` : '' }
                 </div>
+                ${ this.isDownloading ? html`
+                    <div class="download-wrapper">
+                        <div class="download-spinner"></div>
+                        Downloading...
+                    </div>
+                ` : '' }
             </div>
         `;
     }

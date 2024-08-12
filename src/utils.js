@@ -1,6 +1,6 @@
 export const fetchDataInfo = async (jsonData, signal) => {
     // Artificial delay for loading state
-    await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 3000));
     const response = await fetch(jsonData, {
       signal,
     });

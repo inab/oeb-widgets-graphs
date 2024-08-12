@@ -284,7 +284,6 @@ export const graphStyles = css`
     .graph-row {
         display: flex;
         flex: 1 1 auto;
-        margin: -12px;
     }
 
     .graph-row > * {
@@ -1354,6 +1353,7 @@ export const graphStyles = css`
     .oeb-graph {
         font-family: "Roboto", sans-serif;
         padding: 10px;
+        position: relative;
     }
 
     .tools-col {
@@ -1600,5 +1600,17 @@ export const graphStyles = css`
 
     #sortOrderBtn {
         min-width: 150px;
+    }
+
+    .download-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(35, 49, 66, .95);
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
     }
 `;
