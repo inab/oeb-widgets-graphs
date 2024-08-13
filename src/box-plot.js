@@ -741,7 +741,7 @@ export class BoxPlot extends LitElement {
                             </table>
                         </div>
                     </div>
-                    ${ this.showAdditionalTable ? html`
+                    ${ this.showAdditionalTable && this.sorted  ? html`
                         <div class="col-4" id="table-column">
                             <div class="tools-col">
                                 <table class="tools-table" id="benchmarkingTable">
