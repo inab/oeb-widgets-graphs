@@ -79,7 +79,7 @@ You can see an example of a structure to display bar graphs within the "demo" se
 Box plot shiw the results of a benchmarking challenge that uses a graphical representation of the distribution of a dataset on a seven-number summary of datapoints. The challenge metrics is represented in Y axis by default.
 #### Box plot classification
 The result of the plot can be ordened by maximum or minimum median value.
-![This is an alt text.](https://github.com/inab/oeb-widgets/blob/main/static/widgetsPicture/Barplot.png)
+![This is an alt text.](https://github.com/inab/oeb-widgets/blob/main/static/widgetsPicture/Boxplot.png)
 #### Box plot structure
 You can see an example of a structure to display bar graphs within the "demo" section of the application. [Box plot example](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BOXPLOT.json) 
 
