@@ -1,0 +1,12 @@
+lsi: false
+safe: true
+site_name: OEB Widgets Graphs
+repo_name: inab/oeb-widgets-graphs
+repo_url: https://github.com/inab/oeb-widgets-graphs
+incremental: false
+highlighter: rouge
+gist:
+  noscript: false
+kramdown:
+  math_engine: mathjax
+  syntax_highlighter: rouge
