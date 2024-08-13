@@ -28,7 +28,8 @@ export class BarPlot extends LitElement {
         datasetId: '',
         sorted: false,
         showAdditionalTable: false,
-        isOptimal: false
+        isOptimal: false,
+        isDownloading: false,
     };
 
     constructor() {
@@ -46,6 +47,7 @@ export class BarPlot extends LitElement {
         this.sortTextRaw = 'Return To Raw Results';
         this.optimalText = 'Optimal View';
         this.optimalTextReset = 'Original View';
+        this.isDownloading = false;
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
@@ -595,6 +597,9 @@ export class BarPlot extends LitElement {
 
             if (format === 'pdf') {
                 const pdf = new jsPDF();
+
+                this.isDownloading = true;
+
                 pdf.setFontSize(12);
                 pdf.setFont(undefined, 'bold');
                 pdf.text(`Benchmarking Results of ${this.datasetId} at ${this.formatDateString(this.datasetModDate)}`, 105, 10, null, null, 'center');
@@ -653,9 +658,11 @@ export class BarPlot extends LitElement {
                     // Save the PDF
                     pdf.save(`benchmarking_chart_${this.datasetId}.${format}`);
                 }
+                this.isDownloading = false;
             } else if (format === 'svg') {
                 Plotly.downloadImage(this.graphDiv, { format: 'svg', width: 800, height: 600, filename: `benchmarking_chart_${this.datasetId}` });
             } else {
+                this.isDownloading = true;
                 // Download chart with table
                 if (this.sortOrder === 'sorted' && Object.keys(this.quartileData).length > 1) {
                     const toDownloadDiv = this.todoDownload;
@@ -667,8 +674,8 @@ export class BarPlot extends LitElement {
                     });
 
                     const downloadImage = downloadCanvas.toDataURL(`image/${format}`);
-
                     const link = document.createElement('a');
+
                     link.href = downloadImage;
                     link.download = `benchmarking_chart_${this.datasetId}.${format}`;
                     document.body.appendChild(link);
@@ -684,12 +691,14 @@ export class BarPlot extends LitElement {
                     });
                     const chartDownloadImage = downloadChart.toDataURL(`image/${format}`);
                     const chartLink = document.createElement('a');
+
                     chartLink.href = chartDownloadImage;
                     chartLink.download = `benchmarking_chart_${this.datasetId}.${format}`;
                     document.body.appendChild(chartLink);
                     chartLink.click();
                     document.body.removeChild(chartLink);
                 }
+                this.isDownloading = false;
             }
         } catch (error) {
             console.error('Error downloading chart:', error);
@@ -799,6 +808,12 @@ export class BarPlot extends LitElement {
                     </div>
                     ` : '' }
                 </div>
+                ${ this.isDownloading ? html`
+                    <div class="download-wrapper">
+                        <div class="download-spinner"></div>
+                        Downloading...
+                    </div>
+                ` : '' }
             </div>
         `;
     }

@@ -6,7 +6,7 @@ import { OebLoader } from '../oeb-loader.js';
 import { fetchDataInfo } from '../utils.js';
 
 export default class WidgetTest extends LitElement {
-    dataJSON = './SCATTERPLOT.json';
+    dataJSON = './files/RADARPLOT.json';
 
     static properties = {
         _data: { state: true }

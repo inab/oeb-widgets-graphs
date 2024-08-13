@@ -31,7 +31,8 @@ export class ScatterPlot extends LitElement {
         sorted: false,
         showAdditionalTable: false,
         isOptimal: true,
-        viewSelected: "Classification"
+        viewSelected: "Classification",
+        isDownloading: false,
     };
 
     constructor() {
@@ -82,6 +83,7 @@ export class ScatterPlot extends LitElement {
             showlegend: true,
         };
         this.dataInline = {};
+        this.isDownloading = false;
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
@@ -94,6 +96,7 @@ export class ScatterPlot extends LitElement {
         this.todoDownload = this.shadowRoot.querySelector('#todownload');
         this.chartCapture = this.shadowRoot.querySelector('#chartCapture');
         this.benchmarkingTable = this.shadowRoot.querySelector('#benchmarkingTable');
+        this.toolsCol = this.shadowRoot.querySelector('#toolsCol');
         this.myPlot = Plotly.newPlot(this.graphDiv, [], {}, { displayModeBar: false, responsive: true, hovermode: false });
         this.renderChart();
     }
@@ -1253,10 +1256,32 @@ export class ScatterPlot extends LitElement {
                     y: [newParetoPoints.map((point) => point[1])]
                 };
 
-                // Modificar despues
+                // Then modify
                 const layout = {
                     shapes: false ? shapes : [],
                     annotations: this.getOptimizationArrow(this.optimalview),
+                    xaxis: {
+                        title: {
+                            text: this.visualizationData.x_axis,
+                            font: {
+                                family: 'Arial, sans-serif',
+                                size: 18,
+                                color: 'black',
+                                weight: 'bold',
+                            },
+                        },
+                    },
+                    yaxis: {
+                        title: {
+                            text: this.visualizationData.y_axis,
+                            font: {
+                                family: 'Arial, sans-serif',
+                                size: 18,
+                                color: 'black',
+                                weight: 'bold',
+                            },
+                        },
+                    },
                     margin: { l: 60, r: 30, t: 0, b: 10, pad: 4 },
                     legend: {
                         orientation: 'h',
@@ -1287,7 +1312,7 @@ export class ScatterPlot extends LitElement {
     async downloadChart(format) {
         try {
             const layout = this.graphDiv.layout;
-            layout.images[0].opacity = 0.5;
+            //layout.images[0].opacity = 0.5;
             Plotly.update(this.graphDiv, layout);
 
             if(format === 'png') {
@@ -1296,6 +1321,9 @@ export class ScatterPlot extends LitElement {
 
                     const toDownloadDiv = this.todoDownload;
                     const table = this.benchmarkingTable;
+
+                    const toolsCol = this.toolsCol;
+                    toolsCol.classList.remove('responsive-table');
 
                     // Crear una fila en blanco temporalmente para evitar el movimiento de la ultima celda.
                     const tableBody = table.querySelector('tbody');
@@ -1314,8 +1342,7 @@ export class ScatterPlot extends LitElement {
                         scrollY: 0,
                         width: toDownloadDiv.offsetWidth,
                         height: toDownloadDiv.offsetHeight,
-                        scale: 2,
-                        useCORS: true, 
+                        //scale: 2
                     });
 
                     // Eliminar la fila en blanco después de la captura
@@ -1327,6 +1354,8 @@ export class ScatterPlot extends LitElement {
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
+
+                    toolsCol.classList.add('responsive-table');
                 } else {
                     const toDownloadDiv = this.chartCapture;
                     const downloadCanvas = await html2canvas(toDownloadDiv, {
@@ -1346,6 +1375,8 @@ export class ScatterPlot extends LitElement {
                     document.body.removeChild(link);
                 }
             } else if(format === 'pdf') {
+                this.isDownloading = true;
+
                 const pdf = new jsPDF();
                 pdf.setFontSize(12);
                 pdf.setFont(undefined, 'bold');
@@ -1358,9 +1389,12 @@ export class ScatterPlot extends LitElement {
                 if (this.viewSquare || this.viewKmeans || this.viewDiagonal) {
                     const columns = ["Participants", this.viewKmeans ? "Clusters" : "Quartile"];
 
+                    const toolsCol = this.toolsCol;
+                    toolsCol.classList.remove('responsive-table');
+
                     // Extract data from quartileDataArray
-                    const rows = this.tableData.map(q => [q.tool_id, q.label,]);
-                    const quantileNumber = this.tableData.map(q => q.cuartil);
+                    const rows = this.quartileDataArray.map(q => [q.tool_id, q.label]);
+                    const quantileNumber = this.quartileDataArray.map(q => q.cuartil);
                     const markerColors = ['#D62728', '#FF7F0E', '#8C564B', '#E377C2', '#4981B6', '#BCBD22', '#9467BD', '#0C9E7B', '#7F7F7F', '#31B8BD', '#FB8072', '#62D353']
 
                     // Generate autoTable with custom styles
@@ -1410,11 +1444,14 @@ export class ScatterPlot extends LitElement {
                             }
                         },
                     });
+                    toolsCol.classList.add('responsive-table');
                 }
 
                 // Save the PDF
                 pdf.save(`benchmarking_chart_${this.datasetId}.${format}`);
+                this.isDownloading = false;
             } else if(format === 'svg') {
+                this.isDownloading = true;
                 const options = { format, height: 700, width: 800 };
                 Plotly.toImage(this.graphDiv, options).then((url) => {
                     const link = document.createElement('a');
@@ -1423,15 +1460,19 @@ export class ScatterPlot extends LitElement {
                     link.click();
                 })
                 .catch((error) => {
+                    this.isDownloading = false;
                     console.error(`Error downloading graphic as ${format}`, error);
                 });
+                this.isDownloading = false;
             } else if(format === 'json') {
+                this.isDownloading = true;
                 const chartData = this.originalData // Obtener datos del gráfico
                 const jsonData = JSON.stringify(chartData);
                 const link = document.createElement('a');
                 link.href = `data:text/json;charset=utf-8,${encodeURIComponent(jsonData)}`;
                 link.download = `${this.datasetId}.json`;
                 link.click();
+                this.isDownloading = false;
             }
 
         } catch (error) {
@@ -2088,8 +2129,8 @@ export class ScatterPlot extends LitElement {
                     </div>
                     ${ this.showAdditionalTable && this.sorted ? html`
                         <div class="col-4">
-                            <div class="tools-col">
-                                <table class="tools-table" id="benchmarkingTable">
+                            <div class="tools-col responsive-table" id="toolsCol">
+                                <table class="tools-table responsive-table" id="benchmarkingTable">
                                     <thead>
                                         <tr>
                                             <th class="tools-th">Participants</th>

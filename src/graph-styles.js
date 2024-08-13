@@ -1613,4 +1613,16 @@ export const graphStyles = css`
         height: 100%;
         z-index: 5;
     }
+
+    .tools-col.responsive-table {
+        overflow: auto;
+        height: 400px;
+        width: 100%;
+    }
+
+    .tools-col.responsive-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
 `;

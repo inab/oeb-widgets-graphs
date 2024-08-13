@@ -499,7 +499,6 @@ export class BoxPlot extends LitElement {
                     const pageWidth = pdf.internal.pageSize.getWidth();
                     const pageHeight = pdf.internal.pageSize.getHeight();
 
-
                     // Calculate the scaling factor to fit the image within the page
                     const scaleX = pageWidth / imgWidth;
                     const scaleY = pageHeight / imgHeight;

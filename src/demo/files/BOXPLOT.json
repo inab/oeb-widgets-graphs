@@ -1,12 +1,12 @@
 {
-    "_id": "OEBD00700001LZ",
+    "_id": "OEBDTEST0000002",
     "dates": {
         "modification": "2023-05-27T19:18:32Z"
     },
     "inline_data": {
         "challenge_participants": [
             {
-                "name":	"rnaSPAdes",
+                "name":	"Tool_1",
                 "metric_id":	"length of transcripts",
                 "q1":	2.428134794028789,
                 "mean":	2.6573958631434174,
@@ -16,7 +16,7 @@
                 "upperfence":	3.408301457670917
             },
             {
-                "name":	"rnaSPAdes 2",
+                "name":	"Tool_2",
                 "metric_id":	"length of transcripts",
                 "q1":	4.028134794028789,
                 "mean":	4.6573958631434174,
