@@ -79,11 +79,11 @@ You can see an example of a structure to display bar graphs within the "demo" se
 Box plot shiw the results of a benchmarking challenge that uses a graphical representation of the distribution of a dataset on a seven-number summary of datapoints. The challenge metrics is represented in Y axis by default.
 #### Box plot classification
 The result of the plot can be ordened by maximum or minimum median value.
-![This is an alt text.](https://github.com/inab/oeb-widgets/blob/main/static/widgetsPicture/Boxplot.png)
+![This is an alt text.](https://github.com/inab/oeb-widgets-graphs/blob/1a3a58290a75f0fc773ab4341601e5ca1659b7f5/src/demo/images/boxplot_img.png)
 #### Box plot structure
 You can see an example of a structure to display bar graphs within the "demo" section of the application. [Box plot example](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BOXPLOT.json) 
 
 ### Radar plot
 A radar chart is an informative visual tool in which multiple variables (three or more) are compared on a two-dimensional plane. To do this, we will create different axes that come from a common central point. In most cases, all axes are evenly distributed and drawn evenly relative to each other.
 #### Radar plot structure
-You can see an example of a structure to display bar graphs within the "demo" section of the application. [Scatter plot example](https://github.com/inab/oeb-widgets-graphs/blob/894da45de531ba9d56d0db27e9ee3cc70a1972ab/src/demo/images/radarplot_img.png) 
+You can see an example of a structure to display bar graphs within the "demo" section of the application. [Radar plot example](https://github.com/inab/oeb-widgets-graphs/blob/1a3a58290a75f0fc773ab4341601e5ca1659b7f5/src/demo/images/radarplot_img.png) 
