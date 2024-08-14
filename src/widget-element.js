@@ -16,11 +16,13 @@ export class WidgetElement extends LitElement {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
+    console.log(name, oldVal, newVal);
     super.attributeChangedCallback(name, oldVal, newVal);
   }
 
   renderComponent() {
     console.log(this.type);
+    console.log(this.data);
     if(this.type == 'bar-plot') {
       return html`<bar-plot data = ${ this.data }></bar-plot>`
     } else if(this.type == '2D-plot') {
