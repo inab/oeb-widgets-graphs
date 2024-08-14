@@ -1,0 +1,42 @@
+{
+  "_widget-element-CE5FCFBi.cjs": {
+    "file": "widget-element-CE5FCFBi.cjs",
+    "name": "widget-element",
+    "dynamicImports": [
+      "node_modules/dompurify/dist/purify.es.js",
+      "node_modules/canvg/lib/index.es.js"
+    ]
+  },
+  "_widget-element-gK5o17Et.js": {
+    "file": "widget-element-gK5o17Et.js",
+    "name": "widget-element",
+    "dynamicImports": [
+      "node_modules/dompurify/dist/purify.es.js",
+      "node_modules/canvg/lib/index.es.js"
+    ]
+  },
+  "node_modules/canvg/lib/index.es.js": {
+    "file": "index.es-jdYMOGhd.cjs",
+    "name": "index.es",
+    "src": "node_modules/canvg/lib/index.es.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_widget-element-CE5FCFBi.cjs"
+    ]
+  },
+  "node_modules/dompurify/dist/purify.es.js": {
+    "file": "purify.es-BJHiDXdY.cjs",
+    "name": "purify.es",
+    "src": "node_modules/dompurify/dist/purify.es.js",
+    "isDynamicEntry": true
+  },
+  "src/widget-element.js": {
+    "file": "oeb-widgets-graphs.cjs.js",
+    "name": "widget-element",
+    "src": "src/widget-element.js",
+    "isEntry": true,
+    "imports": [
+      "_widget-element-CE5FCFBi.cjs"
+    ]
+  }
+}
