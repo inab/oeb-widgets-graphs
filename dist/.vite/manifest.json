@@ -1,14 +1,14 @@
 {
-  "_widget-element-CE5FCFBi.cjs": {
-    "file": "widget-element-CE5FCFBi.cjs",
+  "_widget-element-5nWzLzPP.cjs": {
+    "file": "widget-element-5nWzLzPP.cjs",
     "name": "widget-element",
     "dynamicImports": [
       "node_modules/dompurify/dist/purify.es.js",
       "node_modules/canvg/lib/index.es.js"
     ]
   },
-  "_widget-element-gK5o17Et.js": {
-    "file": "widget-element-gK5o17Et.js",
+  "_widget-element-CiTsZqSi.js": {
+    "file": "widget-element-CiTsZqSi.js",
     "name": "widget-element",
     "dynamicImports": [
       "node_modules/dompurify/dist/purify.es.js",
@@ -16,12 +16,12 @@
     ]
   },
   "node_modules/canvg/lib/index.es.js": {
-    "file": "index.es-jdYMOGhd.cjs",
+    "file": "index.es-luByL1Z1.cjs",
     "name": "index.es",
     "src": "node_modules/canvg/lib/index.es.js",
     "isDynamicEntry": true,
     "imports": [
-      "_widget-element-CE5FCFBi.cjs"
+      "_widget-element-5nWzLzPP.cjs"
     ]
   },
   "node_modules/dompurify/dist/purify.es.js": {
@@ -36,7 +36,7 @@
     "src": "src/widget-element.js",
     "isEntry": true,
     "imports": [
-      "_widget-element-CE5FCFBi.cjs"
+      "_widget-element-5nWzLzPP.cjs"
     ]
   }
 }
