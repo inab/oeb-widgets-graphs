@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'url'
 import { defineConfig } from 'vite'
-import path from 'path'
+import { resolve } from 'path';
 
 export default defineConfig({
     resolve: {
@@ -12,17 +12,20 @@ export default defineConfig({
         "bootstrap/dist/css/bootstrap.min.css",
     ],
     build: {
-        manifest: true,
-        minify: true,
-        reportCompressedSize: true,
         lib: {
-            entry: path.resolve(__dirname, "./src/widget-element.js"),
-            name: "oeb-widgets-graphs",
-            fileName: (format) => `oeb-widgets-graphs.${format}.js`,
-            formats: ["es", "cjs"],
+            entry: resolve(__dirname, 'src/widget-element.js'), // Corrige el uso de resolve
+            name: 'OebWidgetGraph',
+            fileName: 'oe-widget-graph',
+            formats: ['es', 'umd'],
         },
         rollupOptions: {
-            external: []
+            // Asegúrate de externalizar dependencias que no quieres incluir en tu bundle
+            external: [],
+            output: {
+                globals: {
+                    lit: 'lit',
+                },
+            },
         },
     },
     server: {

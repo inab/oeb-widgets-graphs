@@ -49,5 +49,22 @@
   "main": "./src/widget-element.js",
   "author": "Barcelona Supercomuting Center (BSC)",
   "license": "Apache-2.0",
-  "description": "Collection of OEB widgets for graphs components"
+  "description": "Collection of OEB widgets for graphs components",
+  "keywords": [
+    "lit",
+    "OEB",
+    "widgets",
+    "visualization",
+    "chart",
+    "graphs",
+    "scatter",
+    "barplot",
+    "boxplot",
+    "radarplot",
+    "benchmarking",
+    "openEBench",
+    "visualizer",
+    "elixir-europe",
+    "elixir-spain"
+  ]
 }
