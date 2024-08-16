@@ -17,60 +17,7 @@
 <meta property="twitter:title" content="OEB-Widgets-Graphs A graph collection made by OEB services" />
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","description":"Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.","headline":"OEB-Widgets-Graphs A graph collection made by OEB services","name":"OEB-Widgets-Graphs A graph collection made by OEB services","url":"http://localhost:4000/"}</script>
-<!-- <script type="module" src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@docs/dist/widget-element-gK5o17Et.js"></script> -->
-<script>
-  const graphType="bar-plot";
-  console.log(graphType)
-</script>
-<script type="module" src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@demo/dist/widget-element-CiTsZqSi.js"></script>
 
-<script>
-  console.log('Hello from OEB-Widgets-Graphs');
-  let graphData = {
-    "_id": "OEBDTEST0000001",
-    "inline_data": {
-      "challenge_participants": [
-          {
-              "tool_id": "Tool_1",
-              "metric_value": 8.80130949383027,
-              "stderr": 0
-          },
-          {
-              "tool_id": "Tool_2",
-              "metric_value": 12.93754721732561,
-              "stderr": 0
-          },
-          {
-              "tool_id": "Tool_3",
-              "metric_value": 8.876857214807353,
-              "stderr": 0
-          },
-          {
-              "tool_id": "Tool_4",
-              "metric_value": 0.24553009317552255,
-              "stderr": 0
-          },
-          {
-              "tool_id": "Tool_5",
-              "metric_value": 10.104507680684966,
-              "stderr": 0
-          },
-          {
-              "tool_id": "Tool_6",
-              "metric_value": 13.31528582221103,
-              "stderr": 0
-          }
-      ],
-      "visualization": {
-        "metric": "percentage_genes_w_correct_nPAS",
-        "type": "bar-plot"
-      },
-    }
-  }
-  graphData = JSON.stringify(graphData);
-
-  console.log(graphData);
-</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="{{ site.baseurl }}/assets/main.css">
 <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="OEB-Widgets-Graphs | A graph collection made by OEB services" /></head>
@@ -80,7 +27,7 @@
       
       <nav class="site-nav">
         <div class="site-title">
-          <a class="site-title-link" rel="author" href="/">
+          <a class="site-title-link" rel="author" href="{{ site.baseurl }}/">
             <img src="{{ site.baseurl }}/assets/image/opeb_logo.gif" alt="OEB Logo" style="width: 100px; height: 70px;" />
           </a>
           <span class="site-title-text">
@@ -138,21 +85,39 @@
               <pre><code>&lt;script src="node_modules/oeb-widgets-graphs/dist/oeb-widgets-graphs.js"&gt;&lt;/script&gt;</code></pre>
               Then you can use the graphs in your application.
               <pre>&lt;widget-element 
-  :data=graphData
-  :type=graphType&gt;
+  id="widget-element"
+  data=graphData
+  type=graphType&gt;
 &lt;/widget-element&gt;</pre>
             </p>
+            <pre>
+&lt;script&gt;
+  const graphType=JSON.stringify("bar-plot");
+  const myComp = document.getElementById('widget-element');
+  // Change the type and data of the graph
+  let type = JSON.parse(graphType);
+  myComp.type = type;
+  myComp.data = graphData;
+&lt;/script&gt;
+            </pre>
           </div>
       </div>
   </div>
-  <div class="">
-    Example
-   
-    <widget-element 
-      :data=graphData
-      :type=graphType>
-    </widget-element>
+  <div class="widgets-examples">
+    <div>
+      <a href="{% link _examples/barplot.md %}">Bar plot graph</a>
+    </div>
+    <div>
+      <a href="{% link _examples/scatterplot.md %}">Scatter plot graph</a>
+    </div>
+    <div>
+      <a href="{% link _examples/boxplot.md %}">Box plot graph</a>
+    </div>
+    <div>
+      <a href="{% link _examples/radarplot.md %}">Radar plot graph</a>
+    </div>
   </div>
+  
 </main>
 <footer class="site-footer h-card">
   <data class="u-url" href="/"></data>

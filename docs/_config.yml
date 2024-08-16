@@ -33,6 +33,10 @@ github_username:  JessicaFM
 theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-prismjs-compile
+
+include:
+  - _examples
 
 # Exclude from processing.
 # The following items will not be processed, by default.

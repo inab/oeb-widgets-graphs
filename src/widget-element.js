@@ -10,19 +10,21 @@ export class WidgetElement extends LitElement {
     data: {},
     type: ''
   };
-
+    
   constructor() {
     super()
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
-    console.log(name, oldVal, newVal);
+    console.log("name: " , name)
+    console.log("oldVal: " ,oldVal);
+      console.log("newVal: ",  newVal);
     super.attributeChangedCallback(name, oldVal, newVal);
   }
 
   renderComponent() {
-    console.log(this.type);
-    console.log(this.data);
+    console.log("this.type:",this.type);
+    console.log("this.data:" , this.data);
     if(this.type == 'bar-plot') {
       return html`<bar-plot data = ${ this.data }></bar-plot>`
     } else if(this.type == '2D-plot') {
