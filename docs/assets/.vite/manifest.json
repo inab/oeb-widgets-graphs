@@ -1,0 +1,34 @@
+{
+  "_widget-element-CT9e0uM7.js": {
+    "file": "widget-element-CT9e0uM7.js",
+    "name": "widget-element",
+    "dynamicImports": [
+      "node_modules/dompurify/dist/purify.es.js",
+      "node_modules/canvg/lib/index.es.js"
+    ]
+  },
+  "node_modules/canvg/lib/index.es.js": {
+    "file": "index.es-CITiEz8A.js",
+    "name": "index.es",
+    "src": "node_modules/canvg/lib/index.es.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_widget-element-CT9e0uM7.js"
+    ]
+  },
+  "node_modules/dompurify/dist/purify.es.js": {
+    "file": "purify.es-BwOkayRK.js",
+    "name": "purify.es",
+    "src": "node_modules/dompurify/dist/purify.es.js",
+    "isDynamicEntry": true
+  },
+  "src/widget-element.js": {
+    "file": "widget-element.es.js",
+    "name": "widget-element",
+    "src": "src/widget-element.js",
+    "isEntry": true,
+    "imports": [
+      "_widget-element-CT9e0uM7.js"
+    ]
+  }
+}

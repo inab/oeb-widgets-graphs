@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>OEB-Widgets-Graphs A graph collection made by OEB services | Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="OEB-Widgets-Graphs A graph collection made by OEB services" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description." />
+<meta property="og:description" content="Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description." />
+<link rel="canonical" href="http://localhost:4000/" />
+<meta property="og:url" content="http://localhost:4000/" />
+<meta property="og:site_name" content="OEB-Widgets-Graphs A graph collection made by OEB services" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="OEB-Widgets-Graphs A graph collection made by OEB services" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","description":"Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.","headline":"OEB-Widgets-Graphs A graph collection made by OEB services","name":"OEB-Widgets-Graphs A graph collection made by OEB services","url":"http://localhost:4000/"}</script>
+
+<link href="prism.css" rel="stylesheet" type="text/css">
+
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="{{ site.baseurl }}/assets/main.css">
+<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="OEB-Widgets-Graphs | A graph collection made by OEB services" /></head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="wrapper">
+      
+      <nav class="site-nav">
+        <div class="site-title">
+          <a class="site-title-link" rel="author" href="/">
+            <img src="{{ site.baseurl }}/assets/image/opeb_logo.gif" alt="OEB Logo" style="width: 100px; height: 70px;" />
+          </a>
+          <span class="site-title-text">
+            OEB Widgets Graphs Docs
+          </span>
+        </div>
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+      </nav>
+    </div>
+</header>
+<main class="page-content" aria-label="Content">
+  <div class="wrapper">
+    <div class="home">
+      <h2 class="post-list-heading">
+        Bar plot overview
+      </h2>
+      <div class="home-description">
+        <div class="home-description-content">
+          <p>
+            Bar plot shows the results of a benchmarking challenge that uses one single evaluation metric in the form of a Barplot. Challenge participants are shown in the X axis, while the value of their metric is shown in the Y axis.          
+          </p>
+          
+          <div class="home-description-section">
+            <div class="subtitle">Usage</div>
+            <div class="subtitle-section">
+              {% prismc javascript %}
+var gem = "jekyll-prismjs-compile";
+
+{% endprismc %}
+            <p>
+              Add the installed package to your HTML file.
+      
+            </p>
+            <p>
+              <pre>
+let graphData = {
+  "_id": "OEBDTEST0000001",
+  "inline_data": {
+    "challenge_participants": [
+        {
+            "tool_id": "Tool_1",
+            "metric_value": 8.80130949383027,
+            "stderr": 0
+        },
+        {
+            "tool_id": "Tool_2",
+            "metric_value": 12.93754721732561,
+            "stderr": 0
+        },
+        {
+            "tool_id": "Tool_3",
+            "metric_value": 8.876857214807353,
+            "stderr": 0
+        },
+        {
+            "tool_id": "Tool_4",
+            "metric_value": 0.24553009317552255,
+            "stderr": 0
+        },
+        {
+            "tool_id": "Tool_5",
+            "metric_value": 10.104507680684966,
+            "stderr": 0
+        },
+        {
+            "tool_id": "Tool_6",
+            "metric_value": 13.31528582221103,
+            "stderr": 0
+        }
+    ],
+    "visualization": {
+      "metric": "percentage_genes_w_correct_nPAS",
+      "type": "bar-plot"
+    },
+    
+  },
+  "dates": {
+    "creation": "2023-05-26T20:12:32Z",
+    "modification": "2023-05-27T19:34:43+00:00"
+  },
+}
+
+graphData = JSON.stringify(graphData);
+              </pre>
+            </p>
+            <pre>
+              <code>
+const graphType=JSON.stringify("bar-plot");</code>
+            </pre>
+            <p>
+            <pre>
+&lt;script&gt;
+  const myComp = document.getElementById('widget-element');
+  // Change the type and data of the graph
+  let type = JSON.parse(graphType);
+  myComp.type = type;
+  myComp.data = graphData;
+&lt;/script&gt;
+            </pre>
+          </p>
+          <pre><code>&lt;script src="node_modules/oeb-widgets-graphs/dist/oeb-widgets-graphs.js"&gt;&lt;/script&gt;</code></pre>
+          Then you can use the graphs in your application.
+          <pre>&lt;widget-element 
+id="widget-element"
+data=graphData
+type=graphType&gt;
+&lt;/widget-element&gt;</pre>
+          </div>
+      </div>
+  </div>
+  <div class="">
+    Example
+    <widget-element
+    id="widget-element"
+    type=""
+    data=""
+    >
+    </widget-element>
+  </div>
+  
+</main>
+<footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+  <div class="wrapper">
+    <h2 class="footer-heading">OEB-Widgets-Graphs | A graph collection made by OEB services</h2>
+
+  </div>
+    <script type="module" src="{{ site.baseurl }}/assets/my-component.js"></script>
+    <script>
+      let graphData = {
+      "_id": "OEBDTEST0000001",
+      "inline_data": {
+        "challenge_participants": [
+            {
+                "tool_id": "Tool_1",
+                "metric_value": 8.80130949383027,
+                "stderr": 0
+            },
+            {
+                "tool_id": "Tool_2",
+                "metric_value": 12.93754721732561,
+                "stderr": 0
+            },
+            {
+                "tool_id": "Tool_3",
+                "metric_value": 8.876857214807353,
+                "stderr": 0
+            },
+            {
+                "tool_id": "Tool_4",
+                "metric_value": 0.24553009317552255,
+                "stderr": 0
+            },
+            {
+                "tool_id": "Tool_5",
+                "metric_value": 10.104507680684966,
+                "stderr": 0
+            },
+            {
+                "tool_id": "Tool_6",
+                "metric_value": 13.31528582221103,
+                "stderr": 0
+            }
+        ],
+        "visualization": {
+          "metric": "percentage_genes_w_correct_nPAS",
+          "type": "bar-plot"
+        },
+        
+      },
+      "dates": {
+        "creation": "2023-05-26T20:12:32Z",
+        "modification": "2023-05-27T19:34:43+00:00"
+      },
+    }
+    graphData = JSON.stringify(graphData);
+
+      const graphType=JSON.stringify("bar-plot");
+      const myComp = document.getElementById('widget-element');
+      // Change the type and data of the graph
+      let type = JSON.parse(graphType);
+      myComp.type = type;
+      myComp.data = graphData;
+    </script>
+
+</footer>
+</body>
+
+</html>

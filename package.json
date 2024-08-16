@@ -2,16 +2,7 @@
   "name": "@inb/oeb-widgets-graphs",
   "version": "1.0.0",
   "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/oeb-widgets-graphs.es.js",
-      "require": "./dist/oeb-widgets-graphs.cjs.js"
-    }
-  },
-  "module": "./dist/oeb-widgets-graphs.es.js",
-  "files": [
-    "dist"
-  ],
+
   "repository": {
     "type": "git",
     "url": "git+https://github.com/inab/oeb-widgets-graphs.git"

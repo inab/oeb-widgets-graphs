@@ -3,4 +3,6 @@
 # To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
 
 layout: home
+barplot_url: _examples/barplot
+post_url: _post
 ---
