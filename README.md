@@ -48,6 +48,10 @@ npm run build
 ```
 - - - -
 ## Usage
+```
+npm i @inb/oeb-widgets-graphs
+```
+or
 ```js
 import '@inb/oeb-widgets-graphs/dist/oeb-widgets-graphs.es.js';
 ```
