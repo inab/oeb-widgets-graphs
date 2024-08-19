@@ -107,8 +107,8 @@ You can see an example of a structure to display bar graphs within the "demo" se
 ### Radar plot
 A radar chart is an informative visual tool in which multiple variables (three or more) are compared on a two-dimensional plane. To do this, we will create different axes that come from a common central point. In most cases, all axes are evenly distributed and drawn evenly relative to each other.
 [Radar plot live demo](https://inab.github.io/oeb-widgets-graphs/_examples/radarplot.html)
-![This is an alt text.](https://github.com/inab/oeb-widgets-graphs/blob/0931b524d896612973e3edbaf13067d485f4c577/src/demo/images/radarplot_img.png)
 
 <img width="320" height="240"  style="display: block; margin: 0 auto" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/radar-plot.gif?raw=true" />
+
 #### Radar plot structure
 You can see an example of a structure to display bar graphs within the "demo" section of the application. [Radar plot structure example](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT.json).
