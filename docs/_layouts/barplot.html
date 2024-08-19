@@ -17,11 +17,10 @@
 <meta property="twitter:title" content="OEB-Widgets-Graphs A graph collection made by OEB services" />
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","description":"Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.","headline":"OEB-Widgets-Graphs A graph collection made by OEB services","name":"OEB-Widgets-Graphs A graph collection made by OEB services","url":"http://localhost:4000/"}</script>
-
-<link href="prism.css" rel="stylesheet" type="text/css">
-
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="{{ site.baseurl }}/assets/main.css">
+<link rel="stylesheet" href="{{ site.baseurl }}/assets/prism.css">
+<script src="{{ site.baseurl }}/assets/prism.js" defer="defer"></script>
 <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="OEB-Widgets-Graphs | A graph collection made by OEB services" /></head>
 <body>
   <header class="site-header" role="banner">
@@ -29,7 +28,7 @@
       
       <nav class="site-nav">
         <div class="site-title">
-          <a class="site-title-link" rel="author" href="/">
+          <a class="site-title-link" rel="author" href="{{ site.baseurl }}/">
             <img src="{{ site.baseurl }}/assets/image/opeb_logo.gif" alt="OEB Logo" style="width: 100px; height: 70px;" />
           </a>
           <span class="site-title-text">
@@ -63,11 +62,10 @@
             <div class="subtitle">Usage</div>
             <div class="subtitle-section">
             <p>
-              Add the installed package to your HTML file.
-      
+              Add the installed package to your HTML file or add it by npm.
             </p>
             <p>
-              <pre>
+              <pre><code class="language-javascript">
 let graphData = {
   "_id": "OEBDTEST0000001",
   "inline_data": {
@@ -115,31 +113,18 @@ let graphData = {
   },
 }
 
-graphData = JSON.stringify(graphData);
-              </pre>
+graphData = JSON.stringify(graphData);</code></pre>
             </p>
-            <pre>
-              <code>
-const graphType=JSON.stringify("bar-plot");</code>
-            </pre>
+            <pre><code class="language-javascript">const graphType=JSON.stringify("bar-plot");</code></pre>
             <p>
-            <pre>
-&lt;script&gt;
+            <pre><code class="language-javascript">&lt;script&gt;
   const myComp = document.getElementById('widget-element');
   // Change the type and data of the graph
   let type = JSON.parse(graphType);
   myComp.type = type;
   myComp.data = graphData;
-&lt;/script&gt;
-            </pre>
+&lt;/script&gt; </pre></code>
           </p>
-          <pre><code>&lt;script src="node_modules/oeb-widgets-graphs/dist/oeb-widgets-graphs.js"&gt;&lt;/script&gt;</code></pre>
-          Then you can use the graphs in your application.
-          <pre>&lt;widget-element 
-id="widget-element"
-data=graphData
-type=graphType&gt;
-&lt;/widget-element&gt;</pre>
           </div>
       </div>
   </div>
@@ -160,7 +145,7 @@ type=graphType&gt;
     <h2 class="footer-heading">OEB-Widgets-Graphs | A graph collection made by OEB services</h2>
 
   </div>
-    <script type="module" src="{{ site.baseurl }}/assets/my-component.js"></script>
+    <script type="text/javascript" src="{{ site.baseurl }}/assets/dist/oeb-widgets-graphs.umd.js"></script>
     <script>
       let graphData = {
       "_id": "OEBDTEST0000001",
