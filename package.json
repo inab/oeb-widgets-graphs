@@ -1,6 +1,6 @@
 {
   "name": "@inb/oeb-widgets-graphs",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "type": "module",
   "main": "oeb-widgets-graphs.umd.js",
   "module": "oeb-widgets-graphs.es.js",

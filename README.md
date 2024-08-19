@@ -10,6 +10,7 @@ style="display: block; margin: 0 auto"/>
 
 ## Documentation 
 
+You can see the entire documentation about this project and a live demo [here](https://inab.github.io/oeb-widgets-graphs/).
 
 The package is build with [Lint Elements](https://lit.dev/) components and javascript modules.
 
