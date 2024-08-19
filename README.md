@@ -10,7 +10,7 @@ style="display: block; margin: 0 auto"/>
 
 ## Documentation 
 
-You can see the entire documentation about this project and a live demo [here](https://inab.github.io/oeb-widgets-graphs/).
+####  :point_right: About You can see the complete documentation [here](https://inab.github.io/oeb-widgets-graphs/)
 
 The package is build with [Lint Elements](https://lit.dev/) components and javascript modules.
 
@@ -21,7 +21,6 @@ It has some dependencies associated for the functionalities:
 * *simple-statistics*
 * *plotly.js*
 
-###  :point_right: About You can see the complete documentation [here](https://inab.github.io/oeb-widgets-graphs/)
 - - - -
 ## Project structure
 * /src. Where the main application files are hosted.
@@ -53,7 +52,11 @@ npm i @inb/oeb-widgets-graphs
 ```
 or
 ```js
-import '@inb/oeb-widgets-graphs/dist/oeb-widgets-graphs.es.js';
+import '/dist/oeb-widgets-graphs.es.js';
+```
+or
+```
+<script type="module" src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@main/dist/oeb-widgets-graphs.umd.js" />
 ```
 
 Then just declare the element with the variables that contain the data to be able to build the corresponding graph.
