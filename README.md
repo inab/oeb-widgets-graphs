@@ -62,6 +62,7 @@ Then just declare the element with the variables that contain the data to be abl
 ## Graphs types
 ### Bar plot
 Bar plot shows the results of a benchmarking challenge that uses one single evaluation metric in the form of a Barplot. Challenge participants are shown in the X axis, while the value of their metric is shown in the Y axis. [Bar plot live demo](https://inab.github.io/oeb-widgets-graphs/_examples/barplot.html)
+
 <img width="320" height="240" style="display: block; margin: 0 auto" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/bar-plot.gif?raw=true)" />
 #### Bar plot classification
 The results of this plot format can be transformed into a tabular format by sorting the participants in descending/ascending order according to their metrics and applying a quartile classification over that linear set of values. This classification splits the participants into four different groups/clusters depending on their performance. Clusters are separated in the plot with vertical lines and shown in the right table together with a green color-scale, which is easier to interpret for both experts and non-expert users.
@@ -73,6 +74,7 @@ You can see an example of a structure to display bar graphs within the "demo" se
 - - - -
 ### Scatter plot
 Scatter plot displays the results of scientific benchmarking experiments in graph format, and apply various classification methods to transform them to tabular format. [Scatter plot live demo](https://inab.github.io/oeb-widgets-graphs/_examples/scatterplot.html)
+
 <img width="320" height="240"  style="display: block; margin: 0 auto" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/scatter-plot.gif?raw=true" />
 
 #### Scatter plot classification
@@ -93,6 +95,7 @@ You can see an example of a structure to display bar graphs within the "demo" se
 - - - -
 ### Box plot
 Box plot shiw the results of a benchmarking challenge that uses a graphical representation of the distribution of a dataset on a seven-number summary of datapoints. The challenge metrics is represented in Y axis by default. [Box plot live demo](https://inab.github.io/oeb-widgets-graphs/_examples/boxplot.html)
+
 <img width="320" height="240"  style="display: block; margin: 0 auto" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/box-plot.gif?raw=true" />
 
 #### Box plot classification
@@ -105,6 +108,7 @@ You can see an example of a structure to display bar graphs within the "demo" se
 A radar chart is an informative visual tool in which multiple variables (three or more) are compared on a two-dimensional plane. To do this, we will create different axes that come from a common central point. In most cases, all axes are evenly distributed and drawn evenly relative to each other.
 [Radar plot live demo](https://inab.github.io/oeb-widgets-graphs/_examples/radarplot.html)
 ![This is an alt text.](https://github.com/inab/oeb-widgets-graphs/blob/0931b524d896612973e3edbaf13067d485f4c577/src/demo/images/radarplot_img.png)
+
 <img width="320" height="240"  style="display: block; margin: 0 auto" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/radar-plot.gif?raw=true" />
 #### Radar plot structure
 You can see an example of a structure to display bar graphs within the "demo" section of the application. [Radar plot structure example](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT.json).
