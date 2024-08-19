@@ -1375,8 +1375,6 @@ export class ScatterPlot extends LitElement {
                     document.body.removeChild(link);
                 }
             } else if(format === 'pdf') {
-                this.isDownloading = true;
-
                 const pdf = new jsPDF();
                 pdf.setFontSize(12);
                 pdf.setFont(undefined, 'bold');
@@ -1449,9 +1447,7 @@ export class ScatterPlot extends LitElement {
 
                 // Save the PDF
                 pdf.save(`benchmarking_chart_${this.datasetId}.${format}`);
-                this.isDownloading = false;
             } else if(format === 'svg') {
-                this.isDownloading = true;
                 const options = { format, height: 700, width: 800 };
                 Plotly.toImage(this.graphDiv, options).then((url) => {
                     const link = document.createElement('a');
@@ -1460,19 +1456,15 @@ export class ScatterPlot extends LitElement {
                     link.click();
                 })
                 .catch((error) => {
-                    this.isDownloading = false;
                     console.error(`Error downloading graphic as ${format}`, error);
                 });
-                this.isDownloading = false;
             } else if(format === 'json') {
-                this.isDownloading = true;
                 const chartData = this.originalData // Obtener datos del gráfico
                 const jsonData = JSON.stringify(chartData);
                 const link = document.createElement('a');
                 link.href = `data:text/json;charset=utf-8,${encodeURIComponent(jsonData)}`;
                 link.download = `${this.datasetId}.json`;
                 link.click();
-                this.isDownloading = false;
             }
 
         } catch (error) {

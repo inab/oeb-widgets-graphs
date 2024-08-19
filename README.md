@@ -1,6 +1,32 @@
-# OEB WIDGETS GRAPHS
+<img src="https://github.com/inab/oeb-widgets-graphs/blob/b67955da608e66e105fcef54b7da4d2818f18d69/docs/assets/image/opeb_logo.gif?raw=true" width="200"
+style="display: block; margin: 0 auto"/>
+
+<p style="text-align: center; font-size: 30px; padding-bottom:30px; font-weight: bold;">OEB WIDGETS GRAPHS</p>
+
+<p style="font-weight: bold; text-align: center">A charts collection based on <a href="https://openebench.bsc.es/" style="color: #0b579f">OpenEBench</a> Application</p>
+
+[![npm](https://img.shields.io/npm/v/@inb/oeb-widgets-graphs)](https://www.npmjs.com/package/@inb/oeb-widgets-graphs) ![install size](https://packagephobia.com/badge?p=@inb/oeb-widgets-graphs) ![NPM License](https://img.shields.io/npm/l/%40inb%2Foeb-widgets-graphs)
 
 
+## Documentation 
+
+
+The package is build with [Lint Elements](https://lit.dev/) components and javascript modules.
+
+It has some dependencies associated for the functionalities:
+* *html2canvas*
+* *jspdf*
+* *pareto-frontier*
+* *simple-statistics*
+* *plotly.js*
+
+###  :point_right: About You can see the complete documentation [here](https://inab.github.io/oeb-widgets-graphs/)
+- - - -
+## Project structure
+* /src. Where the main application files are hosted.
+* /src/demo. Live demo of applications functionalities and a .json file to simulate real data.
+
+- - - -
 ## Build Setup
 
 Download the package and install dependencies:
@@ -19,30 +45,14 @@ Build package for production:
 ```
 npm run build
 ```
-
-## Documentation
-The package is build with [Lint Elements](https://lit.dev/) components and javascript modules.
-
-It has some dependencies associated for the functionalities:
-* *html2canvas*
-* *jspdf*
-* *pareto-frontier*
-* *simple-statistics*
-* *plotly.js*
-
-- - - -
-## Project structure
-* /src. Where the main application files are hosted.
-* /src/demo. Live demo of applications functionalities and a .json file to simulate real data.
-
 - - - -
 ## Usage
-```
+```js
 import '@inb/oeb-widgets-graphs/dist/oeb-widgets-graphs.es.js';
 ```
 
 Then just declare the element with the variables that contain the data to be able to build the corresponding graph.
-```
+```js
 <widget-element
   :data=graphData
   :type=graphType>
@@ -58,14 +68,17 @@ The results of this plot format can be transformed into a tabular format by sort
 
 #### Bar plot structure
 You can see an example of a structure to display bar graphs within the "demo" section of the application. [Bar plot structure example](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BARPLOT.json)
+<img width="320" height="240" src="![demo](https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/bar-plot.gif?raw=true)" />
 - - - -
 ### Scatter plot
 Scatter plot displays the results of scientific benchmarking experiments in graph format, and apply various classification methods to transform them to tabular format. [Scatter plot live demo](https://inab.github.io/oeb-widgets-graphs/_examples/scatterplot.html)
+<img width="320" height="240" src="![demo](https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/scatter-plot.gif?raw=true)" />
 
 #### Scatter plot classification
 * Square quartiles - divide the plotting area in four squares by getting the 2nd quartile of the X and Y metrics.
 
 ![Square quartiles.](https://github.com/inab/oeb-widgets-graphs/blob/894da45de531ba9d56d0db27e9ee3cc70a1972ab/src/demo/images/scatterplot_quartiles_img.png)
+
 
 * Diagonal quartiles - divide the plotting area with diagonal lines by assigning a score to each participant based in the distance to the 'optimal performance'.
 
@@ -79,16 +92,18 @@ You can see an example of a structure to display bar graphs within the "demo" se
 - - - -
 ### Box plot
 Box plot shiw the results of a benchmarking challenge that uses a graphical representation of the distribution of a dataset on a seven-number summary of datapoints. The challenge metrics is represented in Y axis by default. [Box plot live demo](https://inab.github.io/oeb-widgets-graphs/_examples/boxplot.html)
+<img width="320" height="240" src="![demo](https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/box-plot.gif?raw=true)" />
 
 #### Box plot classification
 The result of the plot can be ordened by maximum or minimum median value.
 ![This is an alt text.](https://github.com/inab/oeb-widgets-graphs/blob/1a3a58290a75f0fc773ab4341601e5ca1659b7f5/src/demo/images/boxplot_img.png)
 #### Box plot structure
 You can see an example of a structure to display bar graphs within the "demo" section of the application. [Box plot structure example](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BOXPLOT.json)
-
+- - - -
 ### Radar plot
 A radar chart is an informative visual tool in which multiple variables (three or more) are compared on a two-dimensional plane. To do this, we will create different axes that come from a common central point. In most cases, all axes are evenly distributed and drawn evenly relative to each other.
 [Radar plot live demo](https://inab.github.io/oeb-widgets-graphs/_examples/radarplot.html)
 ![This is an alt text.](https://github.com/inab/oeb-widgets-graphs/blob/0931b524d896612973e3edbaf13067d485f4c577/src/demo/images/radarplot_img.png)
+<img width="320" height="240" src="![demo](https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/radar-plot.gif?raw=true)" />
 #### Radar plot structure
-You can see an example of a structure to display bar graphs within the "demo" section of the application. [Radar plot structure example](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT.json)
+You can see an example of a structure to display bar graphs within the "demo" section of the application. [Radar plot structure example](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT.json).

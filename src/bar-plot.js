@@ -598,8 +598,6 @@ export class BarPlot extends LitElement {
             if (format === 'pdf') {
                 const pdf = new jsPDF();
 
-                this.isDownloading = true;
-
                 pdf.setFontSize(12);
                 pdf.setFont(undefined, 'bold');
                 pdf.text(`Benchmarking Results of ${this.datasetId} at ${this.formatDateString(this.datasetModDate)}`, 105, 10, null, null, 'center');
@@ -615,7 +613,7 @@ export class BarPlot extends LitElement {
 
                     // Extract data from quartileDataArray
                     const rows = this.quartileDataArray.map(q => [q.tool, q.quartile.quartile]);
-
+                    
                     // Generate autoTable with custom styles
                     pdf.autoTable({
                         head: [columns],
@@ -658,11 +656,11 @@ export class BarPlot extends LitElement {
                     // Save the PDF
                     pdf.save(`benchmarking_chart_${this.datasetId}.${format}`);
                 }
-                this.isDownloading = false;
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
             } else if (format === 'svg') {
                 Plotly.downloadImage(this.graphDiv, { format: 'svg', width: 800, height: 600, filename: `benchmarking_chart_${this.datasetId}` });
             } else {
-                this.isDownloading = true;
                 // Download chart with table
                 if (this.sortOrder === 'sorted' && Object.keys(this.quartileData).length > 1) {
                     const toDownloadDiv = this.todoDownload;
@@ -698,7 +696,7 @@ export class BarPlot extends LitElement {
                     chartLink.click();
                     document.body.removeChild(chartLink);
                 }
-                this.isDownloading = false;
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
         } catch (error) {
             console.error('Error downloading chart:', error);

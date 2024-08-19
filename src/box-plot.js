@@ -443,8 +443,6 @@ export class BoxPlot extends LitElement {
                 pdf.text(`Benchmarking Results of ${this.datasetId} at ${this.formatDateString(this.datasetModDate)}`, 105, 10, null, null, 'center');
 
                 if (this.sorted) {
-                    this.isDownloading = true;
-
                     // Agregar un pequeño retraso para asegurarse de que los cambios se hayan renderizado
                     await new Promise(resolve => setTimeout(resolve, 200));
 
@@ -531,8 +529,6 @@ export class BoxPlot extends LitElement {
                     table.style.width = '100%';
                     table.style.minWidth = '100%';
 
-                    this.isDownloading = false;
-
                     // Save the PDF
                     pdf.save(`benchmarking_chart__performance_${this.datasetId}.${format}`);
                 } else {
@@ -549,8 +545,6 @@ export class BoxPlot extends LitElement {
                 Plotly.downloadImage(this.graphDiv, { format: 'svg', filename: `benchmarking_chart_${this.datasetId}.${format}` });
             } else if (format === 'png') {
                 if(this.sorted) {
-                    this.isDownloading = true;
-
                     // Agregar un pequeño retraso para asegurarse de que los cambios se hayan renderizado
                     await new Promise(resolve => setTimeout(resolve, 200));
 
@@ -611,9 +605,6 @@ export class BoxPlot extends LitElement {
                     tableColumn.style.display = 'block';
                     table.style.width = '100%';
                     table.style.minWidth = '100%';
-
-                    this.isDownloading = false;
-
                 } else {
                     const options = { format, height: 700, width: 800 };
                     Plotly.toImage(this.$refs.chart, options)

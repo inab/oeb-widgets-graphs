@@ -1,17 +1,15 @@
 {
   "name": "@inb/oeb-widgets-graphs",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "type": "module",
+  "main": "oeb-widgets-graphs.umd.js",
+  "module": "oeb-widgets-graphs.es.js",
   "exports": {
     ".": {
-      "import": "./dist/oeb-widgets-graphs.es.js",
-      "require": "./dist/oeb-widgets-graphs.cjs.js"
+      "import": "./oeb-widgets-graphs.es.js",
+      "require": "./oeb-widgets-graphs.umd.js"
     }
   },
-  "module": "./dist/oeb-widgets-graphs.es.js",
-  "files": [
-    "dist"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/inab/oeb-widgets-graphs.git"
@@ -46,7 +44,6 @@
     "plotly.js-dist": "^2.34.0",
     "simple-statistics": "^7.8.3"
   },
-  "main": "./src/widget-element.js",
   "author": "Barcelona Supercomuting Center (BSC)",
   "license": "Apache-2.0",
   "description": "Collection of OEB widgets for graphs components",

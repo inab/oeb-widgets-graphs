@@ -13,10 +13,10 @@ export default defineConfig({
     ],
     build: {
         lib: {
-            entry: resolve(__dirname, 'src/widget-element.js'), // Corrige el uso de resolve
-            name: 'OebWidgetGraph',
-            fileName: 'oe-widget-graph',
-            formats: ['es', 'umd'],
+            entry: resolve(__dirname, 'src/widget-element.js'),
+            name: 'OebWidgetsGraphs',
+            fileName: (format) => `oeb-widgets-graphs.${format}.js`, // Esto genera archivos con los formatos correctos
+            formats: ['es', 'umd'] // Cambia `formats` a `format`
         },
         rollupOptions: {
             // Asegúrate de externalizar dependencias que no quieres incluir en tu bundle
@@ -29,6 +29,6 @@ export default defineConfig({
         },
     },
     server: {
-        open: './src/demo/index.html',
+        open: './src/demoHTML/index.html',
     },
 })
