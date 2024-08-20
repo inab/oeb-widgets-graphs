@@ -1,9 +1,14 @@
 <img src="https://github.com/inab/oeb-widgets-graphs/blob/b67955da608e66e105fcef54b7da4d2818f18d69/docs/assets/image/opeb_logo.gif?raw=true" width="200"
 style="display: block; margin: 0 auto"/>
 
-<p style="text-align: center; font-size: 30px; padding-bottom:30px; font-weight: bold;">OEB WIDGETS GRAPHS</p>
+<div align="center">
+##OEB WIDGETS GRAPHS
+</div>
 
-<p style="font-weight: bold; text-align: center">A charts collection based on <a href="https://openebench.bsc.es/" style="color: #0b579f">OpenEBench</a> Application</p>
+### A charts collection based on [OpenEBench](https://openebench.bsc.es/) Application
+
+
+![](https://raw.githubusercontent.com/inab/oeb-widgets-graphs/1c1a2f2025bdc0f0bb545e657408bc4e1c749e6c/docs/assets/videos/scatter-plot.gif?raw=true)
 
 [![npm](https://img.shields.io/npm/v/@inb/oeb-widgets-graphs)](https://www.npmjs.com/package/@inb/oeb-widgets-graphs) ![install size](https://packagephobia.com/badge?p=@inb/oeb-widgets-graphs) ![NPM License](https://img.shields.io/npm/l/%40inb%2Foeb-widgets-graphs)
 

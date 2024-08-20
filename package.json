@@ -17,6 +17,7 @@
   "bugs": {
     "url": "https://github.com/inab/oeb-widgets-graphs/issues"
   },
+  "homepage": "https://inab.github.io/oeb-widgets-graphs/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
