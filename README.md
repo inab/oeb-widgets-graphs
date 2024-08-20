@@ -1,9 +1,7 @@
 <img src="https://github.com/inab/oeb-widgets-graphs/blob/b67955da608e66e105fcef54b7da4d2818f18d69/docs/assets/image/opeb_logo.gif?raw=true" width="200"
 style="display: block; margin: 0 auto"/>
 
-<div align="center">
 ##OEB WIDGETS GRAPHS
-</div>
 
 ### A charts collection based on [OpenEBench](https://openebench.bsc.es/) Application
 
