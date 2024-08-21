@@ -8,7 +8,10 @@ style="display: block; margin: 0 auto"/>
 
 ![](https://raw.githubusercontent.com/inab/oeb-widgets-graphs/1c1a2f2025bdc0f0bb545e657408bc4e1c749e6c/docs/assets/videos/scatter-plot.gif?raw=true)
 
-[![npm](https://img.shields.io/npm/v/@inb/oeb-widgets-graphs)](https://www.npmjs.com/package/@inb/oeb-widgets-graphs) ![install size](https://packagephobia.com/badge?p=@inb/oeb-widgets-graphs) ![NPM License](https://img.shields.io/npm/l/%40inb%2Foeb-widgets-graphs)
+[![npm](https://img.shields.io/npm/v/@inb/oeb-widgets-graphs)](https://www.npmjs.com/package/@inb/oeb-widgets-graphs) 
+
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/inab/oeb-widgets-graphs)
+![NPM License](https://img.shields.io/npm/l/%40inb%2Foeb-widgets-graphs)
 
 
 ## Documentation 
