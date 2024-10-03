@@ -3,12 +3,13 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
-<title>OEB-Widgets-Graphs A graph collection made by OEB services | Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.</title>
+  <link rel="icon" type="image/x-icon" href="{{ site.baseurl }}/assets/image/favicon.ico">
+  <title>OEB-Widgets-Graphs A graph collection made by OEB services</title>
 <meta name="generator" content="Jekyll v4.3.3" />
 <meta property="og:title" content="OEB-Widgets-Graphs A graph collection made by OEB services" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description." />
-<meta property="og:description" content="Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description." />
+<meta name="description" content="This is a collection of graphs made by OEB services" />
+<meta property="og:description" content="This is a collection of graphs made by OEB services" />
 <link rel="canonical" href="http://localhost:4000/" />
 <meta property="og:url" content="http://localhost:4000/" />
 <meta property="og:site_name" content="OEB-Widgets-Graphs A graph collection made by OEB services" />
@@ -26,15 +27,18 @@
 <body>
   <header class="site-header" role="banner">
     <div class="wrapper">
-      
       <nav class="site-nav">
         <div class="site-title">
           <a class="site-title-link" rel="author" href="{{ site.baseurl }}/">
-            <img src="{{ site.baseurl }}/assets/image/opeb_logo.gif" alt="OEB Logo" style="width: 100px; height: 70px;" />
+            <img src="{{ site.baseurl }}/assets/image/opeb_logo_white_minimal.png" alt="OEB Logo" style="width: 100px; height: 70px;" />
           </a>
           <span class="site-title-text">
             OEB Widgets Graphs Docs
           </span>
+          <div class="site-title-version">
+            V1.0.6
+            <span class="site-title-version-git"><a href="https://github.com/inab/oeb-widgets-graphs" ref="GITHUB">GITHUB</a></span>
+          </div>
         </div>
         <input type="checkbox" id="nav-trigger" class="nav-trigger" />
         <label for="nav-trigger">
@@ -50,23 +54,32 @@
 <main class="page-content" aria-label="Content">
   <div class="wrapper">
     <div class="home">
-      <h2 class="post-list-heading">
-        Overview
-      </h2>
+      <div class="home-header">
+        <div class="home-title">
+          A collection of <br/><span class="color-secondary">charts</span> made by <br/><span class="color-primary">OEB services</span>.
+        </div>
+      </div>
+      <div class="home-header-img">
+        <div class="widget-card-img">
+          <img width="800" height="350" src="{{ site.baseurl }}/assets/image/scatterplot_clustering_img.png" />
+        </div>
+      </div>
       <div class="home-description">
-        <div class="home-description-content">
-          <p>
+        <div class="home-description-main">
+          <p class="mediu-large-text">
             This is a collection of graphs made by OEB services. The graphs are made using the <a href="https://plotly.com/javascript/">Plotly.js</a> library.
           </p>
+        </div>
+        <div class="home-description-content">
           <div class="home-description-section">
-            <div class="subtitle">Installation</div>
-            <p>
+            <div class="subtitle large-text color-primary border-primary">Installation</div>
+            <p class="medium-text">
               To install the graphs, you can use the following command:
             </p>
-            <pre><code class="language-bash">npm install oeb-widgets-graphs</code></pre>
+            <pre><code class="language-bash">npm i @inb/oeb-widgets-graphs</code></pre>
           </div>
           <div class="home-description-section">
-            <div class="subtitle">Usage</div>
+            <div class="subtitle mediu-large-text color-primary">Usage</div>
             <div class="subtitle-section">
               In base javasctipt applications
             </div>
@@ -86,7 +99,7 @@
             </div>
             <p>
               Add the installed package to your HTML file.
-              <pre><code class="language-html">&lt;script src="node_modules/oeb-widgets-graphs/dist/oeb-widgets-graphs.js"&gt;&lt;/script&gt;</code></pre>
+              <pre><code class="language-html">&lt;script type="module" src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@main/dist/oeb-widgets-graphs.umd.js"&gt;&lt;/script&gt;</code></pre>
               Then you can use the graphs in your application.
               <pre><code class="language-html">&lt;widget-element 
   id="widget-element"
@@ -109,88 +122,104 @@ myComp.data = graphData;
     <div class="widgets-examples">
       <div class="widget-card" title="Go to Bar plot full example">
           {% if jekyll.environment == "production" %}
-          <a href="https://inab.github.io/oeb-widgets-graphs/_examples/barplot.html">
-            <div class="widget-card-header">
-              <h3>Bar plot graph</h3>
-              <div class="widget-card-img">
-                <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/bar-plot.gif" />
+          <div class="widget-box">
+            <a href="https://inab.github.io/oeb-widgets-graphs/_examples/barplot.html">
+              <div class="widget-card-header">
+                <h3>Bar plot graph</h3>
+                <div class="widget-card-img">
+                  <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/bar-plot.gif" />
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
+          </div>
           {% else %}
-          <a href="{% link _examples/barplot.md %}">
-            <div class="widget-card-header">
-              <h3>Bar plot graph</h3>
-              <div class="widget-card-img">
-                <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/bar-plot.gif" />
+          <div class="widget-box">
+            <a href="{% link _examples/barplot.md %}">
+              <div class="widget-card-header">
+                <h3>Bar plot graph</h3>
+                <div class="widget-card-img">
+                  <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/bar-plot.gif" />
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
+          </div>
           {% endif %}
       </div>
       <div class="widget-card" title="Go to Scatter plot full example">
           {% if jekyll.environment == "production" %}
-          <a href="https://inab.github.io/oeb-widgets-graphs/_examples/scatterplot.html">
-            <div class="widget-card-header">
-              <h3>Scatter plot graph</h3>
-              <div class="widget-card-img">
-                <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/scatter-plot.gif" />
+          <div class="widget-box">
+            <a href="https://inab.github.io/oeb-widgets-graphs/_examples/scatterplot.html">
+              <div class="widget-card-header">
+                <h3>Scatter plot graph</h3>
+                <div class="widget-card-img">
+                  <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/scatter-plot.gif" />
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
+          </div>
           {% else %}
-          <a href="{% link _examples/scatterplot.md %}">
-            <div class="widget-card-header">
-              <h3>Scatter plot graph</h3>
-              <div class="widget-card-img">
-                <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/scatter-plot.gif" />
+          <div class="widget-box">
+            <a href="{% link _examples/scatterplot.md %}">
+              <div class="widget-card-header">
+                <h3>Scatter plot graph</h3>
+                <div class="widget-card-img">
+                  <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/scatter-plot.gif" />
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
+          </div>
           {% endif %}
       </div>
     </div>
     <div class="widgets-examples">
       <div class="widget-card" title="Go to Box plot full example">
           {% if jekyll.environment == "production" %}
-          <a href="https://inab.github.io/oeb-widgets-graphs/_examples/boxplot.html">
-            <div class="widget-card-header">
-              <h3>Box plot graph</h3>
-              <div class="widget-card-img">
-                <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/box-plot.gif" />
+          <div class="widget-box">
+            <a href="https://inab.github.io/oeb-widgets-graphs/_examples/boxplot.html">
+              <div class="widget-card-header">
+                <h3>Box plot graph</h3>
+                <div class="widget-card-img">
+                  <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/box-plot.gif" />
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
+          </div>
           {% else %}
-          <a href="{% link _examples/boxplot.md %}">
-            <div class="widget-card-header">
-              <h3>Box plot graph</h3>
-              <div class="widget-card-img">
-                <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/box-plot.gif" />
+          <div class="widget-box">
+            <a href="{% link _examples/boxplot.md %}">
+              <div class="widget-card-header">
+                <h3>Box plot graph</h3>
+                <div class="widget-card-img">
+                  <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/box-plot.gif" />
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
+          </div>
           {% endif %}
       </div>
       <div class="widget-card" title="Go to Radar plot full example">
           {% if jekyll.environment == "production" %}
-          <a href="https://inab.github.io/oeb-widgets-graphs/_examples/radarplot.html">
-            <div class="widget-card-header">
-              <h3>Radar plot graph</h3>
-              <div class="widget-card-img">
-                <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/radar-plot.gif" />
+          <div class="widget-box">
+            <a href="https://inab.github.io/oeb-widgets-graphs/_examples/radarplot.html">
+              <div class="widget-card-header">
+                <h3>Radar plot graph</h3>
+                <div class="widget-card-img">
+                  <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/radar-plot.gif" />
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
+          </div>
           {% else %}
-          <a href="{% link _examples/radarplot.md %}">
-            <div class="widget-card-header">
-              <h3>Radar plot graph</h3>
-              <div class="widget-card-img">
-                <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/radar-plot.gif" />
+          <div class="widget-box">
+            <a href="{% link _examples/radarplot.md %}">
+              <div class="widget-card-header">
+                <h3>Radar plot graph</h3>
+                <div class="widget-card-img">
+                  <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/radar-plot.gif" />
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
+          </div>
           {% endif %}
       </div>
     </div>
