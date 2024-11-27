@@ -99,7 +99,9 @@
             </div>
             <p>
               Add the installed package to your HTML file.
-              <pre><code class="language-html">&lt;script type="module" src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@main/dist/oeb-widgets-graphs.umd.js"&gt;&lt;/script&gt;</code></pre>
+              <!-- <pre><code class="language-html">&lt;script type="module" src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@main/dist/oeb-widgets-graphs.umd.js"&gt;&lt;/script&gt;</code></pre> -->
+              <pre><code class="language-html">&lt;script type="module" src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@refs/heads/main/dist/oeb-widgets-graphs.umd.js"&gt;&lt;/script&gt;</code></pre>
+
               Then you can use the graphs in your application.
               <pre><code class="language-html">&lt;widget-element 
   id="widget-element"
@@ -221,6 +223,33 @@ myComp.data = graphData;
             </a>
           </div>
           {% endif %}
+      </div>
+    </div>
+    <div class="widgets-examples">
+      <div class="widget-card" title="Go to Radar plot full example">
+        {% if jekyll.environment == "production" %}
+        <div class="widget-box">
+          <a href="https://inab.github.io/oeb-widgets-graphs/_examples/radarplot.html">
+            <div class="widget-card-header">
+              <h3>Radar plot graph</h3>
+              <div class="widget-card-img">
+                <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/radar-plot.gif" />
+              </div>
+            </div>
+          </a>
+        </div>
+        {% else %}
+        <div class="widget-box">
+          <a href="{% link _examples/lineplot.md %}">
+            <div class="widget-card-header">
+              <h3>Line plot graph</h3>
+              <div class="widget-card-img">
+                <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/line-plot.gif" />
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>
