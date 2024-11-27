@@ -6,7 +6,7 @@ import { OebLoader } from '../oeb-loader.js';
 import { fetchDataInfo } from '../utils.js';
 
 export default class WidgetTest extends LitElement {
-    dataJSON = './files/SCATTERPLOT.json';
+    dataJSON = './files/LINEPLOT.json';
 
     static properties = {
         _data: { state: true }
@@ -133,6 +133,26 @@ export default class WidgetTest extends LitElement {
                 type: visualization.type,
                 dates: visualization.dates,
                 schema_url: visualization.schema_url,
+            };
+        } else if(type === 'line-plot') {
+            // Process challenge_participants data for LinePlot
+            data.inline_data.challenge_participants.forEach(participant => {
+                const preparedParticipant = {
+                    name: participant.name,
+                    metric_id: participant.metric_id,
+                    x_value: participant.x_value,
+                    y_value: participant.y_value,
+                };
+                dataObj.inline_data.challenge_participants.push(preparedParticipant);
+            });
+    
+            // Process visualization data for LinePlot
+            const visualization = data.inline_data.visualization;
+            dataObj.inline_data.visualization = {
+                x_axis: visualization.x_axis,
+                y_axis: visualization.y_axis,
+                type: visualization.type,
+                dates: visualization.dates
             };
         }
     
