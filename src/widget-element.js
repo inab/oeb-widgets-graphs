@@ -4,6 +4,7 @@ import { BarPlot } from './bar-plot'
 import { ScatterPlot } from './scatter-plot';
 import { BoxPlot } from './box-plot';
 import { RadarPlot } from './radar-plot';
+import { LinePlot } from './line-plot';
 
 export class WidgetElement extends LitElement {
   static properties = {
@@ -19,7 +20,9 @@ export class WidgetElement extends LitElement {
     super.attributeChangedCallback(name, oldVal, newVal);
   }
 
-  renderComponent() {
+  renderComponent() {    
+    console.log("plot", this.type);
+
     if(this.type == 'bar-plot') {
       return html`<bar-plot data = ${ this.data }></bar-plot>`
     } else if(this.type == '2D-plot') {
@@ -28,6 +31,8 @@ export class WidgetElement extends LitElement {
       return html`<box-plot data = ${ this.data }></box-plot>`
     } else if(this.type == 'radar-plot') {
       return html`<radar-plot data = ${ this.data }></radar-plot>`
+    } else if(this.type == 'line-plot') {
+      return html`<line-plot data = ${ this.data }></line-plot>`
     } else {
       return html`<p>No element</p>`
     }

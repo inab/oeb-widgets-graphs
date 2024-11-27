@@ -29,6 +29,6 @@ export default defineConfig({
         },
     },
     server: {
-        open: './src/demoHTML/index.html',
+        open: './src/demo/index.html',
     },
 })

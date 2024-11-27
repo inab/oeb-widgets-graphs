@@ -275,4 +275,10 @@ export const plotlyStyles = css`
   text-decoration: none;
   cursor: pointer;
 }
+.mode {
+  text-transform: uppercase;
+}
+.mode span {
+  padding-left: 5px;
+}
 `;
