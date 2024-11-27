@@ -602,14 +602,14 @@ export class LinePlot extends LitElement {
     const IQR_y = (Q3_y - Q1_y).toFixed(2);
 
     return {
-      IQR_x: { value: parseFloat(IQR_x), color: this.getInterquartileBgColor(parseFloat(IQR_x), Q1_x, Q2_x, Q3_x) },
-      IQR_y: { value: parseFloat(IQR_y), color: this.getInterquartileBgColor(parseFloat(IQR_y), Q1_y, Q2_y, Q3_y) },
-      Q1_x: { value: parseFloat(Q1_x), color: this.getInterquartileBgColor(parseFloat(Q1_x), Q1_x, Q2_x, Q3_x) },
-      Q2_x: { value: parseFloat(Q2_x), color: this.getInterquartileBgColor(parseFloat(Q2_x), Q1_x, Q2_x, Q3_x) },
-      Q3_x: { value: parseFloat(Q3_x), color: this.getInterquartileBgColor(parseFloat(Q3_x), Q1_x, Q2_x, Q3_x) },
-      Q1_y: { value: parseFloat(Q1_y), color: this.getInterquartileBgColor(parseFloat(Q1_y), Q1_y, Q2_y, Q3_y) },
-      Q2_y: { value: parseFloat(Q2_y), color: this.getInterquartileBgColor(parseFloat(Q2_y), Q1_y, Q2_y, Q3_y) },
-      Q3_y: { value: parseFloat(Q3_y), color: this.getInterquartileBgColor(parseFloat(Q3_y), Q1_y, Q2_y, Q3_y) },
+      IQR_x: { value: parseFloat(IQR_x).toFixed(2), color: this.getInterquartileBgColor(parseFloat(IQR_x), Q1_x, Q2_x, Q3_x) },
+      IQR_y: { value: parseFloat(IQR_y).toFixed(2), color: this.getInterquartileBgColor(parseFloat(IQR_y), Q1_y, Q2_y, Q3_y) },
+      Q1_x: { value: parseFloat(Q1_x).toFixed(2), color: this.getInterquartileBgColor(parseFloat(Q1_x), Q1_x, Q2_x, Q3_x) },
+      Q2_x: { value: parseFloat(Q2_x).toFixed(2), color: this.getInterquartileBgColor(parseFloat(Q2_x), Q1_x, Q2_x, Q3_x) },
+      Q3_x: { value: parseFloat(Q3_x).toFixed(2), color: this.getInterquartileBgColor(parseFloat(Q3_x), Q1_x, Q2_x, Q3_x) },
+      Q1_y: { value: parseFloat(Q1_y).toFixed(2), color: this.getInterquartileBgColor(parseFloat(Q1_y), Q1_y, Q2_y, Q3_y) },
+      Q2_y: { value: parseFloat(Q2_y).toFixed(2), color: this.getInterquartileBgColor(parseFloat(Q2_y), Q1_y, Q2_y, Q3_y) },
+      Q3_y: { value: parseFloat(Q3_y).toFixed(2), color: this.getInterquartileBgColor(parseFloat(Q3_y), Q1_y, Q2_y, Q3_y) },
     };
   }
 
