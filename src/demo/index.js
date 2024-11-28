@@ -31,9 +31,7 @@ export default class WidgetTest extends LitElement {
         let visualization = (data.inline_data && data.inline_data.visualization) ? data.inline_data.visualization : data.visualization
         let type = visualization.type
         let dataObj = {}
-
-        console.log("visualization", visualization);
-
+        
         if(type == 'radar-plot') {
             dataObj = {
                 _id: data._id,
@@ -144,10 +142,11 @@ export default class WidgetTest extends LitElement {
                     metric_id: participant.metric_id,
                     x_value: participant.x_value,
                     y_value: participant.y_value,
+                    thresholds: participant.thresholds
                 };
                 dataObj.inline_data.challenge_participants.push(preparedParticipant);
             });
-    
+                
             // Process visualization data for LinePlot
             const visualization = data.inline_data.visualization;
             dataObj.inline_data.visualization = {

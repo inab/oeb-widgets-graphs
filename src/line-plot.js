@@ -46,6 +46,7 @@ export class LinePlot extends LitElement {
     this.viewSelected = "Default View";
     this.viewSelectedKey = "default";
     this.mode = "lines";
+    this.threshold = [];
     this.quartileData = [];
     this.averageData = [];
     this.interquartileData = [];
@@ -54,6 +55,7 @@ export class LinePlot extends LitElement {
       markers: "markers",
       linesmarkers: "lines+markers"
     };
+    this.originalTraces = [];
     this.viewText = {
       default: "Default View",
       quartiles: "Quartiles",
@@ -125,9 +127,13 @@ export class LinePlot extends LitElement {
           shape: 'hv',
           color: this.markerColors[data.challenge_participants.indexOf(participant)],
           width: 2
-        }
+        },
+        text: data.threshold,
+        hovertemplate: 'FPR: %{x}<br>TPR: %{y}<br>Threshold: %{text}<extra></extra>',
       }
     });
+
+    this.originalTraces = this.dataTraces;
 
     this.layout = {
       title: '',
@@ -200,6 +206,7 @@ export class LinePlot extends LitElement {
 
   renderChart() {
     if(this.data) {
+      this.threshold = this.data.inline_data.thresholds;
       Plotly.newPlot(this.graphDiv, this.dataTraces, this.layout, GRAPH_CONFIG);
     }
   }
@@ -250,11 +257,16 @@ export class LinePlot extends LitElement {
     this.showAdditionalTable = false;
     this.showQuartileTable = false;
     this.showAverageTable = false;
+    this.showInterquartileTable = false;
+    this.quartileData = [];
+    this.averageData = [];
+    this.interquartileData = [];
   }
 
   async setClassificationView(view) {
     this.resetQuartileTable();
     if (view === 'default') {
+      this.dataTraces = this.originalTraces;
       this.viewSelected = "Default View";
       this.viewSelectedKey = "default";
       this.sorted = false;
@@ -309,6 +321,7 @@ export class LinePlot extends LitElement {
       };
       this.renderChart();
     } else if (view === 'quartiles') {
+      this.dataTraces = this.originalTraces;
       this.viewSelected = "Quartiles";
       this.viewSelectedKey = "quartiles";
       this.sorted = true;
@@ -329,9 +342,9 @@ export class LinePlot extends LitElement {
 
       this.addLinesBetweenQuartiles();
       this.addQuartileLabels();
-
       this.renderChart();
     } else if (view === 'average') {
+      this.dataTraces = this.originalTraces;
       this.viewSelected = "Average";
       this.viewSelectedKey = "average";
       this.showAdditionalTable = true;
@@ -385,9 +398,9 @@ export class LinePlot extends LitElement {
         showlegend: true,
       };
       this.averageData = this.calculateAverage(this.dataTraces);
-      console.log(this.averageData);
       this.renderChart();
     } else if (view === 'interquartile') {
+      this.dataTraces = this.originalTraces;
       this.viewSelected = "Interquartile range";
       this.viewSelectedKey = "interquartile";
       this.sorted = true;
@@ -398,6 +411,7 @@ export class LinePlot extends LitElement {
       this.addQuartileLabels();
       this.renderChart();
     } else if (view === 'trend') {
+      this.dataTraces = this.originalTraces;
       this.viewSelected = "Trend";
       this.viewSelectedKey = "trend";
       this.showTrend = true;
@@ -412,8 +426,8 @@ export class LinePlot extends LitElement {
         mode: 'lines',
         line: {
           color: '#1A1A19',
-          width: 4,
-          dash: "dot",
+          width: 1,
+          dash: "solid",
         }
       }
       let newDataTraces = this.dataTraces.push(trace);
@@ -477,20 +491,17 @@ export class LinePlot extends LitElement {
       const currentTool = this.quartileData[tools[i]];
       const previousTool = this.quartileData[tools[i - 1]];
 
-      // If the quartile of the current tool is different from the previous tool, draw a line between them
       if (currentTool.quartile !== previousTool.quartile) {
-        // Calculate the x-position for the line between the current and previous tools
         const linePosition = (i + i - 1) / 2;
 
-        // Add a line shape to the layout with initial y-positions at the bottom
         layout.shapes.push({
           type: 'line',
           xref: 'x',
           yref: 'paper',
           x0: linePosition,
           x1: linePosition,
-          y0: 0,  // Start from the bottom
-          y1: 0,  // Start from the bottom
+          y0: 0,
+          y1: 0,
           line: {
             color: 'rgba(11, 87, 159, 0.5)',
             width: 2,
@@ -498,12 +509,9 @@ export class LinePlot extends LitElement {
           }
         });
 
-        // Animate the line upwards to its final position
         this.animateLine(layout.shapes.length - 1);
       }
     }
-
-    console.log(layout);
 
     Plotly.relayout(this.graphDiv, { shapes: layout.shapes });
   }
@@ -524,14 +532,10 @@ export class LinePlot extends LitElement {
 
     tools.forEach(tool => {
       const quartile = this.quartileData[tool].quartile;
-
-      // Calculate the label position based on quartile count
       let labelPosition;
       if (quartileCounts[quartile] === 1) {
-        // If quartile occurs only once, place the label above the tool
         labelPosition = tools.indexOf(tool);
       } else {
-        // If quartile occurs multiple times, calculate the midpoint between tools with the same quartile
         const positions = tools.reduce((acc, curr, index) => {
         if (this.quartileData[curr].quartile === quartile) {
             acc.push(index);
@@ -543,12 +547,10 @@ export class LinePlot extends LitElement {
         labelPosition = sum / positions.length;
       }
 
-      // Add label only if it hasn't been added at this position
       if (!addedLabelPositions.has(labelPosition)) {
-        // Add a label annotation to the layout
         layout.annotations.push({
             x: labelPosition,
-            y: 1.03, // Top of the chart
+            y: 1.03,
             xref: 'x',
             yref: 'paper',
             text: `Q${quartile}`,
@@ -559,13 +561,9 @@ export class LinePlot extends LitElement {
             }
         });
 
-        // Add the label position to the set of added positions
         addedLabelPositions.add(labelPosition);
       }
     });
-
-    console.log(layout);
-
     this.layout = layout;
 
     Plotly.relayout(this.graphDiv, { annotations: layout.annotations });
