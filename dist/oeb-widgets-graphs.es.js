@@ -1,4 +1,4 @@
-import { W as m } from "./widget-element-CkLirKg-.js";
+import { W as m } from "./widget-element-Rk0amspI.js";
 export {
   m as WidgetElement
 };
