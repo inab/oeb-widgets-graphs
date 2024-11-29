@@ -33,7 +33,7 @@ export class LinePlot extends LitElement {
     showInterquartileTable: false,
     showTrend: false,
     viewSelected: "No Classification",
-    mode: "lines",
+    mode: "linesmarkers",
   };
 
   constructor() {
@@ -45,7 +45,7 @@ export class LinePlot extends LitElement {
     this.datasetModDate = '';
     this.viewSelected = "Default View";
     this.viewSelectedKey = "default";
-    this.mode = "lines";
+    this.mode = "linesmarkers";
     this.threshold = [];
     this.quartileData = [];
     this.averageData = [];
@@ -112,7 +112,6 @@ export class LinePlot extends LitElement {
 
   firstUpdated() {
     const data = this.data.inline_data;
-    console.log(data);
     this.datasetModDate = this.data.dates.modification;
     this.originalData = this.data;
     this.x = data.challenge_participants.map(entry => entry.name);
@@ -218,10 +217,10 @@ export class LinePlot extends LitElement {
 
     var referenceLine = {
       x: [0, 1],
-        y: [0, 1],
-        mode: 'lines',
-        name: 'Random Classifier',
-        line: { dash: 'dash', color: 'red' }
+      y: [0, 1],
+      mode: 'lines',
+      name: 'Random Classifier',
+      line: { dash: 'dash', color: 'red' }
     };
     Plotly.react(this.graphDiv, [traces, referenceLine], this.layout);
   }
@@ -431,7 +430,7 @@ export class LinePlot extends LitElement {
         x: newTraces.regressionX,
         y: newTraces.regressionY,
         type: 'scatter',
-        mode: 'lines',
+        mode: 'linesmarkers',
         line: {
           color: '#1A1A19',
           width: 1,
@@ -859,7 +858,6 @@ export class LinePlot extends LitElement {
             pdf.save(`benchmarking_chart_${this.datasetId}.${format}`);
         }
       } else if (format === 'svg') {
-        console.log("Download SVG");
         Plotly.downloadImage(this.graphDiv, { format: 'svg', filename: `benchmarking_chart_${this.datasetId}` });
       } else if (format === 'png') {
           if(this.sorted) {
@@ -990,10 +988,14 @@ export class LinePlot extends LitElement {
               </div>
               <div class="dropdown orientation-dropdown">
                 <button type="button" class="btn btn-xl btn-center dropbtn mode">
-                  Mode: <span> ${ this.mode }</span>
+                  Mode: <span> ${ (this.mode=='linesmarkers')?"Lines & Makers" : this.mode }</span>
                   <div class="btn-icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg></div>
                 </button>
                 <div class="dropdown-content">
+                <div class="mode ${ (this.mode == 'linesmarkers') ? 'active disabled' : '' }"
+                    @click="${() => this.handleChangeMode('linesmarkers') }">
+                    Lines & Markers
+                  </div>
                   <div class="mode ${ (this.mode == 'lines') ? 'active disabled' : '' }"
                     @click="${() => this.handleChangeMode('lines') }">
                     ${ this.modeText.lines }
@@ -1001,10 +1003,6 @@ export class LinePlot extends LitElement {
                   <div class="mode ${ (this.mode == 'markers') ? 'active disabled' : '' }"
                     @click="${() => this.handleChangeMode('markers') }">
                     ${ this.modeText.markers }
-                  </div>
-                  <div class="mode ${ (this.mode == 'linesmarkers') ? 'active disabled' : '' }"
-                    @click="${() => this.handleChangeMode('linesmarkers') }">
-                    ${ this.modeText.linesmarkers }
                   </div>
                 </div>
               </div>
