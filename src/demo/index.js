@@ -136,6 +136,7 @@ export default class WidgetTest extends LitElement {
             };
         } else if(type === 'line-plot') {
             // Process challenge_participants data for LinePlot
+            data.inline_data.thresholds = participant.thresholds;
             data.inline_data.challenge_participants.forEach(participant => {
                 const preparedParticipant = {
                     name: participant.name,
@@ -145,7 +146,6 @@ export default class WidgetTest extends LitElement {
                 };
                 dataObj.inline_data.challenge_participants.push(preparedParticipant);
             });
-    
             // Process visualization data for LinePlot
             const visualization = data.inline_data.visualization;
             dataObj.inline_data.visualization = {
@@ -156,12 +156,13 @@ export default class WidgetTest extends LitElement {
             };
         }
     
+        console.log("type: " , type);
         if (visualization && type) {
             this.visualizationType = type;
         }
         return JSON.stringify(dataObj);
     }
-
+    
     render() {
         return html`
             <div>
