@@ -112,6 +112,7 @@ export class LinePlot extends LitElement {
 
   firstUpdated() {
     const data = this.data.inline_data;
+    console.log(data);
     this.datasetModDate = this.data.dates.modification;
     this.originalData = this.data;
     this.x = data.challenge_participants.map(entry => entry.name);
@@ -862,7 +863,6 @@ export class LinePlot extends LitElement {
         Plotly.downloadImage(this.graphDiv, { format: 'svg', filename: `benchmarking_chart_${this.datasetId}` });
       } else if (format === 'png') {
           if(this.sorted) {
-            console.log("sorted!")
             await new Promise(resolve => setTimeout(resolve, 200));
 
             const toDownloadDiv = this.todoDownload;

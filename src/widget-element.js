@@ -21,7 +21,7 @@ export class WidgetElement extends LitElement {
   }
 
   renderComponent() {    
-    console.log("plot", this.type);
+    console.log("plot: ", this.type);
 
     if(this.type == 'bar-plot') {
       return html`<bar-plot data = ${ this.data }></bar-plot>`
