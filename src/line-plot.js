@@ -122,9 +122,9 @@ export class LinePlot extends LitElement {
         y: participant.y_value,
         name: participant.name,
         type: 'scatter',
-        mode: 'lines',
+        mode: 'lines+markers',
         line: {
-          shape: 'hv',
+          shape: 'spline',
           color: this.markerColors[data.challenge_participants.indexOf(participant)],
           width: 2
         },
@@ -215,7 +215,14 @@ export class LinePlot extends LitElement {
     let traces = dataMode;
     let layout = this.layout;
 
-    Plotly.react(this.graphDiv, traces, this.layout);
+    var referenceLine = {
+      x: [0, 1],
+        y: [0, 1],
+        mode: 'lines',
+        name: 'Random Classifier',
+        line: { dash: 'dash', color: 'red' }
+    };
+    Plotly.react(this.graphDiv, [traces, referenceLine], this.layout);
   }
 
   getImagePosition() {

@@ -14,7 +14,6 @@ export default class WidgetTest extends LitElement {
 
     _jsonInfoData = new Task(this, {
         task: async ([dataJSON], { signal }) => {
-            console.log("fetching data");
             return this.fetchDataAndRender(await fetchDataInfo(dataJSON, signal));
         },
         args: () => [this.dataJSON],
@@ -22,7 +21,6 @@ export default class WidgetTest extends LitElement {
 
     constructor() {
         super()
-        console.log("constructor");
         this.data = "";
         this.visualizationType = '';
     }
