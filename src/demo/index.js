@@ -134,17 +134,17 @@ export default class WidgetTest extends LitElement {
             };
         } else if(type === 'line-plot') {
             // Process challenge_participants data for LinePlot
-            data.inline_data.challenge_participants.forEach(participant => {
+            data.inline_data.challenge_participants.participant.forEach(participant => {
                 const preparedParticipant = {
                     name: participant.name,
                     metric_id: participant.metric_id,
                     x_value: participant.x_value,
                     y_value: participant.y_value,
-                    thresholds: participant.thresholds
+                    t_error: participant.t_error
                 };
                 dataObj.inline_data.challenge_participants.push(preparedParticipant);
             });
-                
+
             // Process visualization data for LinePlot
             const visualization = data.inline_data.visualization;
             dataObj.inline_data.visualization = {

@@ -116,7 +116,14 @@ export class LinePlot extends LitElement {
     this.originalData = this.data;
     this.x = data.challenge_participants.map(entry => entry.name);
     this.datasetId = this.data._id;
+
+    this.annotations = [];
     this.dataTraces = data.challenge_participants.map((participant) => {
+      this.calculateAUC(participant.x_value, participant.y_value)
+      this.annotations.push({
+        auc: this.calculateAUC(participant.x_value, participant.y_value),
+        name: participant.name
+      });
       return {
         x: participant.x_value,
         y: participant.y_value,
@@ -128,10 +135,27 @@ export class LinePlot extends LitElement {
           color: this.markerColors[data.challenge_participants.indexOf(participant)],
           width: 2
         },
-        text: data.threshold,
-        hovertemplate: 'FPR: %{x}<br>TPR: %{y}<br>Threshold: %{text}<extra></extra>',
+        error_y: {
+          type: 'data',
+          array: participant.t_error,
+          visible: true,
+          color: 'rgba(0,0,0,0.5)',
+          thickness: 1.5,
+          width: 3
+        },
+        marker: { color: 'rgba(150,0,0,0.8)', symbol: 'square', size: 5 }
       }
     });
+
+    const randomLine = {
+      x: [0,1],
+      y: [0,1],
+      mode: 'lines',
+      name: 'Clasificador Aleatorio',
+      line: {color: 'rgba(0,0,0,0.3)', dash: 'dot', width: 2}
+    };
+
+    this.dataTraces.push(randomLine);
 
     this.originalTraces = this.dataTraces;
 
@@ -158,6 +182,8 @@ export class LinePlot extends LitElement {
           color: 'rgb(82, 82, 82)'
         },
         dtick: 0.5,
+        gridcolor: 'rgba(200,200,200,0.3)',
+        zerolinecolor: 'rgba(0,0,0,0.2)'
       },
       yaxis: {
         title: {
@@ -167,7 +193,9 @@ export class LinePlot extends LitElement {
         zeroline: true,
         showline: true,
         showticklabels: true,
-        dtick: 1
+        dtick: 1,
+        gridcolor: 'rgba(200,200,200,0.3)',
+        zerolinecolor: 'rgba(0,0,0,0.2)'
       },
       legend: {
         orientation: 'h',
@@ -182,6 +210,18 @@ export class LinePlot extends LitElement {
       },
       showlegend: true,
     };
+
+    const annotations = this.annotations.map((annotation, index) => ({
+      x: 0,
+      y: 1 - (index * 0.05),
+      xref: 'paper',
+      yref: 'paper',
+      text: `AUC(${annotation.name}) ≈ ${annotation.auc.toFixed(2)}`,
+      showarrow: false,
+      font: { size: 14 }
+    }));
+
+    this.layout.annotations = annotations;
   }
 
   updated() {
@@ -193,6 +233,16 @@ export class LinePlot extends LitElement {
 
     this.myPlot = Plotly.newPlot(this.graphDiv, [], this.layout, { displayModeBar: false, responsive: true, hovermode: false });
     this.renderChart();
+  }
+
+  calculateAUC(fpr, tpr) {
+    let auc = 0;
+    for (let i = 0; i < fpr.length - 1; i++) {
+      const width = fpr[i+1] - fpr[i]; 
+      const height = (tpr[i] + tpr[i+1]) / 2;
+      auc += width * height;
+    }
+    return auc;
   }
 
   formatDateString(dateString) {
@@ -335,8 +385,8 @@ export class LinePlot extends LitElement {
       this.showAdditionalTable = true;
       this.showQuartileTable = true;
       this.tracesTable = this.dataTraces;
-      this.quartileData = this.calculateQuartiles(this.dataTraces);
-
+      let clonedTraces = this.dataTraces.slice(0, -1); 
+      this.quartileData = this.calculateQuartiles(clonedTraces);
       this.quartileData.forEach((quartile, index) => {
         quartile.quartileName = this.dataTraces[index].name;
         quartile.quartile = this.quartileData[index].quartile;
@@ -357,6 +407,7 @@ export class LinePlot extends LitElement {
       this.showAdditionalTable = true;
       this.showAverageTable = true;
       this.sorted = true;
+      let clonedTraces = this.dataTraces.slice(0, -1); 
       this.layout = {
         title: '',
         autosize: true,
@@ -404,7 +455,7 @@ export class LinePlot extends LitElement {
         },
         showlegend: true,
       };
-      this.averageData = this.calculateAverage(this.dataTraces);
+      this.averageData = this.calculateAverage(clonedTraces);
       this.renderChart();
     } else if (view === 'interquartile') {
       this.dataTraces = this.originalTraces;
@@ -413,7 +464,8 @@ export class LinePlot extends LitElement {
       this.sorted = true;
       this.showAdditionalTable = true;
       this.showInterquartileTable = true;
-      this.interquartileData = this.calculateIQR(this.dataTraces);
+      let clonedTraces = this.dataTraces.slice(0, -1); 
+      this.interquartileData = this.calculateIQR(clonedTraces);
       this.addLinesBetweenQuartiles();
       this.addQuartileLabels();
       this.renderChart();
@@ -424,7 +476,9 @@ export class LinePlot extends LitElement {
       this.showTrend = true;
       this.sorted = false;
       this.tracesTable = this.dataTraces;
-      let newTraces = this.calculateTrend(this.dataTraces);
+      let clonedTraces = this.dataTraces.slice(0, -1); 
+      let newTraces = this.calculateTrend(clonedTraces);
+      console.log(newTraces);
       let trace = {
         name: "General Trendline",
         x: newTraces.regressionX,
