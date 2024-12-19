@@ -115,8 +115,6 @@ export class LinePlot extends LitElement {
     this.datasetModDate = this.data.dates.modification;
     this.originalData = this.data;
     
-    console.log(data.challenge_participants);
-
     this.x = data.challenge_participants.map(entry => entry.name);
     this.datasetId = this.data._id;
 

@@ -52,8 +52,6 @@ export default class WidgetTest extends LitElement {
             }
         }
 
-        console.log("type", type);
-
         if (type === 'bar-plot'){
             // Process challenge_participants data for BarPlot
             data.inline_data.challenge_participants.forEach(participant => {
@@ -136,10 +134,7 @@ export default class WidgetTest extends LitElement {
             };
         } else if(type === 'line-plot') {
             // Process challenge_participants data for LinePlot
-
-            console.log( data.inline_data);
-
-            data.inline_data.challenge_participants.participant.forEach(participant => {
+            data.inline_data.challenge_participants.forEach(participant => {
                 const preparedParticipant = {
                     name: participant.name,
                     metric_id: participant.metric_id,
