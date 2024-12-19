@@ -326,7 +326,7 @@ export class LinePlot extends LitElement {
   async setClassificationView(view) {
     this.resetQuartileTable();
     if (view === 'default') {
-      this.dataTraces = this.originalTraces;
+      let newTraces = [...this.originalTraces];
       this.viewSelected = "Default View";
       this.viewSelectedKey = "default";
       this.sorted = false;
@@ -379,7 +379,7 @@ export class LinePlot extends LitElement {
         },
         showlegend: true,
       };
-      this.renderChart();
+      this.renderChart(newTraces);
     } else if (view === 'quartiles') {
       let newTraces = [...this.originalTraces];
       this.viewSelected = "Quartiles";
@@ -389,7 +389,6 @@ export class LinePlot extends LitElement {
       this.showQuartileTable = true;
       this.tracesTable = newTraces;
       newTraces.splice(newTraces.length - 1, 1);
-
       this.quartileData = this.calculateQuartiles(newTraces);
       this.quartileData.forEach((quartile, index) => {
         quartile.quartileName = newTraces[index].name;
@@ -404,7 +403,7 @@ export class LinePlot extends LitElement {
       this.addLinesBetweenQuartiles();
       this.addQuartileLabels();
       this.layout.height = 800;
-      this.renderChart();
+      this.renderChart(newTraces);
     } else if (view === 'average') {
       let newTraces = [...this.originalTraces];
       newTraces.splice(newTraces.length - 1, 1);
@@ -572,8 +571,6 @@ export class LinePlot extends LitElement {
             dash: 'dashdot'
           }
         });
-
-        //this.animateLine(layout.shapes.length - 1);
       }
     }
 
