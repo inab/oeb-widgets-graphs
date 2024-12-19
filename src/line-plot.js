@@ -403,7 +403,7 @@ export class LinePlot extends LitElement {
       this.addLinesBetweenQuartiles();
       this.addQuartileLabels();
       this.layout.height = 800;
-      this.renderChart(newTraces);
+      this.renderChart(this.originalTraces);
     } else if (view === 'average') {
       let newTraces = [...this.originalTraces];
       newTraces.splice(newTraces.length - 1, 1);
@@ -460,7 +460,7 @@ export class LinePlot extends LitElement {
         showlegend: true,
       };
       this.averageData = this.calculateAverage(newTraces);
-      this.renderChart(newTraces);
+      this.renderChart(this.originalTraces);
     } else if (view === 'interquartile') {
       let newTraces = [...this.originalTraces];
       this.viewSelected = "Interquartile range";
