@@ -158,7 +158,7 @@ export class LinePlot extends LitElement {
 
     this.dataTraces.push(randomLine);
 
-    this.originalTraces = this.dataTraces;
+    this.originalTraces = [...this.dataTraces];
 
     this.layout = {
       title: '',
@@ -231,7 +231,6 @@ export class LinePlot extends LitElement {
     this.chartCapture = this.shadowRoot.querySelector('#chartCapture');
     this.tableColumn = this.shadowRoot.querySelector('#table-column');
     this.benchmarkingTable = this.shadowRoot.querySelector('#benchmarkingTable');
-
     this.myPlot = Plotly.newPlot(this.graphDiv, [], this.layout, { displayModeBar: false, responsive: true, hovermode: false });
     this.renderChart();
   }
@@ -255,10 +254,13 @@ export class LinePlot extends LitElement {
     });
   }
 
-  renderChart() {
-    if(this.data) {
+  renderChart(traces) {
+    if (this.data && !traces) {
       this.threshold = this.data.inline_data.thresholds;
       Plotly.newPlot(this.graphDiv, this.dataTraces, this.layout, GRAPH_CONFIG);
+    } else if (traces && traces.length > 0) {
+      this.dataTraces = traces;
+      Plotly.newPlot(this.graphDiv, traces, this.layout, GRAPH_CONFIG);
     }
   }
 
@@ -379,17 +381,18 @@ export class LinePlot extends LitElement {
       };
       this.renderChart();
     } else if (view === 'quartiles') {
-      this.dataTraces = this.originalTraces;
+      let newTraces = [...this.originalTraces];
       this.viewSelected = "Quartiles";
       this.viewSelectedKey = "quartiles";
       this.sorted = true;
       this.showAdditionalTable = true;
       this.showQuartileTable = true;
-      this.tracesTable = this.dataTraces;
-      let clonedTraces = this.dataTraces.slice(0, -1); 
-      this.quartileData = this.calculateQuartiles(clonedTraces);
+      this.tracesTable = newTraces;
+      newTraces.splice(newTraces.length - 1, 1);
+
+      this.quartileData = this.calculateQuartiles(newTraces);
       this.quartileData.forEach((quartile, index) => {
-        quartile.quartileName = this.dataTraces[index].name;
+        quartile.quartileName = newTraces[index].name;
         quartile.quartile = this.quartileData[index].quartile;
         quartile.label = this.quartileData[index].label;
         quartile.bgColor = this.getQuartileBgColor(quartile.quartile).bgColor;
@@ -400,15 +403,16 @@ export class LinePlot extends LitElement {
 
       this.addLinesBetweenQuartiles();
       this.addQuartileLabels();
+      this.layout.height = 800;
       this.renderChart();
     } else if (view === 'average') {
-      this.dataTraces = this.originalTraces;
+      let newTraces = [...this.originalTraces];
+      newTraces.splice(newTraces.length - 1, 1);
       this.viewSelected = "Average";
       this.viewSelectedKey = "average";
       this.showAdditionalTable = true;
       this.showAverageTable = true;
       this.sorted = true;
-      let clonedTraces = this.dataTraces.slice(0, -1); 
       this.layout = {
         title: '',
         autosize: true,
@@ -456,34 +460,31 @@ export class LinePlot extends LitElement {
         },
         showlegend: true,
       };
-      this.averageData = this.calculateAverage(clonedTraces);
-      this.renderChart();
+      this.averageData = this.calculateAverage(newTraces);
+      this.renderChart(newTraces);
     } else if (view === 'interquartile') {
-      this.dataTraces = this.originalTraces;
+      let newTraces = [...this.originalTraces];
       this.viewSelected = "Interquartile range";
       this.viewSelectedKey = "interquartile";
       this.sorted = true;
       this.showAdditionalTable = true;
       this.showInterquartileTable = true;
-      let clonedTraces = this.dataTraces.slice(0, -1); 
-      this.interquartileData = this.calculateIQR(clonedTraces);
+      this.interquartileData = this.calculateIQR(newTraces);
       this.addLinesBetweenQuartiles();
       this.addQuartileLabels();
-      this.renderChart();
+      this.renderChart(newTraces);
     } else if (view === 'trend') {
-      this.dataTraces = this.originalTraces;
+      let newTraces = [...this.originalTraces];
       this.viewSelected = "Trend";
       this.viewSelectedKey = "trend";
       this.showTrend = true;
       this.sorted = false;
-      this.tracesTable = this.dataTraces;
-      let clonedTraces = this.dataTraces.slice(0, -1); 
-      let newTraces = this.calculateTrend(clonedTraces);
-      console.log(newTraces);
+      this.tracesTable = newTraces;
+      let regressionTraces = this.calculateTrend(newTraces);
       let trace = {
         name: "General Trendline",
-        x: newTraces.regressionX,
-        y: newTraces.regressionY,
+        x: regressionTraces.regressionX,
+        y: regressionTraces.regressionY,
         type: 'scatter',
         mode: 'linesmarkers',
         line: {
@@ -492,7 +493,8 @@ export class LinePlot extends LitElement {
           dash: "solid",
         }
       }
-      let newDataTraces = this.dataTraces.push(trace);
+
+      newTraces = [...newTraces, trace];
       this.layout = {
         title: '',
         autosize: true,
@@ -540,7 +542,7 @@ export class LinePlot extends LitElement {
         },
         showlegend: true,
       };
-      this.renderChart(newDataTraces);
+      this.renderChart(newTraces);
     }
   }
 
@@ -571,7 +573,7 @@ export class LinePlot extends LitElement {
           }
         });
 
-        this.animateLine(layout.shapes.length - 1);
+        //this.animateLine(layout.shapes.length - 1);
       }
     }
 
