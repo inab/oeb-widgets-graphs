@@ -134,6 +134,9 @@ export default class WidgetTest extends LitElement {
             };
         } else if(type === 'line-plot') {
             // Process challenge_participants data for LinePlot
+
+            console.log( data.inline_data);
+            
             data.inline_data.challenge_participants.participant.forEach(participant => {
                 const preparedParticipant = {
                     name: participant.name,
