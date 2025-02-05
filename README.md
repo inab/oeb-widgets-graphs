@@ -131,7 +131,7 @@ You can see an example of a structure to display bar graphs within the "demo" se
 A line plot is an effective visual tool used to display trends and relationships between numerical variables over a continuous range. It consists of data points connected by a line, typically plotted on a two-dimensional plane with one variable on the x-axis and another on the y-axis. Line plots are particularly useful for illustrating patterns over time, comparing multiple datasets, or highlighting fluctuations and trends within the data.
 [Line plot live demo](https://inab.github.io/oeb-widgets-graphs/_examples/lineplot.html)
 
-<img width="320" height="240"  style="display: block; margin: 0 auto" src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/25e27732a42364a677df669c70f1512d5058e7d3/docs/assets/videos/line-plot-new.gif?raw=true" />
+<img width="500" height="400"  style="display: block; margin: 0 auto" src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/25e27732a42364a677df669c70f1512d5058e7d3/docs/assets/videos/line-plot-new.gif?raw=true" />
 
 #### Line plot structure
 You can see an example of a structure to display bar graphs within the "demo" section of the application. [Line plot structure example](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT_NEW.json).
