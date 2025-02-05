@@ -6,8 +6,7 @@ import { OebLoader } from '../oeb-loader.js';
 import { fetchDataInfo } from '../utils.js';
 
 export default class WidgetTest extends LitElement {
-    dataJSON = './files/LINEPLOT.json';
-
+    dataJSON = './files/LINEPLOT_NEW.json';
     static properties = {
         _data: { state: true }
     }
@@ -29,6 +28,9 @@ export default class WidgetTest extends LitElement {
         let visualization = (data.inline_data && data.inline_data.visualization) ? data.inline_data.visualization : data.visualization
         let type = visualization.type
         let dataObj = {}
+        if(visualization.representations && visualization.representations[0].type && visualization.representations[0].type === 'line-plot') {
+            type = 'line-plot'
+        }
         
         if(type == 'radar-plot') {
             dataObj = {
@@ -134,24 +136,69 @@ export default class WidgetTest extends LitElement {
             };
         } else if(type === 'line-plot') {
             // Process challenge_participants data for LinePlot
-            data.inline_data.challenge_participants.forEach(participant => {
-                const preparedParticipant = {
-                    name: participant.name,
-                    metric_id: participant.metric_id,
-                    x_value: participant.x_value,
-                    y_value: participant.y_value,
-                    t_error: participant.t_error
+            // Get axis names
+            const x_axis = data?.inline_data?.visualization?.representations?.find(
+                (representation) => representation.metrics_series.some((metric) => metric.axis === 'x')
+            )?.metrics_series.find((metric) => metric.axis === 'x');
+
+            const y_axis = data?.inline_data?.visualization?.representations?.find(
+                (representation) => representation.metrics_series.some((metric) => metric.axis === 'y')
+            )?.metrics_series.find((metric) => metric.axis === 'y');
+
+            // Build data for LinePlot
+            data?.inline_data?.challenge_participants.forEach(participant => {
+                let x_value = function() {
+                    if (x_axis.metric_id === participant.metric_id) {
+                        return participant.values;
+                    }
+                    return null;
                 };
-                dataObj.inline_data.challenge_participants.push(preparedParticipant);
+
+                let y_value = function() {
+                    if (y_axis.metric_id === participant.metric_id) {
+                        return participant.values;
+                    }
+                    return null;
+                };
+
+                let participant_new = dataObj.inline_data.challenge_participants.find(p => p.name === participant.label);
+                if(!participant_new) {
+                    participant_new = {
+                        metric_id: participant.metric_id,
+                        name: participant.label,
+                        x_value: [],
+                        y_value: [],
+                        t_error: [],
+                        x_optimization: '',
+                        y_optimization: ''
+                    }
+                    dataObj.inline_data.challenge_participants.push(participant_new);
+                }
+
+                let x_result = x_value();
+                if (x_result) {
+                    participant_new.x_value = [...participant_new.x_value, ...x_result];
+                }
+
+                let y_result = y_value();
+                if (y_result) {
+                    let new_axis = {
+                        y_value_axis: y_result.map(({v}) => v),
+                        error_value_axis: y_result.map(({e}) => e)
+                    }
+
+                    participant_new.y_value = [...participant_new.y_value, ...new_axis.y_value_axis];
+                    participant_new.t_error = [...participant_new.t_error, ...new_axis.error_value_axis];
+                }
             });
 
-            // Process visualization data for LinePlot
-            const visualization = data.inline_data.visualization;
             dataObj.inline_data.visualization = {
-                x_axis: visualization.x_axis,
-                y_axis: visualization.y_axis,
-                type: visualization.type,
-                dates: visualization.dates
+                x_axis: x_axis.title,
+                y_axis: y_axis.title,
+                x_optimization: x_axis.optimization ?? 'maximize',
+                y_optimization: y_axis.optimization ?? 'maximize',
+                type: type,
+                dates: ''
             };
         }
     

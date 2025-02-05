@@ -1,4 +1,5 @@
 import { html, LitElement } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import Plotly from 'plotly.js-dist'
 import { plotlyStyles } from "./plotly-styles.js";
 import { graphStyles } from './graph-styles.js';
@@ -34,6 +35,7 @@ export class LinePlot extends LitElement {
     showTrend: false,
     viewSelected: "No Classification",
     mode: "linesmarkers",
+    optimization: "default"
   };
 
   constructor() {
@@ -103,6 +105,8 @@ export class LinePlot extends LitElement {
         showticklabels: true,
       }
     };
+    this.optimization = "default";
+    this.defaultOptimizationText = "";
   }
   
   attributeChangedCallback(name, oldVal, newVal) {
@@ -114,7 +118,7 @@ export class LinePlot extends LitElement {
     const data = this.data.inline_data;
     this.datasetModDate = this.data.dates.modification;
     this.originalData = this.data;
-    
+
     this.x = data.challenge_participants.map(entry => entry.name);
     this.datasetId = this.data._id;
 
@@ -170,6 +174,7 @@ export class LinePlot extends LitElement {
         title: {
           text: data.visualization.x_axis
         },
+        autorange: data.visualization.x_optimization === 'maximize' ? 'max' : 'reversed',
         showline: true,
         showgrid: true,
         showticklabels: true,
@@ -190,6 +195,7 @@ export class LinePlot extends LitElement {
         title: {
           text: data.visualization.y_axis
         },
+        autorange: data.visualization.y_optimization === 'maximize' ? 'max' : 'reversed',
         showgrid: true,
         zeroline: true,
         showline: true,
@@ -212,6 +218,9 @@ export class LinePlot extends LitElement {
       showlegend: true,
     };
 
+    this.defaultOptimizationText = `X: ${data.visualization.x_optimization === 'maximize' ? 'maximize' : 'minimize'}`;
+    this.defaultOptimizationText += `<br/> Y: ${data.visualization.y_optimization === 'maximize' ? 'maximize' : 'minimize'}`;
+
     const annotations = this.annotations.map((annotation, index) => ({
       x: 0,
       y: 1 - (index * 0.05),
@@ -232,6 +241,7 @@ export class LinePlot extends LitElement {
     this.tableColumn = this.shadowRoot.querySelector('#table-column');
     this.benchmarkingTable = this.shadowRoot.querySelector('#benchmarkingTable');
     this.myPlot = Plotly.newPlot(this.graphDiv, [], this.layout, { displayModeBar: false, responsive: true, hovermode: false });
+
     this.renderChart();
   }
 
@@ -275,6 +285,7 @@ export class LinePlot extends LitElement {
       name: 'Random Classifier',
       line: { dash: 'dash', color: 'red' }
     };
+
     Plotly.react(this.graphDiv, [traces, referenceLine], this.layout);
   }
 
@@ -332,6 +343,7 @@ export class LinePlot extends LitElement {
       this.sorted = false;
       this.quartileData = [];
       this.tracesTable = [];
+
       this.layout = {
         title: '',
         autosize: true,
@@ -459,6 +471,8 @@ export class LinePlot extends LitElement {
         },
         showlegend: true,
       };
+
+      this.setOptimitacionValuesLayout(this.optimization);
       this.averageData = this.calculateAverage(newTraces);
       this.renderChart(this.originalTraces);
     } else if (view === 'interquartile') {
@@ -494,6 +508,7 @@ export class LinePlot extends LitElement {
       }
 
       newTraces = [...newTraces, trace];
+
       this.layout = {
         title: '',
         autosize: true,
@@ -541,6 +556,8 @@ export class LinePlot extends LitElement {
         },
         showlegend: true,
       };
+
+      this.setOptimitacionValuesLayout(this.optimization);
       this.renderChart(newTraces);
     }
   }
@@ -776,7 +793,7 @@ export class LinePlot extends LitElement {
       let category = '';
       let bgColor = '';
 
-      // Clasificación basada en el promedio
+      // Classification based on average
       if (x >= averageX && y >= averageY) {
         category = 'High performance';
         bgColor = '#A5DD9B';
@@ -813,7 +830,7 @@ export class LinePlot extends LitElement {
         pdf.text(`Benchmarking Results of ${this.datasetId} at ${this.formatDateString(this.datasetModDate)}`, 105, 10, null, null, 'center');
 
         if (this.sorted) {
-            // Agregar un pequeño retraso para asegurarse de que los cambios se hayan renderizado
+            // Add a small delay to ensure changes have been rendered
             await new Promise(resolve => setTimeout(resolve, 200));
 
             let toDownloadDiv = this.todoDownload;
@@ -958,7 +975,7 @@ export class LinePlot extends LitElement {
                 height: toDownloadDiv.offsetHeight
             });
 
-            // Eliminar la fila en blanco después de la captura
+            // Remove blank row after capture
             tableBody.removeChild(blankRow);
 
             const downloadImage = downloadCanvas.toDataURL(`image/${format}`);
@@ -1006,6 +1023,40 @@ export class LinePlot extends LitElement {
     }
   }
 
+  getOptimizationName(opt) {
+    if(opt === "default") {
+      return "Default";
+    } else if(opt === "maximize") {
+      return "Maximize";
+    } else {
+      return "Minimize";
+    }
+  }
+
+  handleChangeOptimization(opt) {
+    this.optimization = opt;
+    if(opt === 'default') {
+      this.setOptimitacionValuesLayout('default');
+    } else if(opt === 'maximize') {
+      this.setOptimitacionValuesLayout('maximize');
+    } else if(opt === 'minimize') {
+      this.setOptimitacionValuesLayout('minimize');
+    }
+  }
+
+  setOptimitacionValuesLayout(opt) {
+    if(opt === 'default') {
+      this.layout.xaxis.autorange = this.data.inline_data.visualization.x_optimization === 'maximize' ? 'max' : 'reversed';
+      this.layout.yaxis.autorange = this.data.inline_data.visualization.y_optimization === 'maximize' ? 'max' : 'reversed';
+    } else if(opt === 'maximize') {
+      this.layout.xaxis.autorange = 'max';
+      this.layout.yaxis.autorange = 'max';
+    } else if(opt === 'minimize') {
+      this.layout.xaxis.autorange = 'reversed';
+      this.layout.yaxis.autorange = 'reversed';
+    }
+  }
+
   render() {
     return html`
       <div class="line-plot oeb-graph">
@@ -1048,7 +1099,7 @@ export class LinePlot extends LitElement {
                 <div class="dropdown-content">
                   <div class="mode ${ (this.mode == 'linesmarkers') ? 'active disabled' : '' }"
                     @click="${() => this.handleChangeMode('linesmarkers') }">
-                    ${ this.modeText.lines }
+                    ${ this.modeText.linesmarkers }
                   </div>
                   <div class="mode ${ (this.mode == 'lines') ? 'active disabled' : '' }"
                     @click="${() => this.handleChangeMode('lines') }">
@@ -1057,6 +1108,26 @@ export class LinePlot extends LitElement {
                   <div class="mode ${ (this.mode == 'markers') ? 'active disabled' : '' }"
                     @click="${() => this.handleChangeMode('markers') }">
                     ${ this.modeText.markers }
+                  </div>
+                </div>
+              </div>
+              <div class="dropdown orientation-dropdown">
+                <button type="button" class="btn btn-xl btn-center dropbtn mode">
+                  Optimization: <span> ${ this.optimization === 'default' ? unsafeHTML(this.defaultOptimizationText) : ('All ' + this.optimization) } </span>
+                  <div class="btn-icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg></div>
+                </button>
+                <div class="dropdown-content">
+                <div class="mode ${ (this.optimization == 'default') ? 'active disabled' : '' }"
+                    @click="${() => this.handleChangeOptimization('default') }">
+                    ${ this.getOptimizationName('default') }
+                  </div>
+                  <div class="mode ${ (this.optimization == 'maximize') ? 'active disabled' : '' }"
+                    @click="${() => this.handleChangeOptimization('maximize') }">
+                    All ${ this.getOptimizationName('maximize') }
+                  </div>
+                  <div class="mode ${ (this.optimization == 'minimize') ? 'active disabled' : '' }"
+                    @click="${() => this.handleChangeOptimization('minimize') }">
+                    All ${ this.getOptimizationName('minimize') }
                   </div>
                 </div>
               </div>
