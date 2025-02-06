@@ -1064,7 +1064,7 @@ export class LinePlot extends LitElement {
     return html`
       <div class="line-plot oeb-graph">
         <div class="graph-row" id="graph-filters">
-          <div class="col-8">
+          <div class="col-10">
             <div class="btn-group btn-graphs" role="group" aria-label="Basic example">
               <div class="dropdown classification-dropdown">
                 <button type="button" class="btn dropbtn first-btn">
