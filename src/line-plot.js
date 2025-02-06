@@ -122,8 +122,11 @@ export class LinePlot extends LitElement {
     this.x = data.challenge_participants.map(entry => entry.name);
     this.datasetId = this.data._id;
 
+    console.log(data);
+
     this.annotations = [];
     this.dataTraces = data.challenge_participants.map((participant) => {
+      console.log(participant);
       this.calculateAUC(participant.x_value, participant.y_value)
       this.annotations.push({
         auc: this.calculateAUC(participant.x_value, participant.y_value),

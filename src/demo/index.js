@@ -205,6 +205,7 @@ export default class WidgetTest extends LitElement {
         if (visualization && type) {
             this.visualizationType = type;
         }
+
         return JSON.stringify(dataObj);
     }
 
