@@ -125,9 +125,6 @@ export class LinePlot extends LitElement {
       }
     }
 
-    console.log("this.data", this.data);
-    console.log("dataObj", dataObj);
-
     const x_axis = this.data?.inline_data?.visualization?.representations?.find(
       (representation) => representation.metrics_series.some((metric) => metric.axis === 'x')
     )?.metrics_series.find((metric) => metric.axis === 'x');
