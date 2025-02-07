@@ -135,77 +135,20 @@ export default class WidgetTest extends LitElement {
                 schema_url: visualization.schema_url,
             };
         } else if(type === 'line-plot') {
-            // Process challenge_participants data for LinePlot
-            // Get axis names
-            const x_axis = data?.inline_data?.visualization?.representations?.find(
-                (representation) => representation.metrics_series.some((metric) => metric.axis === 'x')
-            )?.metrics_series.find((metric) => metric.axis === 'x');
-
-            const y_axis = data?.inline_data?.visualization?.representations?.find(
-                (representation) => representation.metrics_series.some((metric) => metric.axis === 'y')
-            )?.metrics_series.find((metric) => metric.axis === 'y');
-
-            // Build data for LinePlot
-            data?.inline_data?.challenge_participants.forEach(participant => {
-                let x_value = function() {
-                    if (x_axis.metric_id === participant.metric_id) {
-                        return participant.values;
-                    }
-                    return null;
-                };
-
-                let y_value = function() {
-                    if (y_axis.metric_id === participant.metric_id) {
-                        return participant.values;
-                    }
-                    return null;
-                };
-
-                let participant_new = dataObj.inline_data.challenge_participants.find(p => p.name === participant.label);
-                if(!participant_new) {
-                    participant_new = {
-                        metric_id: participant.metric_id,
-                        name: participant.label,
-                        x_value: [],
-                        y_value: [],
-                        t_error: [],
-                        x_optimization: '',
-                        y_optimization: ''
-                    }
-                    dataObj.inline_data.challenge_participants.push(participant_new);
-                }
-
-                let x_result = x_value();
-                if (x_result) {
-                    participant_new.x_value = [...participant_new.x_value, ...x_result];
-                }
-
-                let y_result = y_value();
-                if (y_result) {
-                    let new_axis = {
-                        y_value_axis: y_result.map(({v}) => v),
-                        error_value_axis: y_result.map(({e}) => e)
-                    }
-
-                    participant_new.y_value = [...participant_new.y_value, ...new_axis.y_value_axis];
-                    participant_new.t_error = [...participant_new.t_error, ...new_axis.error_value_axis];
-                }
-            });
+            dataObj.inline_data.challenge_participants = data.inline_data.challenge_participants;
 
             dataObj.inline_data.visualization = {
-                x_axis: x_axis.title,
-                y_axis: y_axis.title,
-                x_optimization: x_axis.optimization ?? 'maximize',
-                y_optimization: y_axis.optimization ?? 'maximize',
                 type: type,
                 dates: ''
             };
+
+            dataObj = data;
         }
     
         if (visualization && type) {
             this.visualizationType = type;
         }
-
+        
         return JSON.stringify(dataObj);
     }
 

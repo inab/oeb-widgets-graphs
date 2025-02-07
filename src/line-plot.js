@@ -115,6 +115,82 @@ export class LinePlot extends LitElement {
   }
 
   firstUpdated() {
+    const dataObj = {
+      _id: this.data._id,
+      dates: this.data.dates,
+      dataset_contact_ids: this.data.dataset_contact_ids,
+      inline_data: {
+        challenge_participants:[],
+        visualization:{}
+      }
+    }
+
+    const x_axis = this.data?.inline_data?.visualization?.representations?.find(
+      (representation) => representation.metrics_series.some((metric) => metric.axis === 'x')
+    )?.metrics_series.find((metric) => metric.axis === 'x');
+
+    const y_axis = this.data?.inline_data?.visualization?.representations?.find(
+        (representation) => representation.metrics_series.some((metric) => metric.axis === 'y')
+    )?.metrics_series.find((metric) => metric.axis === 'y');
+
+    // Build data for LinePlot
+    this.data?.inline_data?.challenge_participants.forEach(participant => {
+      let x_value = function() {
+          if (x_axis.metric_id === participant.metric_id) {
+              return participant.values;
+          }
+          return null;
+      };
+
+      let y_value = function() {
+          if (y_axis.metric_id === participant.metric_id) {
+              return participant.values;
+          }
+          return null;
+      };
+
+      let participant_new = dataObj.inline_data.challenge_participants.find(p => p.name === participant.label);
+      if(!participant_new) {
+        participant_new = {
+          metric_id: participant.metric_id,
+          name: participant.label,
+          x_value: [],
+          y_value: [],
+          t_error: [],
+          x_optimization: '',
+          y_optimization: ''
+        }
+        dataObj.inline_data.challenge_participants.push(participant_new);
+      }
+
+      let x_result = x_value();
+      if (x_result) {
+        participant_new.x_value = [...participant_new.x_value, ...x_result];
+      }
+
+      let y_result = y_value();
+      if (y_result) {
+        let new_axis = {
+          y_value_axis: y_result.map(({v}) => v),
+          error_value_axis: y_result.map(({e}) => e)
+        }
+
+        participant_new.y_value = [...participant_new.y_value, ...new_axis.y_value_axis];
+        participant_new.t_error = [...participant_new.t_error, ...new_axis.error_value_axis];
+      }
+    });
+
+    dataObj.inline_data.visualization = {
+      x_axis: x_axis.title,
+      y_axis: y_axis.title,
+      x_optimization: x_axis.optimization ?? 'maximize',
+      y_optimization: y_axis.optimization ?? 'maximize',
+      type: this.type,
+      dates: ''
+    }
+
+    this.data = dataObj;
+
     const data = this.data.inline_data;
     this.datasetModDate = this.data.dates.modification;
     this.originalData = this.data;
@@ -123,6 +199,7 @@ export class LinePlot extends LitElement {
     this.datasetId = this.data._id;
 
     this.annotations = [];
+    
     this.dataTraces = data.challenge_participants.map((participant) => {
       this.calculateAUC(participant.x_value, participant.y_value)
       this.annotations.push({
