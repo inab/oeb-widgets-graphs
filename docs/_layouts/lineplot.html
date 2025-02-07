@@ -66,7 +66,9 @@
               <p>
                 Add the installed package to your HTML file.
               </p>
-              <p><pre><code class="language-javascript">let graphData = {
+              <p><pre><code class="language-javascript">
+        // This is a line plot schema
+        let graphData = {
             "_id": "OEBDTEST0000006",
             "dates": {
               "modification": "2023-05-27T19:18:32Z"
@@ -166,96 +168,34 @@
               </p>
               <pre>
                 <code class="language-javascript">
-        const graphType=JSON.stringify("line-plot");
+      // Define the graph type
+      const graphType = JSON.stringify("line-plot");
 
-        const myComp = document.getElementById('widget-element');
+      // Get the widget element
+      const myComp = document.getElementById('widget-element');
                 </code>
               </pre>
               <p>
               <pre>
                 <code class="language-javascript">
-        // Create new data object
-        let dataObj = {
-          _id: graphData._id,
-          dates: graphData.dates,
-          dataset_contact_ids: graphData.dataset_contact_ids,
-          inline_data: {
-            challenge_participants:[],
-            visualization:{}
-          }
-        }
-
-        // Get axis information
-        const x_axis = graphData?.inline_data?.visualization?.representations?.find(
-          (representation) => representation.metrics_series.some((metric) => metric.axis === 'x')
-      )?.metrics_series.find((metric) => metric.axis === 'x');
-
-      const y_axis = graphData?.inline_data?.visualization?.representations?.find(
-          (representation) => representation.metrics_series.some((metric) => metric.axis === 'y')
-      )?.metrics_series.find((metric) => metric.axis === 'y');
-
-      // Get the data for the graph
-      graphData?.inline_data?.challenge_participants.forEach(participant => {
-        let x_value = function() {
-            if (x_axis.metric_id === participant.metric_id) {
-                return participant.values;
-            }
-            return null;
-        };
-
-        let y_value = function() {
-            if (y_axis.metric_id === participant.metric_id) {
-                return participant.values;
-            }
-            return null;
-        };
-
-        let participant_new = dataObj.inline_data.challenge_participants.find(p => p.name === participant.label);
-        if(!participant_new) {
-            participant_new = {
-                metric_id: participant.metric_id,
-                name: participant.label,
-                x_value: [],
-                y_value: [],
-                t_error: [],
-                x_optimization: '',
-                y_optimization: ''
-            }
-            dataObj.inline_data.challenge_participants.push(participant_new);
-        }
-
-        let x_result = x_value();
-        if (x_result) {
-            participant_new.x_value = [...participant_new.x_value, ...x_result];
-        }
-
-        let y_result = y_value();
-        if (y_result) {
-            let new_axis = {
-                y_value_axis: y_result.map(({v}) => v),
-                error_value_axis: y_result.map(({e}) => e)
-            }
-
-            participant_new.y_value = [...participant_new.y_value, ...new_axis.y_value_axis];
-            participant_new.t_error = [...participant_new.t_error, ...new_axis.error_value_axis];
-        }
-      });
-
-      // Get the type of the graph
+      // Create new data object
+      // Get the type and data of the graph
       let type = JSON.parse(graphType);
 
-      // Fill new data object
-      dataObj.inline_data.visualization = {
-        x_axis: x_axis.title,
-        y_axis: y_axis.title,
-        x_optimization: x_axis.optimization ?? 'maximize',
-        y_optimization: y_axis.optimization ?? 'maximize',
-        type: type,
-        dates: ''
-      };
+      // Build a new data object
+      let dataObj =  {_id: graphData._id,
+        dates: graphData.dates,
+        dataset_contact_ids: graphData.dataset_contact_ids,
+        inline_data: {
+          challenge_participants: graphData.inline_data.challenge_participants,
+          visualization: graphData.inline_data.visualization
+        }
+      }
 
+      // Convert to string
       graphData = JSON.stringify(dataObj);
 
+      // Assign the new type and data to the graph
       myComp.type = type;
       myComp.data = graphData;
                 </code>
@@ -280,7 +220,7 @@
     <div class="wrapper">
       <h2 class="footer-heading">OEB-Widgets-Graphs | A graph collection made by OEB services</h2>
     </div>
-    <script type="module" src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@57ed2b6/dist/oeb-widgets-graphs.umd.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@0b9df5a/dist/oeb-widgets-graphs.umd.js"></script>
     <script>
       let graphData = {
   "_id": "OEBDTEST0000006",
@@ -456,81 +396,19 @@
       const graphType = JSON.stringify("line-plot");
       const myComp = document.getElementById('widget-element');
 
-      let dataObj = {
-        _id: graphData._id,
+      // Change the type and data of the graph
+      let type = JSON.parse(graphType);
+
+      let dataObj =  {_id: graphData._id,
         dates: graphData.dates,
         dataset_contact_ids: graphData.dataset_contact_ids,
         inline_data: {
           challenge_participants:[],
-          visualization:{}
+          visualization: graphData.inline_data.visualization
         }
       }
 
-      const x_axis = graphData?.inline_data?.visualization?.representations?.find(
-          (representation) => representation.metrics_series.some((metric) => metric.axis === 'x')
-      )?.metrics_series.find((metric) => metric.axis === 'x');
-
-      const y_axis = graphData?.inline_data?.visualization?.representations?.find(
-          (representation) => representation.metrics_series.some((metric) => metric.axis === 'y')
-      )?.metrics_series.find((metric) => metric.axis === 'y');
-
-      graphData?.inline_data?.challenge_participants.forEach(participant => {
-        let x_value = function() {
-            if (x_axis.metric_id === participant.metric_id) {
-                return participant.values;
-            }
-            return null;
-        };
-
-        let y_value = function() {
-            if (y_axis.metric_id === participant.metric_id) {
-                return participant.values;
-            }
-            return null;
-        };
-
-        let participant_new = dataObj.inline_data.challenge_participants.find(p => p.name === participant.label);
-        if(!participant_new) {
-            participant_new = {
-                metric_id: participant.metric_id,
-                name: participant.label,
-                x_value: [],
-                y_value: [],
-                t_error: [],
-                x_optimization: '',
-                y_optimization: ''
-            }
-            dataObj.inline_data.challenge_participants.push(participant_new);
-        }
-
-        let x_result = x_value();
-        if (x_result) {
-            participant_new.x_value = [...participant_new.x_value, ...x_result];
-        }
-
-        let y_result = y_value();
-        if (y_result) {
-            let new_axis = {
-                y_value_axis: y_result.map(({v}) => v),
-                error_value_axis: y_result.map(({e}) => e)
-            }
-
-            participant_new.y_value = [...participant_new.y_value, ...new_axis.y_value_axis];
-            participant_new.t_error = [...participant_new.t_error, ...new_axis.error_value_axis];
-        }
-      });
-
-      // Change the type and data of the graph
-      let type = JSON.parse(graphType);
-
-      dataObj.inline_data.visualization = {
-        x_axis: x_axis.title,
-        y_axis: y_axis.title,
-        x_optimization: x_axis.optimization ?? 'maximize',
-        y_optimization: y_axis.optimization ?? 'maximize',
-        type: type,
-        dates: ''
-      };
+      dataObj.inline_data.challenge_participants = graphData.inline_data.challenge_participants;
 
       graphData = JSON.stringify(dataObj);
 
