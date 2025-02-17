@@ -53,7 +53,7 @@ export class RadarPlot extends LitElement {
         this.tracesEntries = [];
         this.tracesDescription = [];
         this.datasetModDate = '';
-        this.markerColors = ['#f28383', '#a0bfdb', '#e8a76d', '#b0847b', '#eb9bd2', '#dbdb7d', '#c3a9db', '#83d6c2', '#d9d7d7', '#8cd8db', '#f2998f', '#a1e398'];
+        this.markerColors = ['(242, 131, 131, .6)', '(160, 191, 219, .6)', '(232, 167, 109, .6)', '(176, 132, 123, .6)', '(235, 155, 210, .6)', '(219, 219, 125, .6)', '(195, 169, 219, .6)', '(131, 214, 194, .6)', '(217, 215, 215, .6)', '(140, 216, 219, .6)', '(242, 153, 143, .6)', '(161, 227, 152, .6)'];
         this.markerColorsLines = ['#D62728', '#4981B6', '#FF7F0E', '#8C564B', '#E377C2', '#BCBD22', '#9467BD', '#0C9E7B', '#7F7F7F', '#31B8BD', '#FB8072', '#62D353'];
     }
 
