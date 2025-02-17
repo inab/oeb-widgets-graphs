@@ -6,7 +6,7 @@ import { OebLoader } from '../oeb-loader.js';
 import { fetchDataInfo } from '../utils.js';
 
 export default class WidgetTest extends LitElement {
-    dataJSON = './files/LINEPLOT_NEW.json';
+    dataJSON = './files/RADARPLOT_NEW.json';
     static properties = {
         _data: { state: true }
     }
@@ -30,13 +30,15 @@ export default class WidgetTest extends LitElement {
         let dataObj = {}
         if(visualization.representations && visualization.representations[0].type && visualization.representations[0].type === 'line-plot') {
             type = 'line-plot'
+        } else if(visualization.representations && visualization.representations[0].type && visualization.representations[0].type === 'radar-plot') {
+            type = 'radar-plot'
         }
-        
+
         if(type == 'radar-plot') {
             dataObj = {
-                _id: data._id,
-                name: data.name,
-                dates: data.dates,
+                _id: data.series_type,
+                name: data.series_type,
+                dates: data.dates ?? '',
                 inline_data: {
                     challenge_participants:[],
                     visualization:{}
@@ -53,7 +55,7 @@ export default class WidgetTest extends LitElement {
                 }
             }
         }
-
+        
         if (type === 'bar-plot'){
             // Process challenge_participants data for BarPlot
             data.inline_data.challenge_participants.forEach(participant => {
@@ -109,31 +111,19 @@ export default class WidgetTest extends LitElement {
             });
             // Process visualization data for ScatterPlot
             const visualization = data.inline_data.visualization;
-            // const metrics_names = await this.getMetricsNames(visualization.x_axis, visualization.y_axis);
             dataObj.inline_data.visualization = {
                 type: visualization.type,
                 y_axis: visualization.y_axis,
                 optimization: visualization.optimization?visualization.optimization:null
             };
         } else if(type === 'radar-plot') {
-            // Process challenge_participants data for RadarPlot
-            data.assessments.forEach(participant => {
-                const preparedParticipant = {
-                    id: participant._id,
-                    label: participant.label,
-                    value: participant.value,
-                    error: participant.error
-                };
-                dataObj.inline_data.challenge_participants.push(preparedParticipant);
-            });
-
-            // Process visualization data for RadarPlot
-            const visualization = data.visualization;
+            dataObj.inline_data.challenge_participant = data.challenge_participants;
             dataObj.inline_data.visualization = {
-                type: visualization.type,
-                dates: visualization.dates,
-                schema_url: visualization.schema_url,
+                type: type,
+                dates: ''
             };
+            dataObj = data;
+
         } else if(type === 'line-plot') {
             dataObj.inline_data.challenge_participants = data.inline_data.challenge_participants;
 
@@ -148,7 +138,7 @@ export default class WidgetTest extends LitElement {
         if (visualization && type) {
             this.visualizationType = type;
         }
-        
+
         return JSON.stringify(dataObj);
     }
 

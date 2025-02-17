@@ -53,6 +53,8 @@ export class RadarPlot extends LitElement {
         this.tracesEntries = [];
         this.tracesDescription = [];
         this.datasetModDate = '';
+        this.markerColors = ['#f28383', '#a0bfdb', '#e8a76d', '#b0847b', '#eb9bd2', '#dbdb7d', '#c3a9db', '#83d6c2', '#d9d7d7', '#8cd8db', '#f2998f', '#a1e398'];
+        this.markerColorsLines = ['#D62728', '#4981B6', '#FF7F0E', '#8C564B', '#E377C2', '#BCBD22', '#9467BD', '#0C9E7B', '#7F7F7F', '#31B8BD', '#FB8072', '#62D353'];
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
@@ -69,39 +71,62 @@ export class RadarPlot extends LitElement {
     }
 
     firstUpdated() {
-        const data = this.data.inline_data;
-        this.datasetId = this.data._id;
-        this.datasetModDate = data.visualization.dates.modification;
+        this.datasetId = this.data._id ?? this.data.series_type;
+        this.datasetModDate = this.data.visualization.dates?.modification ?? '';
 
-        this.tracesEntries = data.challenge_participants.map(entry => entry.value);
-        this.tracesLabels = data.challenge_participants.map(entry => entry.label);
-        this.tracesDescription = data.challenge_participants.map(entry => this.getLongDescription(entry.label));
-        // close the polygon
-        this.tracesEntries.push(this.tracesEntries[0]);
-        this.tracesLabels.push(this.tracesLabels[0]);
+        const dataObj = {
+            _id: this.datasetId,
+            dates: this.datasetModDate,
+            inline_data: {
+                challenge_participants:[],
+                visualization:{}
+            }
+        }
 
-        const colors = Array(this.tracesEntries.length).fill('#0b579f');
-        this.traces = [{
-            name: this.data.name,
-            mode : "markers+lines",
-            line : {
-                color   :   "#0b579f",
-                width   :   "2",
-                dash    :   "solid",
-                shape    :   "linear"
-            },
-            r: this.tracesEntries,
-            theta: this.tracesLabels,
-            text: this.tracesDescription,
-            type: 'scatterpolar',
-            marker: {
-                color: colors,
-            },
-            fill: 'toself',
-            fillcolor: 'rgba(11, 87, 159, .3)',
-            hovertext: this.tracesDescription,
-            hovertemplate : "<b>%{theta}</b> <i>(%{text})</i><br>value: %{r:.2f}<extra></extra>",
-        }];
+        this.data?.challenge_participants.forEach(participant => {
+            let participant_new = dataObj.inline_data.challenge_participants.find(p => p.name === participant.label);
+            if(!participant_new) {
+                participant_new = {
+                    name: participant.label,
+                    type: 'scatterpolar',
+                    fill: 'toself',
+                    theta: [],
+                    r_value: [],
+                    optimization: ''
+                }
+                dataObj.inline_data.challenge_participants.push(participant_new);
+            }
+            participant_new.r_value = [ ...participant_new.r_value, participant.values[0].v];
+            participant_new.theta = [ ...participant_new.theta, participant.metric_id];
+        });
+
+        this.dataTraces = dataObj.inline_data.challenge_participants.map((participant, index) => {
+            participant.r_value.push(participant.r_value[0]);
+            participant.theta.push(participant.theta[0]);
+
+            let trace = {
+                name: participant.name,
+                mode: "markers+lines",
+                line: {
+                    color: this.markerColorsLines[index],
+                    width   :   "2",
+                    dash    :   "solid",
+                    shape    :   "linear"
+                },
+                r: participant.r_value,
+                theta: participant.theta,
+                text: participant.name || "No name",
+                hovertext: participant.name,
+                type: 'scatterpolar',
+                marker: {
+                    color: this.markerColorsLines[index],
+                },
+                fill: 'toself',
+                fillcolor: this.markerColors[index],
+                hovertemplate : "<b>%{theta}</b> %{r:.2f}<extra></extra>",
+            }
+            this.traces.push(trace);
+        });
 
         this.layout = {
             autosize: true,
@@ -134,7 +159,6 @@ export class RadarPlot extends LitElement {
                     linecolor : "white",
                     tickcolor : "white",
                 },
-                
                 bgcolor:"#E5ECF6",
                 bordercolor: "#E5ECF6",
                 outlinecolor : "#E5ECF6",
@@ -194,7 +218,6 @@ export class RadarPlot extends LitElement {
     }
 
     renderChart() {
-        // TODO
         let layout = this.layout;
 
         Plotly.newPlot(this.graphDiv, this.traces, layout, GRAPH_CONFIG).then((gd) => {
@@ -216,6 +239,9 @@ export class RadarPlot extends LitElement {
     }
 
     formatDateString(dateString) {
+        if(dateString === '') {
+            return "";
+        }
         const date = new Date(dateString);
         return date.toLocaleString("en-US", {
             year: "numeric",
@@ -283,8 +309,8 @@ export class RadarPlot extends LitElement {
                                     <tr>
                                         <th class="first-th">Dataset ID</th>
                                         <td>${ this.datasetId }</td>
-                                        <th>Last Update</th>
-                                        <td class="last-td">${ this.formatDateString(this.datasetModDate) }</td>
+                                        ${this.datasetModDate != '' ? html `<th>Last Update</th>` : '' }
+                                        ${this.datasetModDate != '' ? html `<td class="last-td">${ this.formatDateString(this.datasetModDate) }</td>` : ''}
                                     </tr>
                                 </tbody>
                             </table>
