@@ -1,4 +1,4 @@
-import { html, LitElement } from 'lit';
+timport { html, LitElement } from 'lit';
 import Plotly from 'plotly.js-dist'
 import { plotlyStyles } from "./plotly-styles.js";
 import { graphStyles } from './graph-styles.js';
