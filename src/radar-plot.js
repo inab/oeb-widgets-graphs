@@ -73,7 +73,8 @@ export class RadarPlot extends LitElement {
     firstUpdated() {
         this.datasetId = this.data._id ?? this.data.series_type;
         this.datasetModDate = this.data.visualization.dates?.modification ?? '';
-
+        this.representations = this.data.visualization?.representations[0].metrics_series;
+        
         const dataObj = {
             _id: this.datasetId,
             dates: this.datasetModDate,
@@ -101,8 +102,24 @@ export class RadarPlot extends LitElement {
         });
 
         this.dataTraces = dataObj.inline_data.challenge_participants.map((participant, index) => {
-            participant.r_value.push(participant.r_value[0]);
-            participant.theta.push(participant.theta[0]);
+            let theta_full_value = participant.theta.map(theta_value => {
+                let found_item = this.representations.find(item => item.metric_id == theta_value);
+                return found_item ? found_item.metric_id + " (<i>" + found_item.title + "</i>): " : 'Unknown';
+            });
+            theta_full_value.push(theta_full_value[0]);
+
+            let adjusted_r = participant.r_value.map((value, i) => {
+                let metric = participant.theta[i];
+                let metricData = this.representations.find(item => item.metric_id == metric);
+        
+                if (metricData && metricData.optimization === "minimize") {
+                    return -value;
+                } else {
+                    return value;
+                }
+            });
+
+            adjusted_r.push(adjusted_r[0]);
 
             let trace = {
                 name: participant.name,
@@ -113,17 +130,19 @@ export class RadarPlot extends LitElement {
                     dash    :   "solid",
                     shape    :   "linear"
                 },
-                r: participant.r_value,
-                theta: participant.theta,
+                r: adjusted_r,
+                theta: participant.theta.concat(participant.theta[0]),
+                theta_full: this.representations.find((item) => item.metric_id == participant.name),
                 text: participant.name || "No name",
                 hovertext: participant.name,
+                customdata: theta_full_value,
                 type: 'scatterpolar',
                 marker: {
                     color: this.markerColorsLines[index],
                 },
                 fill: 'toself',
                 fillcolor: this.markerColors[index],
-                hovertemplate : "<b>%{theta}</b> %{r:.2f}<extra></extra>",
+                hovertemplate : "<b>%{customdata}</b> %{r:.2f}<extra></extra>",
             }
             this.traces.push(trace);
         });

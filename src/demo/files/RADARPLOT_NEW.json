@@ -225,7 +225,7 @@
                   {
                       "metric_id": "TE",
                       "optimization": "maximize",
-                      "title": "%{text}"
+                      "title": "Treatment Equality"
                   },
                   {
                       "metric_id": "DCA",
