@@ -1,0 +1,10 @@
+.section-title {
+  @extend .poppins-regular;
+  font-size: 1.5rem;
+  border-bottom: 1px solid black;
+}
+
+.section-content {
+  @extend .poppins-light;
+  font-size: 1rem;
+}

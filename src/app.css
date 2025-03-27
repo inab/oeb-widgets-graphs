@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+
+body {
+  background: linear-gradient(to bottom, white, #d1e3ff);
+}
+.navbar {
+  height: 60px;
+  width: 90vw;
+  margin: 0 auto;
+  margin-top: 65px;
+  padding-left: 1em;
+  padding-right: 1em;
+  box-sizing: border-box;
+  display: block;
+  box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.15),
+    0px 10px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 9px;
+  position: relative;
+  background-color: #fff;
+  position: relative;
+  z-index: 2;
+}
+
+.navbar a {
+  padding: 0.25em 1em 0.25em 1em;
+  color: #090909;
+  text-decoration: none;
+  font-family: "Source Sans Pro", sans-serif;
+  font-weight: 400;
+}
+
+.navbar a:hover {
+  color: #777;
+  transition-duration: 0.3s;
+}  
+.logo {
+  width: 60px;
+  height: 40px;
+}
+
+.button__flex {
+  display: flex;
+}
+
+.button__default  {
+  font-size: 1.1rem;
+  letter-spacing: -.02em;
+  border-radius: 2em;
+  border-width: 0;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .3em;
+  padding: .15em .6em;
+  cursor: pointer;
+  text-align: center;
+  text-wrap: balance;
+  transition: background-color 0.2s cubic-bezier(0.37,0,0.63,1), color 0.2s cubic-bezier(0.37,0,0.63,1);
+  padding: 2px 20px 5px 20px;
+  color: white;
+}
+
+.button__primary {
+  background-color: #023452;
+}
+
+.button__secondary{
+  background-color: #F47D20;
+}
+
+.button__link {
+  -webkit-text-decoration-line: none;
+  text-decoration-line: none;
+}
+
+.button__default  svg {
+  height: 1.3em;
+  transform: translate(0);
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  color: white;
+}
