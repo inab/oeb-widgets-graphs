@@ -172,12 +172,14 @@ export class LinePlot extends LitElement {
       if (y_result) {
         let new_axis = {
           y_value_axis: y_result.map(({v}) => v),
-          error_value_axis: y_result.map(({e}) => e)
+          error_value_axis: y_result.map(({e}) => e ?? 0)
         }
 
         participant_new.y_value = [...participant_new.y_value, ...new_axis.y_value_axis];
         participant_new.t_error = [...participant_new.t_error, ...new_axis.error_value_axis];
       }
+
+      console.log("participant_new:", participant_new)
     });
 
     dataObj.inline_data.visualization = {
@@ -1186,28 +1188,6 @@ export class LinePlot extends LitElement {
                   </div>
                 </div>
               </div>
-              <!--
-              <div class="dropdown orientation-dropdown">
-                <button type="button" class="btn btn-xl btn-center dropbtn mode">
-                  Optimization: <span> ${ this.optimization === 'default' ? unsafeHTML(this.defaultOptimizationText) : ('All ' + this.optimization) } </span>
-                  <div class="btn-icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg></div>
-                </button>
-                <div class="dropdown-content">
-                <div class="mode ${ (this.optimization == 'default') ? 'active disabled' : '' }"
-                    @click="${() => this.handleChangeOptimization('default') }">
-                    ${ this.getOptimizationName('default') }
-                  </div>
-                  <div class="mode ${ (this.optimization == 'maximize') ? 'active disabled' : '' }"
-                    @click="${() => this.handleChangeOptimization('maximize') }">
-                    All ${ this.getOptimizationName('maximize') }
-                  </div>
-                  <div class="mode ${ (this.optimization == 'minimize') ? 'active disabled' : '' }"
-                    @click="${() => this.handleChangeOptimization('minimize') }">
-                    All ${ this.getOptimizationName('minimize') }
-                  </div>
-                </div>
-              </div>
-  -->
               <div class="dropdown download-dropdown">
                 <button type="button" class="btn dropbtn btn-xl download-btn">
                   <span>Download</span>

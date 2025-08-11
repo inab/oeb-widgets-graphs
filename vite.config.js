@@ -15,11 +15,10 @@ export default defineConfig({
         lib: {
             entry: resolve(__dirname, 'src/widget-element.js'),
             name: 'OebWidgetsGraphs',
-            fileName: (format) => `oeb-widgets-graphs.${format}.js`, // Esto genera archivos con los formatos correctos
-            formats: ['es', 'umd'] // Cambia `formats` a `format`
+            fileName: (format) => `oeb-widgets-graphs.${format}.js`,
+            formats: ['es', 'umd']
         },
         rollupOptions: {
-            // Asegúrate de externalizar dependencias que no quieres incluir en tu bundle
             external: [],
             output: {
                 globals: {
