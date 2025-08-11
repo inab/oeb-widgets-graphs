@@ -29,5 +29,3 @@ fs.writeFileSync(distPkgPath, JSON.stringify(distPkg, null, 2));
     fs.copyFileSync(src, path.join(distPath, file));
   }
 });
-
-console.log('✅ dist/ preparado para publicación');
