@@ -6,9 +6,17 @@ import { OebLoader } from '../oeb-loader.js';
 import { fetchDataInfo } from '../utils.js';
 
 export default class WidgetTest extends LitElement {
-    dataJSON = './files/LINEPLOT_NEW.json';
+    static samples = [
+        { label: 'Line plot', file: 'LINEPLOT.json' },
+        { label: 'Bar plot', file: 'BARPLOT.json' },
+        { label: 'Scatter plot', file: 'SCATTERPLOT.json' },
+        { label: 'Box plot', file: 'BOXPLOT.json' },
+        { label: 'Radar plot', file: 'RADARPLOT.json' },
+    ];
+
     static properties = {
-        _data: { state: true }
+        _data: { state: true },
+        dataJSON: { state: true }
     }
 
     _jsonInfoData = new Task(this, {
@@ -20,6 +28,7 @@ export default class WidgetTest extends LitElement {
 
     constructor() {
         super()
+        this.dataJSON = './files/' + WidgetTest.samples[0].file;
         this.data = "";
         this.visualizationType = '';
     }
@@ -144,6 +153,14 @@ export default class WidgetTest extends LitElement {
 
     render() {
         return html`
+            <div style="display:flex;gap:8px;flex-wrap:wrap;padding:8px;font-family:sans-serif">
+                ${WidgetTest.samples.map(({ label, file }) => html`
+                    <button
+                        style="padding:6px 12px;cursor:pointer;border:1px solid #888;border-radius:4px;background:${this.dataJSON.endsWith('/' + file) ? '#0b7285' : '#fff'};color:${this.dataJSON.endsWith('/' + file) ? '#fff' : '#000'}"
+                        @click=${() => { this.dataJSON = './files/' + file; }}>
+                        ${label}
+                    </button>`)}
+            </div>
             <div>
                 ${this._jsonInfoData.render({
                     initial: () => html`<oeb-loader></oeb-loader>`,

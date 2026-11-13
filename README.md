@@ -168,7 +168,7 @@ scales or units should be interpreted with care. Metrics marked for
 minimization are plotted with their values negated.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/radarplot.html) |
-[Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT_NEW.json)
+[Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT.json)
 
 <img width="320" height="240" alt="Radar plot example" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/radar-plot.gif?raw=true" />
 
@@ -178,7 +178,7 @@ Displays relationships between numerical variables with connected data points,
 allowing trends and multiple datasets to be compared.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/lineplot.html) |
-[Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT_NEW.json)
+[Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT.json)
 
 <img width="500" height="400" alt="Line plot example" src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/25e27732a42364a677df669c70f1512d5058e7d3/docs/assets/videos/line-plot-new.gif?raw=true" />
 
