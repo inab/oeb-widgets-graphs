@@ -206,19 +206,22 @@ Example data: [standard](https://github.com/inab/oeb-widgets-graphs/blob/main/sr
 
 Displays relationships between numerical variables with connected data points,
 allowing trends and multiple datasets to be compared. By default, a diagonal
-random-classifier reference line is shown for ROC curves; set
-`inline_data.visualization.show_random_classifier` to `false` to hide it for
-other plots, such as precision-recall curves. The line is excluded from
+random-classifier reference line is shown. For ROC curves it represents chance:
+the true positive rate equals the false positive rate, with AUC 0.5 over [0, 1].
+Set `inline_data.visualization.show_random_classifier` to `false` for other
+plots, such as precision-recall curves. The line is excluded from
 classification and statistical calculations. No precision-recall baseline is
-calculated automatically. Click a legend entry to show or hide a curve;
-statistics continue to use all participants.
+calculated automatically. Click a legend entry to show or hide a curve; at
+least one participant must remain visible. Statistics continue to use all
+participants, regardless of visibility.
 
 The Quartiles (AUC) and Average (AUC) views compare the area under each curve
 over the X range shared by all participants, using linear interpolation at the
 range boundaries. The Y-axis optimization determines whether a higher or lower
 area is better. These comparisons require finite points, monotonic X values,
 and a nonzero shared X range. In these views, the legend labels identify each
-curve's classification, and the table lists its shared-range AUC. The plot
+curve's classification, and the table lists its shared-range AUC with a
+tooltip explaining the calculation. The plot
 shows the shared X range and, in Average view, the mean AUC across all
 participants. This mean is a number, not a participant curve. Outside these
 comparison views, AUC annotations use each curve's full input range.

@@ -33,6 +33,8 @@ export class LinePlot extends LitElement {
     showInterquartileTable: false,
     showTrend: false,
     classificationNotice: { state: true },
+    selectionNotice: { state: true },
+    showRandomClassifier: { state: true },
     viewSelected: "No Classification",
     mode: "linesmarkers",
     optimization: "default"
@@ -53,6 +55,20 @@ export class LinePlot extends LitElement {
     this.averageData = [];
     this.interquartileData = [];
     this.classificationNotice = '';
+    this.selectionNotice = '';
+    this.showRandomClassifier = false;
+    this.onLegendClick = (event) => {
+      if (event.curveNumber < this.participantCount) {
+        const participants = this.graphDiv.data.slice(0, this.participantCount);
+        const trace = participants[event.curveNumber];
+        const visible = item => item.visible !== 'legendonly' && item.visible !== false;
+        if (visible(trace) && participants.filter(visible).length <= 1) {
+          this.selectionNotice = 'At least one participant must remain visible.';
+          return false;
+        }
+      }
+      this.selectionNotice = '';
+    };
     this.modeText = {
       lines: "lines",
       markers: "markers",
@@ -116,7 +132,7 @@ export class LinePlot extends LitElement {
   }
 
   firstUpdated() {
-    const showRandomClassifier = this.data?.inline_data?.visualization?.show_random_classifier !== false;
+    this.showRandomClassifier = this.data?.inline_data?.visualization?.show_random_classifier !== false;
     const dataObj = {
       _id: this.data._id,
       dates: this.data.dates,
@@ -234,7 +250,7 @@ export class LinePlot extends LitElement {
     });
 
     this.participantCount = this.dataTraces.length;
-    if (showRandomClassifier) {
+    if (this.showRandomClassifier) {
       this.dataTraces.push({
         x: [0,1],
         y: [0,1],
@@ -322,11 +338,11 @@ export class LinePlot extends LitElement {
     this.chartCapture = this.shadowRoot.querySelector('#chartCapture');
     this.tableColumn = this.shadowRoot.querySelector('#table-column');
     this.benchmarkingTable = this.shadowRoot.querySelector('#benchmarkingTable');
-    if (changedProperties.size && [...changedProperties.keys()].every(property => property === 'classificationNotice')) {
+    if (changedProperties.size && [...changedProperties.keys()].every(
+      property => property === 'classificationNotice' || property === 'selectionNotice'
+    )) {
       return;
     }
-    this.myPlot = Plotly.newPlot(this.graphDiv, [], this.layout, { displayModeBar: false, responsive: true, hovermode: false });
-
     this.renderChart();
   }
 
@@ -352,11 +368,17 @@ export class LinePlot extends LitElement {
   renderChart(traces) {
     if (this.data && !traces) {
       this.threshold = this.data.inline_data.thresholds;
-      Plotly.newPlot(this.graphDiv, this.dataTraces, this.layout, GRAPH_CONFIG);
     } else if (traces && traces.length > 0) {
       this.dataTraces = traces;
-      Plotly.newPlot(this.graphDiv, traces, this.layout, GRAPH_CONFIG);
+    } else {
+      return;
     }
+    Plotly.newPlot(this.graphDiv, this.dataTraces, this.layout, GRAPH_CONFIG).then(gd => {
+      gd.removeListener('plotly_legendclick', this.onLegendClick);
+      gd.removeListener('plotly_legenddoubleclick', this.onLegendClick);
+      gd.on('plotly_legendclick', this.onLegendClick);
+      gd.on('plotly_legenddoubleclick', this.onLegendClick);
+    });
   }
 
   repaintGraph(dataMode) {
@@ -423,6 +445,7 @@ export class LinePlot extends LitElement {
       range = result.range;
     }
     this.classificationNotice = '';
+    this.selectionNotice = '';
     this.resetQuartileTable();
     this.layout.annotations = this.getAucAnnotations();
     if (view === 'default') {
@@ -1054,7 +1077,20 @@ export class LinePlot extends LitElement {
             </div>
           </div>
         </div>
-        <p class="legend-hint">Click a legend entry to show or hide a curve. Statistics use all participants.</p>
+        <p class="legend-hint">
+          Click a legend entry to show or hide a curve. At least one participant must remain visible; statistics use all participants.
+          ${this.viewSelectedKey === 'quartiles' ? 'Q1–Q4 appear beside participant names in the legend; Q1 is best.' : ''}
+          ${this.viewSelectedKey === 'average' ? 'Each participant’s comparison with the mean appears in the legend.' : ''}
+        </p>
+        ${this.showRandomClassifier ? html`
+          <p class="legend-hint">The dotted random-classifier line is a chance baseline for ROC curves (true positive rate equals false positive rate), not a participant.</p>
+        ` : ''}
+        ${this.selectionNotice ? html`
+          <div class="selection-notice" role="status">
+            ${this.selectionNotice}
+            <button type="button" @click=${() => { this.selectionNotice = ''; }}>Dismiss</button>
+          </div>
+        ` : ''}
         ${this.classificationNotice ? html`
           <div class="selection-notice" role="status">
             ${this.classificationNotice}
@@ -1084,7 +1120,17 @@ export class LinePlot extends LitElement {
                         <thead>
                             <tr>
                                 <th class="tools-th">${this.showInterquartileTable ? 'Statistic' : 'Participants'}</th>
-                                ${this.showQuartileTable || this.showAverageTable ? html`<th>Shared-range AUC</th>` : ''}
+                                ${this.showQuartileTable || this.showAverageTable ? html`
+                                  <th>
+                                    Shared-range AUC
+                                    <ui-tooltip
+                                      for="anchor"
+                                      icon="info"
+                                      .textTitle=${'Shared-range AUC'}
+                                      .textBody=${'Area under a participant’s curve over the X interval covered by every participant. The interval is shown above the plot. Using the same interval makes the areas comparable; all participants are included, even when hidden.'}>
+                                    </ui-tooltip>
+                                  </th>
+                                ` : ''}
                                 <th class="classify-th">
                                     ${ this.viewSelectedKey == 'quartiles'
                                       ? 'AUC quartile'
