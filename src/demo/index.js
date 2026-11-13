@@ -6,12 +6,26 @@ import { OebLoader } from '../oeb-loader.js';
 import { fetchDataInfo } from '../utils.js';
 
 export default class WidgetTest extends LitElement {
-    static samples = [
-        { label: 'Line plot', file: 'LINEPLOT.json' },
-        { label: 'Bar plot', file: 'BARPLOT.json' },
-        { label: 'Scatter plot', file: 'SCATTERPLOT.json' },
-        { label: 'Box plot', file: 'BOXPLOT.json' },
-        { label: 'Radar plot', file: 'RADARPLOT.json' },
+    static groups = [
+        { label: 'Line plot', samples: [
+            { label: 'Default', file: 'LINEPLOT.json' },
+        ] },
+        { label: 'Bar plot', samples: [
+            { label: 'Default', file: 'BARPLOT.json' },
+            { label: 'Mixed signs', file: 'BARPLOT_NEGATIVE_MIXED.json' },
+            { label: 'All negative', file: 'BARPLOT_NEGATIVE_ALL.json' },
+            { label: 'Minimize', file: 'BARPLOT_MINIMIZE.json' },
+        ] },
+        { label: 'Scatter plot', samples: [
+            { label: 'Default', file: 'SCATTERPLOT.json' },
+        ] },
+        { label: 'Box plot', samples: [
+            { label: 'Default', file: 'BOXPLOT.json' },
+        ] },
+        { label: 'Radar plot', samples: [
+            { label: 'Standard', file: 'RADARPLOT.json' },
+            { label: 'Technical (normalized)', file: 'RADARPLOT_TECHNICAL.json' },
+        ] },
     ];
 
     static properties = {
@@ -28,7 +42,7 @@ export default class WidgetTest extends LitElement {
 
     constructor() {
         super()
-        this.dataJSON = './files/' + WidgetTest.samples[0].file;
+        this.dataJSON = './files/' + WidgetTest.groups[0].samples[0].file;
         this.data = "";
         this.visualizationType = '';
     }
@@ -80,7 +94,8 @@ export default class WidgetTest extends LitElement {
             const visualization = data.inline_data.visualization;
             dataObj.inline_data.visualization = {
                 metric: visualization.metric,
-                type: visualization.type
+                type: visualization.type,
+                optimization: visualization.optimization
             };
         } else if(type === '2D-plot') {
             // Process challenge_participants data for ScatterPlot
@@ -151,16 +166,30 @@ export default class WidgetTest extends LitElement {
         return JSON.stringify(dataObj);
     }
 
+    buttonStyle(active, small = false) {
+        return `padding:${small ? '4px 10px' : '6px 12px'};cursor:pointer;border:1px solid #888;border-radius:4px;`
+            + `background:${active ? '#0b7285' : '#fff'};color:${active ? '#fff' : '#000'}`;
+    }
+
     render() {
+        const activeGroup = WidgetTest.groups.find(group =>
+            group.samples.some(({ file }) => this.dataJSON.endsWith('/' + file)));
         return html`
-            <div style="display:flex;gap:8px;flex-wrap:wrap;padding:8px;font-family:sans-serif">
-                ${WidgetTest.samples.map(({ label, file }) => html`
-                    <button
-                        style="padding:6px 12px;cursor:pointer;border:1px solid #888;border-radius:4px;background:${this.dataJSON.endsWith('/' + file) ? '#0b7285' : '#fff'};color:${this.dataJSON.endsWith('/' + file) ? '#fff' : '#000'}"
-                        @click=${() => { this.dataJSON = './files/' + file; }}>
-                        ${label}
+            <div style="display:flex;gap:8px;flex-wrap:wrap;padding:8px 8px 0;font-family:sans-serif">
+                ${WidgetTest.groups.map(group => html`
+                    <button style=${this.buttonStyle(group === activeGroup)}
+                        @click=${() => { this.dataJSON = './files/' + group.samples[0].file; }}>
+                        ${group.label}
                     </button>`)}
             </div>
+            ${activeGroup.samples.length > 1 ? html`
+                <div style="display:flex;gap:8px;flex-wrap:wrap;padding:8px;font-family:sans-serif">
+                    ${activeGroup.samples.map(({ label, file }) => html`
+                        <button style=${this.buttonStyle(this.dataJSON.endsWith('/' + file), true)}
+                            @click=${() => { this.dataJSON = './files/' + file; }}>
+                            ${label}
+                        </button>`)}
+                </div>` : ''}
             <div>
                 ${this._jsonInfoData.render({
                     initial: () => html`<oeb-loader></oeb-loader>`,

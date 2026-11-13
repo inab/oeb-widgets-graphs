@@ -132,7 +132,12 @@ Alternatively, a built UMD bundle can be loaded directly:
 ### Bar plot
 
 Compares participants using one metric. Results can be sorted and classified
-into quartiles, shown alongside the chart in a table.
+into quartiles, shown alongside the chart in a table. Negative values are
+supported; the axis always includes the zero baseline. Results are ranked
+highest first by default; set `visualization.optimization` to `"minimize"` to
+rank lowest first (and make the lowest quartile the best one). Once sorted,
+a "Reverse Order" button lets the user invert the display order; quartile
+classification is not affected.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/barplot.html) |
 [Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BARPLOT.json)
@@ -163,12 +168,29 @@ Participants can be ordered by minimum or maximum median value.
 ### Radar plot
 
 Compares multiple metrics on axes radiating from a common center, with one
-trace per tool. Values are not normalized across metrics; metrics with different
-scales or units should be interpreted with care. Metrics marked for
-minimization are plotted with their values negated.
+trace per tool. It has two modes, chosen by the metric definitions in
+`metrics_series`.
+
+**Standard mode** (default). Values are plotted as they are, without
+normalization, so it is only reliable when all metrics share a similar scale.
+Metrics marked for minimization are plotted with their values negated.
+
+**Normalized mode**, for metrics with different units or unbounded ranges, such
+as technical benchmarking (e.g. peak RAM vs. mean CPU). It is enabled when any
+metric declares `"scale": "linear"` or `"log"`, optionally with `unit`, `min`
+and `max`. Every axis is then normalized to 0-1 with the best result on the
+outside (minimized metrics are inverted). Use `"log"` for values spanning orders
+of magnitude (MB vs. GB) and `min`/`max` to fix ranges such as 0-1 vs. 0-100
+(or more for parallel CPU usage). Hover shows the real value with its unit.
+
+```json
+{ "metric_id": "PEAK_RAM", "title": "Peak RAM usage", "optimization": "minimize",
+  "scale": "log", "unit": "MB" }
+```
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/radarplot.html) |
-[Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT.json)
+Example data: [standard](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT.json),
+[normalized](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT_TECHNICAL.json)
 
 <img width="320" height="240" alt="Radar plot example" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/radar-plot.gif?raw=true" />
 

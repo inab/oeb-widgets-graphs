@@ -100,6 +100,11 @@ export class RadarPlot extends LitElement {
             participant_new.theta = [ ...participant_new.theta, participant.metric_id];
         });
 
+        // Metrics declaring "scale" (linear|log) are normalized to 0-1 per axis so
+        // metrics with different units or unbounded ranges can share one chart.
+        this.normalized = this.representations.some(item => item.scale);
+        this.axisBounds = this.normalized ? this.getAxisBounds(dataObj.inline_data.challenge_participants) : {};
+
         this.dataTraces = dataObj.inline_data.challenge_participants.map((participant, index) => {
             let theta_full_value = participant.theta.map(theta_value => {
                 let found_item = this.representations.find(item => item.metric_id == theta_value);
@@ -117,6 +122,13 @@ export class RadarPlot extends LitElement {
                     return value;
                 }
             });
+
+            let hoverValues = participant.r_value.map((value, i) => this.formatRealValue(participant.theta[i], value));
+            if (this.normalized) {
+                adjusted_r = participant.r_value.map((value, i) => this.normalizeValue(participant.theta[i], value));
+                hoverValues.push(hoverValues[0]);
+                theta_full_value = theta_full_value.map((label, i) => `<b>${label}</b> ${hoverValues[i]}`);
+            }
 
             adjusted_r.push(adjusted_r[0]);
 
@@ -141,7 +153,7 @@ export class RadarPlot extends LitElement {
                 },
                 fill: 'toself',
                 fillcolor: this.markerColors[index],
-                hovertemplate : "<b>%{customdata}</b> %{r:.2f}<extra></extra>",
+                hovertemplate : this.normalized ? "%{customdata}<extra></extra>" : "<b>%{customdata}</b> %{r:.2f}<extra></extra>",
             }
             this.traces.push(trace);
         });
@@ -163,6 +175,7 @@ export class RadarPlot extends LitElement {
             polar: {
                 radialaxis: {
                     visible: true,
+                    ...(this.normalized ? { range: [0, 1], tickvals: [0, 0.25, 0.5, 0.75, 1], ticktext: ['worst', '', '', '', 'best'] } : {}),
                     color: "red",
                     gridcolor : "white",
                     linecolor : "white",
@@ -185,6 +198,51 @@ export class RadarPlot extends LitElement {
             margin: { l: 50, r: 50, t: 100, b: 110, pad: 4 },
             images: this.getImagePosition()
         };
+    }
+
+    getMetricSpec(metricId) {
+        return this.representations.find(item => item.metric_id == metricId) ?? {};
+    }
+
+    getAxisBounds(participants) {
+        const bounds = {};
+        participants.forEach(participant => {
+            participant.theta.forEach((metricId) => {
+                const values = participant.r_value.filter((_, j) => participant.theta[j] === metricId);
+                const observedMin = Math.min(...values);
+                const observedMax = Math.max(...values);
+                const current = bounds[metricId] ?? { min: Infinity, max: -Infinity };
+                bounds[metricId] = { min: Math.min(current.min, observedMin), max: Math.max(current.max, observedMax) };
+            });
+        });
+        Object.entries(bounds).forEach(([metricId, range]) => {
+            const spec = this.getMetricSpec(metricId);
+            if (spec.scale === 'log') {
+                range.min = spec.min ?? 10 ** Math.floor(Math.log10(range.min));
+                range.max = spec.max ?? 10 ** Math.ceil(Math.log10(range.max));
+            } else {
+                range.min = spec.min ?? Math.min(0, range.min);
+                range.max = spec.max ?? range.max;
+            }
+        });
+        return bounds;
+    }
+
+    // Maps a value to 0-1 where 1 is always the best result for the metric.
+    normalizeValue(metricId, value) {
+        const spec = this.getMetricSpec(metricId);
+        const { min, max } = this.axisBounds[metricId];
+        const transform = spec.scale === 'log' ? Math.log10 : (v) => v;
+        const span = transform(max) - transform(min);
+        let ratio = span > 0 ? (transform(Math.max(value, min)) - transform(min)) / span : 0.5;
+        ratio = Math.min(1, Math.max(0, ratio));
+        return spec.optimization === 'minimize' ? 1 - ratio : ratio;
+    }
+
+    formatRealValue(metricId, value) {
+        const unit = this.getMetricSpec(metricId).unit;
+        const formatted = Math.abs(value) >= 1000 ? value.toLocaleString('en-US') : +value.toPrecision(4);
+        return unit ? `${formatted} ${unit}` : `${formatted}`;
     }
 
     getLongDescription(text) {

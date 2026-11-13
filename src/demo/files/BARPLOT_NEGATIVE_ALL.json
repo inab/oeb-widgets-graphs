@@ -1,0 +1,46 @@
+{
+  "_id": "OEBDTEST_NEG_ALL",
+  "dates": {
+    "creation": "2023-05-26T20:12:32Z",
+    "modification": "2023-05-27T19:34:43+00:00"
+  },
+  "dataset_contact_ids": [],
+  "inline_data": {
+    "challenge_participants": [
+      {
+        "tool_id": "Tool_1",
+        "metric_value": -12.4,
+        "stderr": 0
+      },
+      {
+        "tool_id": "Tool_2",
+        "metric_value": -8.9,
+        "stderr": 0
+      },
+      {
+        "tool_id": "Tool_3",
+        "metric_value": -15.2,
+        "stderr": 0
+      },
+      {
+        "tool_id": "Tool_4",
+        "metric_value": -9.7,
+        "stderr": 0
+      },
+      {
+        "tool_id": "Tool_5",
+        "metric_value": -11.1,
+        "stderr": 0
+      },
+      {
+        "tool_id": "Tool_6",
+        "metric_value": -7.6,
+        "stderr": 0
+      }
+    ],
+    "visualization": {
+      "metric": "log_likelihood",
+      "type": "bar-plot"
+    }
+  }
+}

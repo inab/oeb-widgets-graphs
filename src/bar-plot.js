@@ -29,6 +29,7 @@ export class BarPlot extends LitElement {
         sorted: false,
         showAdditionalTable: false,
         isOptimal: false,
+        isReversed: false,
         isDownloading: false,
     };
 
@@ -41,6 +42,7 @@ export class BarPlot extends LitElement {
         this.layout = {};
         this.staticNode = null;
         this.sortOrder = 'raw';
+        this.isReversed = false;
         this.optimal = 'no';
         this.quartileDataArray = [];
         this.sortText = 'Sort & Classify Data';
@@ -69,8 +71,9 @@ export class BarPlot extends LitElement {
             this.datasetId = this.data._id;
             this.datasetModDate = this.data.dates.modification;
             this.originalData = this.data;
+            // Optional: "minimize" ranks lowest values first; default is highest first.
+            this.datasetPolarity = data.visualization.optimization === 'minimize' ? 'minimum' : 'maximum';
 
-            const maxMetricValue = Math.max(...data.challenge_participants.map(entry => entry.metric_value));
             this.x = data.challenge_participants.map(entry => entry.tool_id);
             const y = data.challenge_participants.map(() => 0);
             const colors = Array(this.x.length).fill('#0b579f');
@@ -114,7 +117,7 @@ export class BarPlot extends LitElement {
                         }
                     },
                     fixedrange: true,
-                    range: [0, maxMetricValue + 0.1],
+                    range: this.getDefaultRange(data.challenge_participants.map(entry => entry.metric_value)),
                     tickfont: { size: 14 }
                 },
                 margin: { l: 50, r: 50, t: 100, b: 110, pad: 4 },
@@ -261,7 +264,7 @@ export class BarPlot extends LitElement {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             this.showAdditionalTable = true;
-            const sortedData = this.originalData.inline_data.challenge_participants.slice().sort((a, b) => b.metric_value - a.metric_value);
+            const sortedData = this.getSortedParticipants();
 
             this.updateChart(sortedData);
 
@@ -282,6 +285,7 @@ export class BarPlot extends LitElement {
             Plotly.update(this.graphDiv)
         } else {
             this.sorted = false;
+            this.isReversed = false;
             Plotly.Plots.resize(this.graphDiv);
             await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -305,6 +309,54 @@ export class BarPlot extends LitElement {
         this.sortOrder = this.sortOrder === 'raw' ? 'sorted' : 'raw';
     }
 
+    async toggleReverse() {
+        this.isReversed = !this.isReversed;
+        if (this.sortOrder === 'raw') {
+            return;
+        }
+        const sortedData = this.getSortedParticipants();
+        this.updateChart(sortedData);
+        this.animateBars(sortedData);
+        this.quartileData = this.calculateQuartiles(sortedData);
+        this.quartileDataArray = this.getQuartileData(this.quartileData);
+        this.removeLinesBetweenQuartiles();
+        this.clearQuartileLabels();
+        this.addLinesBetweenQuartiles();
+        this.addQuartileLabels();
+        Plotly.update(this.graphDiv);
+    }
+
+    getSortedParticipants() {
+        // The user can invert the data-defined direction; quartile classification is unaffected.
+        const direction = (this.datasetPolarity === 'minimum' ? 1 : -1) * (this.isReversed ? -1 : 1);
+        return this.originalData.inline_data.challenge_participants.slice()
+            .sort((a, b) => direction * (a.metric_value - b.metric_value));
+    }
+
+    // Full view always includes the zero baseline, so negative bars stay visible.
+    getDefaultRange(values) {
+        const min = Math.min(0, ...values);
+        const max = Math.max(0, ...values);
+        const padding = (max - min) * 0.05 || 0.1;
+        return [min < 0 ? min - padding : 0, max > 0 ? max + padding : 0];
+    }
+
+    // Zoomed view around the data. It never crosses zero unless the data does.
+    getOptimalRange(values) {
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const span = max - min;
+        if (span === 0) {
+            return this.getDefaultRange(values);
+        }
+        const lower = min - span * 0.2;
+        const upper = max + span * 0.08;
+        return [
+            min >= 0 ? Math.max(0, lower) : lower,
+            max <= 0 ? Math.min(0, upper) : upper
+        ];
+    }
+
     async toggleOptimal() {
         try {
             if(this.optimal === 'no') {
@@ -315,25 +367,15 @@ export class BarPlot extends LitElement {
                 let data;
                 if (this.sortOrder !== 'raw') {
                     // If data has been sorted, use the sorted data
-                    data = this.originalData.inline_data.challenge_participants.slice().sort((a, b) => b.metric_value - a.metric_value);
+                    data = this.getSortedParticipants();
                 } else {
                     // Otherwise, use the original data
                     data = this.originalData.inline_data.challenge_participants;
                 }
 
                 const metricValues = data.map(entry => entry.metric_value);
-                const minMetric = Math.min(...metricValues);
-                const maxMetric = Math.max(...metricValues);
 
-                // Calculate range between min and max metrics
-                const metricRange = maxMetric - minMetric;
-
-                // Calculate new y-axis range with a slight buffer based on metric range
-                const minY = Math.max(0, minMetric - metricRange * 0.2);
-                const maxY = maxMetric + metricRange * 0.08;
-
-                // Update plot layout with new y-axis range
-                Plotly.relayout(this.graphDiv, { 'yaxis.range': [minY, maxY] });
+                Plotly.relayout(this.graphDiv, { 'yaxis.range': this.getOptimalRange(metricValues) });
 
                 // Animate the bars
                 this.animateBars(data);
@@ -343,14 +385,14 @@ export class BarPlot extends LitElement {
                 let data;
                 if (this.sortOrder !== 'raw') {
                     // If data has been sorted, use the sorted data
-                    data = this.originalData.inline_data.challenge_participants.slice().sort((a, b) => b.metric_value - a.metric_value);
+                    data = this.getSortedParticipants();
                 } else {
                     // Otherwise, use the original data
                     data = this.originalData.inline_data.challenge_participants;
                 }
                 // Return to original data view by restoring the original y-axis range
                 const originalLayout = {
-                    'yaxis.range': [0, Math.max(...data.map(entry => entry.metric_value)) + 0.1]
+                    'yaxis.range': this.getDefaultRange(data.map(entry => entry.metric_value))
                 };
 
                 // Update plot layout with original y-axis range
@@ -729,6 +771,11 @@ export class BarPlot extends LitElement {
                                 @click="${ this.toggleSortOrder }">
                                 <span>${ this.getSortText() }</span>
                             </button>
+                            ${ this.sorted ? html`
+                                <button type="button" id="reverseBtn" class="btn btn-secondary"
+                                    @click="${ this.toggleReverse }">
+                                    <span>${ this.isReversed ? 'Default Order' : 'Reverse Order' }</span>
+                                </button>` : '' }
                             <button type="button" id="optimalBtn" class="btn btn-secondary"
                                 @click="${ this.toggleOptimal }">
                                 <span>${ this.getOptimalText() }</span>
