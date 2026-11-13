@@ -1,0 +1,114 @@
+{
+  "_id": "OEBDTEST_SC_BL",
+  "dates": {
+    "modification": "2023-12-05T13:09:13Z"
+  },
+  "inline_data": {
+    "challenge_participants": [
+      {
+        "tool_id": "Tool_1",
+        "metric_x": 252.908,
+        "stderr_x": 0,
+        "metric_y": 603.053,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_2",
+        "metric_x": 3081.826,
+        "stderr_x": 0,
+        "metric_y": 517.858,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_3",
+        "metric_x": 3514.363,
+        "stderr_x": 0,
+        "metric_y": 285.804,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_4",
+        "metric_x": 2811.652,
+        "stderr_x": 0,
+        "metric_y": 536.961,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_5",
+        "metric_x": 2361.591,
+        "stderr_x": 0,
+        "metric_y": 413.304,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_6",
+        "metric_x": 3375.874,
+        "stderr_x": 0,
+        "metric_y": 850.49,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_7",
+        "metric_x": 1948.984,
+        "stderr_x": 0,
+        "metric_y": 599.416,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_8",
+        "metric_x": 336.611,
+        "stderr_x": 0,
+        "metric_y": 632.835,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_9",
+        "metric_x": 2623.803,
+        "stderr_x": 0,
+        "metric_y": 893.821,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_10",
+        "metric_x": 3305.507,
+        "stderr_x": 0,
+        "metric_y": 259.713,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_11",
+        "metric_x": 1604.587,
+        "stderr_x": 0,
+        "metric_y": 603.444,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_12",
+        "metric_x": 187.995,
+        "stderr_x": 0,
+        "metric_y": 418.217,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_13",
+        "metric_x": 755.389,
+        "stderr_x": 0,
+        "metric_y": 109.801,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_14",
+        "metric_x": 329.922,
+        "stderr_x": 0,
+        "metric_y": 692.569,
+        "stderr_y": 0
+      }
+    ],
+    "visualization": {
+      "type": "2D-plot",
+      "x_axis": "Peak RAM (MB)",
+      "y_axis": "Runtime (s)",
+      "optimization": "bottom-left"
+    }
+  }
+}

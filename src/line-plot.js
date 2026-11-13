@@ -234,7 +234,7 @@ export class LinePlot extends LitElement {
       x: [0,1],
       y: [0,1],
       mode: 'lines',
-      name: 'Clasificador Aleatorio',
+      name: 'Random Classifier',
       line: {color: 'rgba(0,0,0,0.3)', dash: 'dot', width: 2}
     };
 

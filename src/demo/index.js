@@ -8,7 +8,8 @@ import { fetchDataInfo } from '../utils.js';
 export default class WidgetTest extends LitElement {
     static groups = [
         { label: 'Line plot', description: 'Trends and relationships between numerical variables.', samples: [
-            { label: 'Default', file: 'LINEPLOT.json', description: 'Multiple series with interquartile and error views.' },
+            { label: 'ROC curve', file: 'LINEPLOT.json', description: 'FPR (minimize) vs TPR (maximize).' },
+            { label: 'Precision-recall', file: 'LINEPLOT_PRECISION_RECALL.json', description: 'Both axes maximize.' },
         ] },
         { label: 'Bar plot', description: 'One metric compared across participants, with quartile classification.', samples: [
             { label: 'Default', file: 'BARPLOT.json', description: 'Positive values, highest ranked first.' },
@@ -17,10 +18,17 @@ export default class WidgetTest extends LitElement {
             { label: 'Minimize', file: 'BARPLOT_MINIMIZE.json', description: 'Lower is better: ranked lowest first. Use "Reverse Order" after sorting to invert.' },
         ] },
         { label: 'Scatter plot', description: 'Two metrics compared, with quartile and clustering classifications.', samples: [
-            { label: 'Default', file: 'SCATTERPLOT.json', description: 'Square, diagonal and K-means classifications.' },
+            { label: 'Top-right', file: 'SCATTERPLOT.json', description: 'Both metrics maximize. Square, diagonal and K-means classifications.' },
+            { label: 'Top-left', file: 'SCATTERPLOT_TOP_LEFT.json', description: 'X minimize, Y maximize.' },
+            { label: 'Bottom-right', file: 'SCATTERPLOT_BOTTOM_RIGHT.json', description: 'X maximize, Y minimize.' },
+            { label: 'Bottom-left', file: 'SCATTERPLOT_BOTTOM_LEFT.json', description: 'Both metrics minimize.' },
+            { label: 'Negative values', file: 'SCATTERPLOT_NEGATIVE.json', description: 'Points in all four quadrants around zero.' },
         ] },
         { label: 'Box plot', description: 'Distribution of a metric per participant.', samples: [
-            { label: 'Default', file: 'BOXPLOT.json', description: 'Quartiles, fences and mean per participant.' },
+            { label: 'Minimum', file: 'BOXPLOT.json', description: 'Optimization "minimum": sorted by lowest median first.' },
+            { label: 'Maximum', file: 'BOXPLOT_MAXIMIZE.json', description: 'Optimization "maximus": sorted by highest median first.' },
+            { label: 'No optimization', file: 'BOXPLOT_NO_OPTIMIZATION.json', description: 'No optimization defined: raw order, no preselected sorting.' },
+            { label: 'Negative values', file: 'BOXPLOT_NEGATIVE.json', description: 'Boxes below and above zero.' },
         ] },
         { label: 'Radar plot', description: 'Several metrics per tool on a common center.', samples: [
             { label: 'Standard', file: 'RADARPLOT.json', description: 'Raw values, no normalization (metrics on similar scales).' },

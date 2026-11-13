@@ -1,0 +1,114 @@
+{
+  "_id": "OEBDTEST_SC_TL",
+  "dates": {
+    "modification": "2023-12-05T13:09:13Z"
+  },
+  "inline_data": {
+    "challenge_participants": [
+      {
+        "tool_id": "Tool_1",
+        "metric_x": 298.211,
+        "stderr_x": 0,
+        "metric_y": 0.568,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_2",
+        "metric_x": 589.332,
+        "stderr_x": 0,
+        "metric_y": 0.533,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_3",
+        "metric_x": 486.935,
+        "stderr_x": 0,
+        "metric_y": 0.665,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_4",
+        "metric_x": 61.619,
+        "stderr_x": 0,
+        "metric_y": 0.728,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_5",
+        "metric_x": 43.371,
+        "stderr_x": 0,
+        "metric_y": 0.695,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_6",
+        "metric_x": 72.171,
+        "stderr_x": 0,
+        "metric_y": 0.541,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_7",
+        "metric_x": 387.822,
+        "stderr_x": 0,
+        "metric_y": 0.872,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_8",
+        "metric_x": 120.184,
+        "stderr_x": 0,
+        "metric_y": 0.6,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_9",
+        "metric_x": 568.416,
+        "stderr_x": 0,
+        "metric_y": 0.926,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_10",
+        "metric_x": 523.622,
+        "stderr_x": 0,
+        "metric_y": 0.679,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_11",
+        "metric_x": 878.867,
+        "stderr_x": 0,
+        "metric_y": 0.521,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_12",
+        "metric_x": 774.037,
+        "stderr_x": 0,
+        "metric_y": 0.63,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_13",
+        "metric_x": 138.387,
+        "stderr_x": 0,
+        "metric_y": 0.553,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_14",
+        "metric_x": 284.549,
+        "stderr_x": 0,
+        "metric_y": 0.867,
+        "stderr_y": 0
+      }
+    ],
+    "visualization": {
+      "type": "2D-plot",
+      "x_axis": "Runtime (s)",
+      "y_axis": "Accuracy",
+      "optimization": "top-left"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "_id": "OEBDTEST_BX_NONE",
+  "dates": {
+    "modification": "2023-05-27T19:18:32Z"
+  },
+  "inline_data": {
+    "challenge_participants": [
+      {
+        "name": "Tool_1",
+        "metric_id": "length of transcripts",
+        "q1": 2.32,
+        "mean": 2.62,
+        "median": 2.6,
+        "q3": 2.88,
+        "lowerfence": 1.88,
+        "upperfence": 3.32
+      },
+      {
+        "name": "Tool_2",
+        "metric_id": "length of transcripts",
+        "q1": 2.75,
+        "mean": 3.125,
+        "median": 3.1,
+        "q3": 3.45,
+        "lowerfence": 2.2,
+        "upperfence": 4.0
+      },
+      {
+        "name": "Tool_3",
+        "metric_id": "length of transcripts",
+        "q1": 1.69,
+        "mean": 1.915,
+        "median": 1.9,
+        "q3": 2.11,
+        "lowerfence": 1.36,
+        "upperfence": 2.44
+      },
+      {
+        "name": "Tool_4",
+        "metric_id": "length of transcripts",
+        "q1": 1.78,
+        "mean": 2.23,
+        "median": 2.2,
+        "q3": 2.62,
+        "lowerfence": 1.12,
+        "upperfence": 3.28
+      },
+      {
+        "name": "Tool_5",
+        "metric_id": "length of transcripts",
+        "q1": 3.155,
+        "mean": 3.4175,
+        "median": 3.4,
+        "q3": 3.645,
+        "lowerfence": 2.77,
+        "upperfence": 4.03
+      },
+      {
+        "name": "Tool_6",
+        "metric_id": "length of transcripts",
+        "q1": 2.485,
+        "mean": 2.8225,
+        "median": 2.8,
+        "q3": 3.115,
+        "lowerfence": 1.99,
+        "upperfence": 3.61
+      }
+    ],
+    "visualization": {
+      "type": "box-plot",
+      "y_axis": "length of transcripts"
+    }
+  }
+}
