@@ -24,6 +24,46 @@
                 "q3":	4.92020145948564,
                 "lowerfence":	3.8400347958435121,
                 "upperfence":	5.408301457670917
+            },
+            {
+                "name": "Tool_3",
+                "metric_id": "length of transcripts",
+                "q1": 1.5,
+                "mean": 1.9,
+                "median": 1.8,
+                "q3": 2.2,
+                "lowerfence": 1.0,
+                "upperfence": 2.7
+            },
+            {
+                "name": "Tool_4",
+                "metric_id": "length of transcripts",
+                "q1": 3.2,
+                "mean": 3.6,
+                "median": 3.5,
+                "q3": 3.9,
+                "lowerfence": 2.7,
+                "upperfence": 4.4
+            },
+            {
+                "name": "Tool_5",
+                "metric_id": "length of transcripts",
+                "q1": 4.8,
+                "mean": 5.2,
+                "median": 5.1,
+                "q3": 5.5,
+                "lowerfence": 4.3,
+                "upperfence": 6.0
+            },
+            {
+                "name": "Tool_6",
+                "metric_id": "length of transcripts",
+                "q1": 2.8,
+                "mean": 3.2,
+                "median": 3.1,
+                "q3": 3.5,
+                "lowerfence": 2.3,
+                "upperfence": 4.0
             }
         ],
         "visualization": {

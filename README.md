@@ -133,11 +133,12 @@ Alternatively, a built UMD bundle can be loaded directly:
 
 Compares participants using one metric. Results can be sorted and classified
 into quartiles, shown alongside the chart in a table. Negative values are
-supported; the axis always includes the zero baseline. Results are ranked
+supported; the original view includes the zero baseline. Results are ranked
 highest first by default; set `visualization.optimization` to `"minimize"` to
 rank lowest first (and make the lowest quartile the best one). Once sorted,
 a "Reverse Order" button lets the user invert the display order; quartile
-classification is not affected.
+classification is not affected. The view selector shows whether the original
+or optimal axis range is active.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/barplot.html) |
 [Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BARPLOT.json)
@@ -148,7 +149,10 @@ classification is not affected.
 
 Compares participants on two metrics. Available classifications include square
 quartiles, diagonal quartiles based on distance from the optimal corner, and
-K-means clustering.
+K-means clustering. The view selector shows the active axis range; changing
+views preserves the selected participants.
+At least one participant must remain visible; K-means needs at least four
+participants. A message explains when a selection reaches the limit.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/scatterplot.html) |
 [Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/SCATTERPLOT.json)
@@ -158,7 +162,8 @@ K-means clustering.
 ### Box plot
 
 Shows the distribution of each participant's metric using summary statistics.
-Participants can be ordered by minimum or maximum median value.
+Participants can be ordered by minimum or maximum median value, or returned
+to the input order with Default Sort.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/boxplot.html) |
 [Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BOXPLOT.json)
@@ -197,10 +202,16 @@ Example data: [standard](https://github.com/inab/oeb-widgets-graphs/blob/main/sr
 ### Line plot
 
 Displays relationships between numerical variables with connected data points,
-allowing trends and multiple datasets to be compared.
+allowing trends and multiple datasets to be compared. By default, a diagonal
+random-classifier reference line is shown for ROC curves; set
+`inline_data.visualization.show_random_classifier` to `false` to hide it for
+other plots, such as precision-recall curves. The line is excluded from
+classification and statistical calculations. No precision-recall baseline is
+calculated automatically.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/lineplot.html) |
-[Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT.json)
+Example data: [ROC](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT.json),
+[precision-recall](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT_PRECISION_RECALL.json)
 
 <img width="500" height="400" alt="Line plot example" src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/25e27732a42364a677df669c70f1512d5058e7d3/docs/assets/videos/line-plot-new.gif?raw=true" />
 

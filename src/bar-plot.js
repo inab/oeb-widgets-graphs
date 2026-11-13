@@ -47,8 +47,7 @@ export class BarPlot extends LitElement {
         this.quartileDataArray = [];
         this.sortText = 'Sort & Classify Data';
         this.sortTextRaw = 'Return To Raw Results';
-        this.optimalText = 'Optimal View';
-        this.optimalTextReset = 'Original View';
+        this.isOptimal = false;
         this.isDownloading = false;
     }
 
@@ -57,12 +56,16 @@ export class BarPlot extends LitElement {
         super.attributeChangedCallback(name, oldVal, JSON.parse(newVal));
     }
 
-    updated() {
+    updated(changedProperties) {
         this.graphDiv = this.shadowRoot.querySelector('#bar-chart');
         this.todoDownload = this.shadowRoot.querySelector('#todownload');
         this.chartCapture = this.shadowRoot.querySelector('#chartCapture');
-        this.myPlot = Plotly.newPlot(this.graphDiv, [], this.layout, { displayModeBar: false, responsive: true, hovermode: false });
-        this.renderChart();
+        if (changedProperties.has('data') || !this.graphDiv.data) {
+            this.myPlot = Plotly.newPlot(this.graphDiv, [], this.layout, { displayModeBar: false, responsive: true, hovermode: false });
+            this.renderChart();
+        } else if (changedProperties.has('sorted')) {
+            Plotly.Plots.resize(this.graphDiv);
+        }
     }
 
     renderChart() {
@@ -447,8 +450,8 @@ export class BarPlot extends LitElement {
         const upperArray = sortedValues.filter(value => value > q2);
 
         // Calculate median for lowerArray and upperArray
-        q1 = this.calculateMedians(lowerArray);
-        q3 = this.calculateMedians(upperArray);
+        q1 = lowerArray.length ? this.calculateMedians(lowerArray) : q2;
+        q3 = upperArray.length ? this.calculateMedians(upperArray) : q2;
 
         // Create an object to store metric positions
         const metricPositions = {};
@@ -753,14 +756,6 @@ export class BarPlot extends LitElement {
         }
     }
 
-    getOptimalText() {
-        if(this.isOptimal) {
-            return html` ${ this.optimalTextReset } `;
-        } else {
-            return html` ${ this.optimalText } `;
-        }
-    }
-
     render() {
         return html`
             <div class="bar-plot oeb-graph">
@@ -776,10 +771,13 @@ export class BarPlot extends LitElement {
                                     @click="${ this.toggleReverse }">
                                     <span>${ this.isReversed ? 'Default Order' : 'Reverse Order' }</span>
                                 </button>` : '' }
-                            <button type="button" id="optimalBtn" class="btn btn-secondary"
-                                @click="${ this.toggleOptimal }">
-                                <span>${ this.getOptimalText() }</span>
-                            </button>
+                            <div class="view-switch" role="group" aria-label="Chart view">
+                                <span class="view-switch-label">View</span>
+                                <button type="button" class="btn view-option" aria-pressed="${!this.isOptimal}"
+                                    @click="${() => this.isOptimal && this.toggleOptimal()}">Original</button>
+                                <button type="button" class="btn view-option" aria-pressed="${this.isOptimal}"
+                                    @click="${() => !this.isOptimal && this.toggleOptimal()}">Optimal</button>
+                            </div>
                             <div class="dropdown">
                                 <button type="button" class="btn dropbtn download-btn">
                                     <span>Download</span>
@@ -831,9 +829,10 @@ export class BarPlot extends LitElement {
                                             <ui-tooltip 
                                                 for="anchor"
                                                 icon="info"
-                                                textTitle="The Square quartile label"
-                                                textBody="By default, the highest values will be displayed in the first quartile.
-                                                    Inversely if it is specified">
+                                                textTitle="Quartile classification"
+                                                .textBody=${this.datasetPolarity === 'minimum'
+                                                    ? 'Lower values are better for this dataset; quartile 1 represents the lowest range.'
+                                                    : 'Higher values are better by default; quartile 1 represents the highest range. A dataset can specify minimization instead.'}>
                                             </ui-tooltip>
                                         </th>
                                     </tr>

@@ -1350,6 +1350,60 @@ export const graphStyles = css`
         background-color: #ddd;
     }
 
+    .view-switch {
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+        background: #f7f7f7;
+        border: 1px solid #dfe3ee;
+        padding: 3px;
+        gap: 2px;
+    }
+
+    .view-switch-label {
+        padding: 0 6px;
+        color: #555;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .btn-group.btn-graphs .view-option {
+        border: 0;
+        border-radius: 3px;
+        padding: 6px 9px;
+    }
+
+    .btn-group.btn-graphs .view-option[aria-pressed="true"] {
+        background: #0b579f;
+        color: white;
+    }
+
+    .btn-group.btn-graphs .view-option:focus-visible {
+        outline: 2px solid #0b579f;
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 640px) {
+        #graph-filters .col-8 {
+            width: 100%;
+        }
+
+        .btn-group.btn-graphs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        #todownload {
+            flex-direction: column;
+        }
+
+        #todownload > .col-8,
+        #todownload > .col-4 {
+            width: 100%;
+        }
+    }
+
     .oeb-graph {
         font-family: "Roboto", sans-serif;
         padding: 10px;
@@ -1383,6 +1437,7 @@ export const graphStyles = css`
         border: 1px solid #e0e0e0;
         padding: 10px;
         font-size: 16px !important;
+        cursor: default;
     }
 
     .tools-table .tools-th {
@@ -1550,9 +1605,27 @@ export const graphStyles = css`
         transform: rotate(-90deg) translateY(0);
     }
 
-    .toolColumn {
+    .tools-table td.toolColumn {
         cursor: pointer;
         position: relative;
+    }
+
+    .selection-notice {
+        margin: 8px 0;
+        padding: 8px 12px;
+        color: #664d03;
+        background: #fff3cd;
+        border: 1px solid #ffecb5;
+        border-radius: 4px;
+    }
+
+    .selection-notice button {
+        margin-left: 8px;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        text-decoration: underline;
     }
 
     .toolColumn .color-box {

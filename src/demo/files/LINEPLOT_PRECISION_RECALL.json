@@ -555,6 +555,7 @@
       }
     ],
     "visualization": {
+      "show_random_classifier": false,
       "available_metrics": [
         "RECALL",
         "PRECISION"

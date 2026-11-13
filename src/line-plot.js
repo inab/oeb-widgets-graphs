@@ -65,14 +65,14 @@ export class LinePlot extends LitElement {
       trend: "Trend"
     };
     this.viewTooltipTitle = {
-      quartiles: "The Square quartile label",
+      quartiles: "Quartile classification",
       average: "The Average Value Indicator",
       interquartile: "The Interquartile Range (IQR)",
     };
     this.viewTooltipBody = {
-      quartiles: "By default, the highest values will be displayed in the first quartile. Inversely if it is specified.",
-      average: "The average represents the central tendency, calculated by summing all values and dividing by the total count.",
-      interquartile: "The IQR highlights the spread of the middle 50% of data, calculated as the difference between the third and first quartiles.",
+      quartiles: "Participants are classified using the median of each axis. Top, Interquartile, and Bottom describe their position relative to the medians.",
+      average: "Participants are grouped by their position relative to the average for each axis.",
+      interquartile: "For each axis, Q1, Q2, and Q3 are the 25th percentile, median, and 75th percentile. The IQR is Q3 minus Q1.",
     };
     this.markerColors = ['#D62728', '#FF7F0E', '#8C564B', '#E377C2', '#4981B6', '#BCBD22', '#9467BD', '#0C9E7B', '#7F7F7F', '#31B8BD', '#FB8072', '#62D353'];
     this.layout = {
@@ -114,6 +114,7 @@ export class LinePlot extends LitElement {
   }
 
   firstUpdated() {
+    const showRandomClassifier = this.data?.inline_data?.visualization?.show_random_classifier !== false;
     const dataObj = {
       _id: this.data._id,
       dates: this.data.dates,
@@ -230,15 +231,16 @@ export class LinePlot extends LitElement {
       }
     });
 
-    const randomLine = {
-      x: [0,1],
-      y: [0,1],
-      mode: 'lines',
-      name: 'Random Classifier',
-      line: {color: 'rgba(0,0,0,0.3)', dash: 'dot', width: 2}
-    };
-
-    this.dataTraces.push(randomLine);
+    this.participantCount = this.dataTraces.length;
+    if (showRandomClassifier) {
+      this.dataTraces.push({
+        x: [0,1],
+        y: [0,1],
+        mode: 'lines',
+        name: 'Random Classifier',
+        line: {color: 'rgba(0,0,0,0.3)', dash: 'dot', width: 2}
+      });
+    }
 
     this.originalTraces = [...this.dataTraces];
 
@@ -297,7 +299,11 @@ export class LinePlot extends LitElement {
     this.defaultOptimizationText = `X: ${data.visualization.x_optimization === 'maximize' ? 'maximize' : 'minimize'}`;
     this.defaultOptimizationText += `<br/> Y: ${data.visualization.y_optimization === 'maximize' ? 'maximize' : 'minimize'}`;
 
-    const annotations = this.annotations.map((annotation, index) => ({
+    this.layout.annotations = this.getAucAnnotations();
+  }
+
+  getAucAnnotations() {
+    return this.annotations.map((annotation, index) => ({
       x: 0,
       y: 1 - (index * 0.05),
       xref: 'paper',
@@ -306,8 +312,6 @@ export class LinePlot extends LitElement {
       showarrow: false,
       font: { size: 14 }
     }));
-
-    this.layout.annotations = annotations;
   }
 
   updated() {
@@ -351,18 +355,7 @@ export class LinePlot extends LitElement {
   }
 
   repaintGraph(dataMode) {
-    let traces = dataMode;
-    let layout = this.layout;
-
-    var referenceLine = {
-      x: [0, 1],
-      y: [0, 1],
-      mode: 'lines',
-      name: 'Random Classifier',
-      line: { dash: 'dash', color: 'red' }
-    };
-
-    Plotly.react(this.graphDiv, [traces, referenceLine], this.layout);
+    Plotly.react(this.graphDiv, dataMode, this.layout);
   }
 
   getImagePosition() {
@@ -384,15 +377,15 @@ export class LinePlot extends LitElement {
     this.mode = mode;
     let dataMode = this.dataTraces;
     if(mode === 'lines') {
-      dataMode.forEach((trace) => {
+      dataMode.slice(0, this.participantCount).forEach((trace) => {
         trace.mode = 'lines';
       });
     } else if(mode === 'markers') {
-      dataMode.forEach((trace) => {
+      dataMode.slice(0, this.participantCount).forEach((trace) => {
         trace.mode = 'markers';
       });
     } else if(mode === 'linesmarkers') {
-      dataMode.forEach((trace) => {
+      dataMode.slice(0, this.participantCount).forEach((trace) => {
         trace.mode = 'lines+markers';
       });
     }
@@ -466,17 +459,17 @@ export class LinePlot extends LitElement {
           itemdoubleclick: "toggle",
         },
         showlegend: true,
+        annotations: this.getAucAnnotations(),
       };
       this.renderChart(newTraces);
     } else if (view === 'quartiles') {
-      let newTraces = [...this.originalTraces];
+      let newTraces = this.originalTraces.slice(0, this.participantCount);
       this.viewSelected = "Quartiles";
       this.viewSelectedKey = "quartiles";
       this.sorted = true;
       this.showAdditionalTable = true;
       this.showQuartileTable = true;
       this.tracesTable = newTraces;
-      newTraces.splice(newTraces.length - 1, 1);
       this.quartileData = this.calculateQuartiles(newTraces);
       this.quartileData.forEach((quartile, index) => {
         quartile.quartileName = newTraces[index].name;
@@ -493,8 +486,7 @@ export class LinePlot extends LitElement {
       this.layout.height = 800;
       this.renderChart(this.originalTraces);
     } else if (view === 'average') {
-      let newTraces = [...this.originalTraces];
-      newTraces.splice(newTraces.length - 1, 1);
+      let newTraces = this.originalTraces.slice(0, this.participantCount);
       this.viewSelected = "Average";
       this.viewSelectedKey = "average";
       this.showAdditionalTable = true;
@@ -558,7 +550,7 @@ export class LinePlot extends LitElement {
       this.sorted = true;
       this.showAdditionalTable = true;
       this.showInterquartileTable = true;
-      this.interquartileData = this.calculateIQR(newTraces);
+      this.interquartileData = this.calculateIQR(newTraces.slice(0, this.participantCount));
       this.addLinesBetweenQuartiles();
       this.addQuartileLabels();
       this.renderChart(newTraces);
@@ -569,13 +561,13 @@ export class LinePlot extends LitElement {
       this.showTrend = true;
       this.sorted = false;
       this.tracesTable = newTraces;
-      let regressionTraces = this.calculateTrend(newTraces);
+      let regressionTraces = this.calculateTrend(newTraces.slice(0, this.participantCount));
       let trace = {
         name: "General Trendline",
         x: regressionTraces.regressionX,
         y: regressionTraces.regressionY,
         type: 'scatter',
-        mode: 'linesmarkers',
+        mode: 'lines',
         line: {
           color: '#1A1A19',
           width: 1,
@@ -726,7 +718,7 @@ export class LinePlot extends LitElement {
   calculateTrend(data) {
     const points = data.flatMap(dataset => dataset.x.map((x, i) => [x, dataset.y[i]]));
     const result = regression.linear(points);
-    const regressionLine = result.points;
+    const regressionLine = result.points.sort((a, b) => a[0] - b[0]);
     const regressionX = regressionLine.map(point => point[0]);
     const regressionY = regressionLine.map(point => point[1]);
     return {
@@ -1169,7 +1161,7 @@ export class LinePlot extends LitElement {
               </div>
               <div class="dropdown orientation-dropdown">
                 <button type="button" class="btn btn-xl btn-center dropbtn mode">
-                  Mode: <span> ${ (this.mode=='linesmarkers')?"Lines & Makers" : this.mode }</span>
+                  Mode: <span> ${ (this.mode=='linesmarkers')?"Lines & Markers" : this.mode }</span>
                   <div class="btn-icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg></div>
                 </button>
                 <div class="dropdown-content">
@@ -1232,7 +1224,7 @@ export class LinePlot extends LitElement {
                     <table class="tools-table" id="benchmarkingTable">
                         <thead>
                             <tr>
-                                <th class="tools-th">Participants</th>
+                                <th class="tools-th">${this.showInterquartileTable ? 'Statistic' : 'Participants'}</th>
                                 <th class="classify-th">
                                     ${ this.viewSelected == 'Quartiles'
                                       ? 'Quartile'

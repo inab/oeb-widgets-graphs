@@ -136,13 +136,12 @@ export class BoxPlot extends LitElement {
             traces.push(trace);
         }
 
+        this.originalTraces = [...traces];
         if(this.sorted) {
             traces.sort((a, b) => this.sortedName == 'minimum' ? a.median[0] - b.median[0] : b.median[0] - a.median[0]);
             this.viewSelected = this.viewText[this.sortedName];
         }
 
-        // Copy original traces to reset current filter states
-        this.originalTraces = traces;
         this.traces = traces;
     }
 
@@ -157,8 +156,8 @@ export class BoxPlot extends LitElement {
         }
 
         if(this.orientation == 'Horizontal') {
-            delete this.layout.xaxis
-            this.layout.yaxis = {
+            delete this.layout.yaxis
+            this.layout.xaxis = {
                 title: {
                     text: this.visualizationData.y_axis,
                     font: {
@@ -236,25 +235,6 @@ export class BoxPlot extends LitElement {
                 this.optimalXaxis = layoutObj.xaxis.range;
                 this.optimalYaxis = layoutObj.yaxis.range;
             }
-
-            // Capture legend event
-            gd.on('plotly_legendclick', (event) => {
-                let traceIndex = event.curveNumber;
-
-                // If Pareto was clicked (index 0) do nothing
-                if (traceIndex === 0) {
-                    return false;
-                } else if (traceIndex === 1) {
-                    return true;
-                } else {
-                    // Update the graph based on the selected trace
-                    // Si response es false la trace no se oculta de la legend
-                    let response = this.updatePlotOnSelection(traceIndex);
-                    if (response == false) {
-                        return false;
-                    }
-                }
-            });
         });
     }
 
@@ -287,43 +267,23 @@ export class BoxPlot extends LitElement {
                 this.optimalXaxis = layoutObj.xaxis.range;
                 this.optimalYaxis = layoutObj.yaxis.range;
             }
-
-            // Capture legend event
-            gd.on('plotly_legendclick', (event) => {
-                let traceIndex = event.curveNumber;
-
-                // If Pareto was clicked (index 0) do nothing
-                if (traceIndex === 0) {
-                    return false;
-                } else if (traceIndex === 1) {
-                    return true;
-                } else {
-                    // Update the graph based on the selected trace
-                    // Si response es false la trace no se oculta de la legend
-                    let response = this.updatePlotOnSelection(traceIndex);
-                    if (response == false) {
-                        return false;
-                    }
-                }
-            });
         });
     }
 
     handleChangeSort(sortType) {
         this.tracesTable = [];
-        let data = this.traces;
+        let data = sortType === 'default' ? [...this.originalTraces] : [...this.traces];
 
         // Sort the traces based on the sortType
         if (sortType === 'minimum') {
             data.sort((a, b) => a.median[0] - b.median[0]);
         } else if (sortType === 'maximus') {
             data.sort((a, b) => b.median[0] - a.median[0]);
-        } else {
-            data = this.originalTraces;
         }
 
-        // this.traces = data;
+        this.traces = data;
         this.tracesTable = data;
+        this.sorted = sortType === 'default' ? false : sortType;
         this.sortedName = sortType;
         this.viewSelected = this.viewText[sortType];
 
@@ -331,6 +291,11 @@ export class BoxPlot extends LitElement {
         this.showAdditionalTable = (sortType != 'default') ? true : false;
 
         this.repaintGraph(data);
+    }
+
+    handleTableRowClick(index) {
+        const trace = this.graphDiv.data[index];
+        Plotly.restyle(this.graphDiv, { visible: trace.visible === 'legendonly' ? true : 'legendonly' }, [index]);
     }
 
     handleChangeOrientation(selectedOrientation) {
@@ -738,14 +703,12 @@ export class BoxPlot extends LitElement {
                                         <tr>
                                             <th class="tools-th">Participants</th>
                                             <th class="classify-th">
-                                                <span>${ this.viewKmeans ? 'Clusters' : 'Quartile' }</span>
+                                                <span>Median</span>
                                                 <ui-tooltip
                                                     for="anchor"
                                                     icon="info"
-                                                    textTitle="The performance label"
-                                                    textBody="The values will be displayed in the graph data order 'optimization'.<br/>
-                                                        Else, the default order should be the received data order.<br/>
-                                                        Its possible to change display order by click in 'Sort & Classify Data' button.">
+                                                    textTitle="Participant order"
+                                                    textBody="Participants follow the selected sort order. Default Sort restores the input order. Select a participant to show or hide it on the plot.">
                                                 </ui-tooltip>
                                             </th>
                                         </tr>
@@ -754,7 +717,7 @@ export class BoxPlot extends LitElement {
                                         ${ this.showAdditionalTable ? html`
                                             ${ this.tracesTable.map((trace, index) => html`
                                                 <tr>
-                                                    <td class="toolColumn" @click="${() => handleTableRowClick(index) }">
+                                                    <td class="toolColumn" @click="${() => this.handleTableRowClick(index) }">
                                                         <div class="color-box" style="background-color: ${ trace.marker.color }"></div>
                                                         <span>${ trace.name }</span>
                                                     </td>
