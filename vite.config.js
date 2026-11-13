@@ -1,6 +1,5 @@
 import { fileURLToPath } from 'url'
 import { defineConfig } from 'vite'
-import { resolve } from 'path';
 
 export default defineConfig({
     resolve: {
@@ -13,7 +12,7 @@ export default defineConfig({
     ],
     build: {
         lib: {
-            entry: resolve(__dirname, 'src/widget-element.js'),
+            entry: fileURLToPath(new URL('./src/widget-element.js', import.meta.url)),
             name: 'OebWidgetsGraphs',
             fileName: (format) => `oeb-widgets-graphs.${format}.js`,
             formats: ['es', 'umd']

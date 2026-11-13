@@ -4,7 +4,6 @@ import { plotlyStyles } from "./plotly-styles.js";
 import { graphStyles } from './graph-styles.js';
 import { oebIcon, isBSC } from './utils';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import { Tooltip } from './ui-tooltip.js';
 import { color } from 'd3';

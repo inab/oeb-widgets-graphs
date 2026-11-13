@@ -35,6 +35,9 @@ It has some dependencies associated for the functionalities:
 - - - -
 ## Build Setup
 
+Building and running the development server requires Node.js 20.19 or later
+within the 20.x series, or Node.js 22.12 or later.
+
 Download the package and install dependencies:
 
 ```

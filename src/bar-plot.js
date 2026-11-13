@@ -4,7 +4,7 @@ import { plotlyStyles } from "./plotly-styles.js";
 import { graphStyles } from './graph-styles.js';
 import { oebIcon, isBSC } from './utils';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import { autoTable } from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import { Tooltip } from './ui-tooltip.js';
 
@@ -615,7 +615,7 @@ export class BarPlot extends LitElement {
                     const rows = this.quartileDataArray.map(q => [q.tool, q.quartile.quartile]);
                     
                     // Generate autoTable with custom styles
-                    pdf.autoTable({
+                    autoTable(pdf, {
                         head: [columns],
                         body: rows,
                         startY: 190,

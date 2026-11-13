@@ -4,7 +4,7 @@ import { plotlyStyles } from "./plotly-styles.js";
 import { graphStyles } from './graph-styles.js';
 import { oebIcon, isBSC } from './utils';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import { autoTable } from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import pf from 'pareto-frontier';
 import * as statistics from 'simple-statistics'
@@ -1396,7 +1396,7 @@ export class ScatterPlot extends LitElement {
                     const markerColors = ['#D62728', '#FF7F0E', '#8C564B', '#E377C2', '#4981B6', '#BCBD22', '#9467BD', '#0C9E7B', '#7F7F7F', '#31B8BD', '#FB8072', '#62D353']
 
                     // Generate autoTable with custom styles
-                    pdf.autoTable({
+                    autoTable(pdf, {
                         head: [columns],
                         body: rows,
                         startY: 190,
