@@ -1414,6 +1414,16 @@ export const graphStyles = css`
         padding-left: 10px;
     }
 
+    .legend-hint {
+        margin: 0 0 8px;
+        color: #555;
+        font-size: 13px;
+    }
+
+    #bar-chart .plotly .nsewdrag {
+        cursor: default;
+    }
+
     .tools-table {
         width: 100%;
         border-collapse: collapse;
@@ -1446,6 +1456,11 @@ export const graphStyles = css`
 
     .tools-table .classify-th {
         width: 40%;
+    }
+
+    .line-plot .tools-table .tools-th,
+    .line-plot .tools-table .classify-th {
+        width: auto;
     }
 
     #chartCapture {
@@ -1489,6 +1504,23 @@ export const graphStyles = css`
         padding: 5px 25px;
     }
 
+    .scatter-plot .info-table {
+        padding-top: 20px;
+    }
+
+    @media (max-width: 640px) {
+        .scatter-plot .info-table {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .scatter-plot .custom-table th,
+        .scatter-plot .custom-table td {
+            font-size: 12px !important;
+            overflow-wrap: anywhere;
+        }
+    }
+
     .dropbtn {
         background-color: rgb(247, 247, 247);
         border: 1px solid rgb(223, 227, 238);
@@ -1522,13 +1554,13 @@ export const graphStyles = css`
 
     .dropbtn {
         display: flex;
-        align-content: baseline;
+        align-items: center;
         justify-content: center;
     }
 
     .dropbtn.first-btn .btn-icon-wrapper,
     .dropbtn.download-btn .btn-icon-wrapper {
-        padding: 1px 5px 0px 20px;
+        padding: 0 5px 0 20px;
     }
 
     .dropbtn.first-btn svg,
@@ -1546,7 +1578,7 @@ export const graphStyles = css`
     .download-btn {
         min-width: 175px;
         display: flex;
-        align-content: baseline;
+        align-items: center;
         justify-content: center;
     }
 

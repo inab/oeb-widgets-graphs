@@ -376,6 +376,7 @@ export class RadarPlot extends LitElement {
                     <div class="col-8">
                     </div>
                 </div>
+                <p class="legend-hint">Click a participant in the legend to show or hide it.</p>
                 <div class="graph-row" id="todownload">
                     <div class=${ this.isSorted ? 'col-8': 'col-12' } id="chartCapture">
                         <div class="chart" id="radar-chart"></div>

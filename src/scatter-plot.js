@@ -1696,7 +1696,7 @@ export class ScatterPlot extends LitElement {
 
     render() {
         return html`
-            <div class="bar-plot oeb-graph">
+            <div class="scatter-plot oeb-graph">
                 <div class="graph-row" id="graph-filters">
                     <div class="col-8">
                         <div class="btn-group btn-graphs" role="group" aria-label="">

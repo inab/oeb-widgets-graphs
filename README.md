@@ -163,7 +163,10 @@ participants. A message explains when a selection reaches the limit.
 
 Shows the distribution of each participant's metric using summary statistics.
 Participants can be ordered by minimum or maximum median value, or returned
-to the input order with Default Sort.
+to the input order with Default Sort. Median values in the table and plot hover
+values display five decimal places; sorting uses the original precision. The
+table shows `--` for hidden participants. At least one participant must remain
+visible.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/boxplot.html) |
 [Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BOXPLOT.json)
@@ -174,7 +177,7 @@ to the input order with Default Sort.
 
 Compares multiple metrics on axes radiating from a common center, with one
 trace per tool. It has two modes, chosen by the metric definitions in
-`metrics_series`.
+`metrics_series`. Click a participant in the legend to show or hide it.
 
 **Standard mode** (default). Values are plotted as they are, without
 normalization, so it is only reliable when all metrics share a similar scale.
@@ -207,7 +210,19 @@ random-classifier reference line is shown for ROC curves; set
 `inline_data.visualization.show_random_classifier` to `false` to hide it for
 other plots, such as precision-recall curves. The line is excluded from
 classification and statistical calculations. No precision-recall baseline is
-calculated automatically.
+calculated automatically. Click a legend entry to show or hide a curve;
+statistics continue to use all participants.
+
+The Quartiles (AUC) and Average (AUC) views compare the area under each curve
+over the X range shared by all participants, using linear interpolation at the
+range boundaries. The Y-axis optimization determines whether a higher or lower
+area is better. These comparisons require finite points, monotonic X values,
+and a nonzero shared X range. In these views, the legend labels identify each
+curve's classification, and the table lists its shared-range AUC. The plot
+shows the shared X range and, in Average view, the mean AUC across all
+participants. This mean is a number, not a participant curve. Outside these
+comparison views, AUC annotations use each curve's full input range.
+The interquartile-range table instead pools all participant points on each axis.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/lineplot.html) |
 Example data: [ROC](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT.json),

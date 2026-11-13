@@ -32,6 +32,7 @@ export class BoxPlot extends LitElement {
         orientation: 'v',
         graphStyleSelected: 'empty',
         isDownloading: false,
+        selectionNotice: { state: true },
     };
 
     constructor() {
@@ -75,12 +76,17 @@ export class BoxPlot extends LitElement {
                 font: {
                     size: 16,
                 },
-                itemdoubleclick: "toggle",
+                itemdoubleclick: false,
             },
             images: this.getImagePosition(this.optimalview),
             showlegend: true,
         };
         this.isDownloading = false;
+        this.selectionNotice = '';
+        this.onLegendClick = (event) => {
+            this.toggleParticipant(event.curveNumber);
+            return false;
+        };
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
@@ -88,12 +94,17 @@ export class BoxPlot extends LitElement {
         super.attributeChangedCallback(name, oldVal, JSON.parse(newVal));
     }
 
-    updated() {
+    updated(changedProperties) {
         this.graphDiv = this.shadowRoot.querySelector('#box-chart');
         this.todoDownload = this.shadowRoot.querySelector('#todownload');
         this.chartCapture = this.shadowRoot.querySelector('#chartCapture');
         this.tableColumn = this.shadowRoot.querySelector('#table-column');
         this.benchmarkingTable = this.shadowRoot.querySelector('#benchmarkingTable');
+        if (changedProperties.size && [...changedProperties.keys()].every(
+            property => property === 'selectionNotice' || property === 'tracesTable'
+        )) {
+            return;
+        }
         this.myPlot = Plotly.newPlot(this.graphDiv, [], {}, { displayModeBar: false, responsive: true, hovermode: false });
         this.renderChart();
     }
@@ -166,7 +177,8 @@ export class BoxPlot extends LitElement {
                         color: 'black',
                         weight: 'bold',
                     },
-                }
+                },
+                hoverformat: '.5f'
             }
         } else {
             delete this.layout.xaxis
@@ -179,7 +191,8 @@ export class BoxPlot extends LitElement {
                         color: 'black',
                         weight: 'bold',
                     },
-                }
+                },
+                hoverformat: '.5f'
             }
         }
 
@@ -198,7 +211,7 @@ export class BoxPlot extends LitElement {
                     font: {
                         size: 16,
                     },
-                    itemdoubleclick: "toggle",
+                    itemdoubleclick: false,
                 },
                 showlegend: true,
                 margin: { l: 50, r: 50, t: 100, b: 110, pad: 4 },
@@ -211,6 +224,8 @@ export class BoxPlot extends LitElement {
 
 
         Plotly.newPlot(this.graphDiv, this.traces, layout, GRAPH_CONFIG).then((gd) => {
+            gd.removeListener('plotly_legendclick', this.onLegendClick);
+            gd.on('plotly_legendclick', this.onLegendClick);
             // Animate traces from opacity 0 to 1
             Plotly.animate(gd, {
                 data: this.traces.map((trace, index) => ({
@@ -243,6 +258,8 @@ export class BoxPlot extends LitElement {
         let layout = this.layout;
 
         Plotly.newPlot(this.graphDiv, traces, layout, GRAPH_CONFIG).then((gd) => {
+            gd.removeListener('plotly_legendclick', this.onLegendClick);
+            gd.on('plotly_legendclick', this.onLegendClick);
             // Animate traces from opacity 0 to 1
             Plotly.animate(gd, {
                 data: traces.map((trace, index) => ({
@@ -294,8 +311,20 @@ export class BoxPlot extends LitElement {
     }
 
     handleTableRowClick(index) {
-        const trace = this.graphDiv.data[index];
-        Plotly.restyle(this.graphDiv, { visible: trace.visible === 'legendonly' ? true : 'legendonly' }, [index]);
+        this.toggleParticipant(index);
+    }
+
+    toggleParticipant(index) {
+        const trace = this.traces[index];
+        const hidden = trace.visible === 'legendonly' || trace.visible === false;
+        if (!hidden && this.traces.filter(item => item.visible !== 'legendonly' && item.visible !== false).length <= 1) {
+            this.selectionNotice = 'At least one participant must remain visible.';
+            return;
+        }
+        this.selectionNotice = '';
+        trace.visible = hidden ? true : 'legendonly';
+        this.tracesTable = [...this.traces];
+        Plotly.restyle(this.graphDiv, { visible: trace.visible }, [index]);
     }
 
     handleChangeOrientation(selectedOrientation) {
@@ -315,7 +344,7 @@ export class BoxPlot extends LitElement {
         this.layout = {
             title: '',
             autosize: true,
-            legend: {"orientation": "h"},
+            legend: { "orientation": "h", itemdoubleclick: false },
             showlegend: true,
             height: 600,
             margin: { l: 50, r: 50, t: 100, b: 110, pad: 4 },
@@ -333,7 +362,8 @@ export class BoxPlot extends LitElement {
                         color: 'black',
                         weight: 'bold',
                     },
-                }
+                },
+                hoverformat: '.5f'
             }
         } else {
             delete this.layout.xaxis
@@ -346,7 +376,8 @@ export class BoxPlot extends LitElement {
                         color: 'black',
                         weight: 'bold',
                     },
-                }
+                },
+                hoverformat: '.5f'
             }
         }
 
@@ -679,6 +710,12 @@ export class BoxPlot extends LitElement {
                         </div>
                     </div>
                 </div>
+                ${this.selectionNotice ? html`
+                    <div class="selection-notice" role="status">
+                        ${this.selectionNotice}
+                        <button type="button" @click=${() => { this.selectionNotice = ''; }}>Dismiss</button>
+                    </div>
+                ` : ''}
                 <div class="graph-row" id="todownload">
                     <div class=${ this.isSorted ? 'col-8': 'col-12' } id="chartCapture">
                         <div class="chart" id="box-chart"></div>
@@ -708,7 +745,7 @@ export class BoxPlot extends LitElement {
                                                     for="anchor"
                                                     icon="info"
                                                     textTitle="Participant order"
-                                                    textBody="Participants follow the selected sort order. Default Sort restores the input order. Select a participant to show or hide it on the plot.">
+                                                    textBody="Participants follow the selected sort order. Default Sort restores the input order. Select a participant to show or hide it on the plot; hidden participants show --.">
                                                 </ui-tooltip>
                                             </th>
                                         </tr>
@@ -721,7 +758,7 @@ export class BoxPlot extends LitElement {
                                                         <div class="color-box" style="background-color: ${ trace.marker.color }"></div>
                                                         <span>${ trace.name }</span>
                                                     </td>
-                                                    <td class="">${ trace.median[0] }</td>
+                                                    <td class="">${ trace.visible === 'legendonly' || trace.visible === false ? '--' : trace.median[0].toFixed(5) }</td>
                                                 </tr>
                                             `) }
                                     ` : '' }

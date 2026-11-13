@@ -6,8 +6,8 @@ import { graphStyles } from './graph-styles.js';
 import { oebIcon, isBSC } from './utils';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
-import * as statistics from 'simple-statistics'
 import regression from 'regression';
+import { getComparableAreas, rankAreas, compareAreasToMean, meanArea } from './line-statistics.js';
 
 const GRAPH_CONFIG = {
   displayModeBar: false,
@@ -32,6 +32,7 @@ export class LinePlot extends LitElement {
     showAverageTable: false,
     showInterquartileTable: false,
     showTrend: false,
+    classificationNotice: { state: true },
     viewSelected: "No Classification",
     mode: "linesmarkers",
     optimization: "default"
@@ -51,6 +52,7 @@ export class LinePlot extends LitElement {
     this.quartileData = [];
     this.averageData = [];
     this.interquartileData = [];
+    this.classificationNotice = '';
     this.modeText = {
       lines: "lines",
       markers: "markers",
@@ -59,20 +61,20 @@ export class LinePlot extends LitElement {
     this.originalTraces = [];
     this.viewText = {
       default: "Default View",
-      quartiles: "Quartiles",
-      average: "Average",
+      quartiles: "Quartiles (AUC)",
+      average: "Average (AUC)",
       interquartile: "Interquartile range",
       trend: "Trend"
     };
     this.viewTooltipTitle = {
       quartiles: "Quartile classification",
-      average: "The Average Value Indicator",
+      average: "Average AUC",
       interquartile: "The Interquartile Range (IQR)",
     };
     this.viewTooltipBody = {
-      quartiles: "Participants are classified using the median of each axis. Top, Interquartile, and Bottom describe their position relative to the medians.",
-      average: "Participants are grouped by their position relative to the average for each axis.",
-      interquartile: "For each axis, Q1, Q2, and Q3 are the 25th percentile, median, and 75th percentile. The IQR is Q3 minus Q1.",
+      quartiles: "Curves are ranked by area under the curve over their shared X range. Q1 is best; the Y-axis optimization determines whether higher or lower area is better.",
+      average: "Each curve's area over the shared X range is compared with the mean area. The Y-axis optimization determines whether higher or lower area is better.",
+      interquartile: "Values are pooled across all participant curves for each axis. Q1, Q2, and Q3 are the 25th percentile, median, and 75th percentile; IQR is Q3 minus Q1.",
     };
     this.markerColors = ['#D62728', '#FF7F0E', '#8C564B', '#E377C2', '#4981B6', '#BCBD22', '#9467BD', '#0C9E7B', '#7F7F7F', '#31B8BD', '#FB8072', '#62D353'];
     this.layout = {
@@ -314,12 +316,15 @@ export class LinePlot extends LitElement {
     }));
   }
 
-  updated() {
+  updated(changedProperties) {
     this.graphDiv = this.shadowRoot.querySelector('#line-chart');
     this.todoDownload = this.shadowRoot.querySelector('#todownload');
     this.chartCapture = this.shadowRoot.querySelector('#chartCapture');
     this.tableColumn = this.shadowRoot.querySelector('#table-column');
     this.benchmarkingTable = this.shadowRoot.querySelector('#benchmarkingTable');
+    if (changedProperties.size && [...changedProperties.keys()].every(property => property === 'classificationNotice')) {
+      return;
+    }
     this.myPlot = Plotly.newPlot(this.graphDiv, [], this.layout, { displayModeBar: false, responsive: true, hovermode: false });
 
     this.renderChart();
@@ -332,7 +337,7 @@ export class LinePlot extends LitElement {
       const height = (tpr[i] + tpr[i+1]) / 2;
       auc += width * height;
     }
-    return auc;
+    return fpr[fpr.length - 1] < fpr[0] ? -auc : auc;
   }
 
   formatDateString(dateString) {
@@ -376,6 +381,9 @@ export class LinePlot extends LitElement {
   handleChangeMode(mode) {
     this.mode = mode;
     let dataMode = this.dataTraces;
+    this.originalTraces.slice(0, this.participantCount).forEach(trace => {
+      trace.mode = this.modeText[mode];
+    });
     if(mode === 'lines') {
       dataMode.slice(0, this.participantCount).forEach((trace) => {
         trace.mode = 'lines';
@@ -403,8 +411,20 @@ export class LinePlot extends LitElement {
     this.interquartileData = [];
   }
 
-  async setClassificationView(view) {
+  setClassificationView(view) {
+    let areas, range;
+    if (view === 'quartiles' || view === 'average') {
+      const result = getComparableAreas(this.originalTraces.slice(0, this.participantCount));
+      if (result.error) {
+        this.classificationNotice = result.error;
+        return;
+      }
+      areas = result.areas;
+      range = result.range;
+    }
+    this.classificationNotice = '';
     this.resetQuartileTable();
+    this.layout.annotations = this.getAucAnnotations();
     if (view === 'default') {
       let newTraces = [...this.originalTraces];
       this.viewSelected = "Default View";
@@ -464,30 +484,19 @@ export class LinePlot extends LitElement {
       this.renderChart(newTraces);
     } else if (view === 'quartiles') {
       let newTraces = this.originalTraces.slice(0, this.participantCount);
-      this.viewSelected = "Quartiles";
+      this.viewSelected = this.viewText.quartiles;
       this.viewSelectedKey = "quartiles";
       this.sorted = true;
       this.showAdditionalTable = true;
       this.showQuartileTable = true;
       this.tracesTable = newTraces;
-      this.quartileData = this.calculateQuartiles(newTraces);
-      this.quartileData.forEach((quartile, index) => {
-        quartile.quartileName = newTraces[index].name;
-        quartile.quartile = this.quartileData[index].quartile;
-        quartile.label = this.quartileData[index].label;
-        quartile.bgColor = this.getQuartileBgColor(quartile.quartile).bgColor;
-      });
-
-      Plotly.Plots.resize(this.graphDiv);
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      this.addLinesBetweenQuartiles();
-      this.addQuartileLabels();
+      this.quartileData = this.calculateQuartiles(newTraces, areas);
+      this.layout.annotations = [this.getComparisonAnnotation(range)];
       this.layout.height = 800;
-      this.renderChart(this.originalTraces);
+      this.renderChart(this.getClassifiedTraces(this.quartileData, 'label'));
     } else if (view === 'average') {
       let newTraces = this.originalTraces.slice(0, this.participantCount);
-      this.viewSelected = "Average";
+      this.viewSelected = this.viewText.average;
       this.viewSelectedKey = "average";
       this.showAdditionalTable = true;
       this.showAverageTable = true;
@@ -541,8 +550,9 @@ export class LinePlot extends LitElement {
       };
 
       this.setOptimitacionValuesLayout(this.optimization);
-      this.averageData = this.calculateAverage(newTraces);
-      this.renderChart(this.originalTraces);
+      this.averageData = this.calculateAverage(newTraces, areas);
+      this.layout.annotations = [this.getComparisonAnnotation(range, meanArea(areas))];
+      this.renderChart(this.getClassifiedTraces(this.averageData, 'category'));
     } else if (view === 'interquartile') {
       let newTraces = [...this.originalTraces];
       this.viewSelected = "Interquartile range";
@@ -551,8 +561,6 @@ export class LinePlot extends LitElement {
       this.showAdditionalTable = true;
       this.showInterquartileTable = true;
       this.interquartileData = this.calculateIQR(newTraces.slice(0, this.participantCount));
-      this.addLinesBetweenQuartiles();
-      this.addQuartileLabels();
       this.renderChart(newTraces);
     } else if (view === 'trend') {
       let newTraces = [...this.originalTraces];
@@ -630,89 +638,21 @@ export class LinePlot extends LitElement {
     }
   }
 
-  addLinesBetweenQuartiles() {
-    const layout = this.graphDiv.layout;
-    layout.shapes = layout.shapes || [];
-
-    const tools = Object.keys(this.quartileData);
-    for (let i = 1; i < tools.length; i++) {
-      const currentTool = this.quartileData[tools[i]];
-      const previousTool = this.quartileData[tools[i - 1]];
-
-      if (currentTool.quartile !== previousTool.quartile) {
-        const linePosition = (i + i - 1) / 2;
-
-        layout.shapes.push({
-          type: 'line',
-          xref: 'x',
-          yref: 'paper',
-          x0: linePosition,
-          x1: linePosition,
-          y0: 0,
-          y1: 0,
-          line: {
-            color: 'rgba(11, 87, 159, 0.5)',
-            width: 2,
-            dash: 'dashdot'
-          }
-        });
-      }
-    }
-
-    Plotly.relayout(this.graphDiv, { shapes: layout.shapes });
+  getComparisonAnnotation(range, mean) {
+    const text = `Shared X range: ${range[0]} to ${range[1]}` +
+      (mean === undefined ? '' : `<br>Mean AUC ≈ ${mean.toPrecision(5)}`);
+    return {
+      x: 0, y: 1.03, xref: 'paper', yref: 'paper',
+      xanchor: 'left', yanchor: 'bottom', align: 'left',
+      text, showarrow: false, bgcolor: 'rgba(255,255,255,0.85)',
+      font: { size: 14 }
+    };
   }
 
-  addQuartileLabels() {
-    const layout = this.graphDiv.layout;
-    layout.annotations = layout.annotations || [];
-
-    const tools = Object.keys(this.quartileData);
-    const quartileCounts = {};
-
-    tools.forEach(tool => {
-      const quartile = this.quartileData[tool].quartile;
-      quartileCounts[quartile] = (quartileCounts[quartile] || 0) + 1;
-    });
-
-    const addedLabelPositions = new Set();
-
-    tools.forEach(tool => {
-      const quartile = this.quartileData[tool].quartile;
-      let labelPosition;
-      if (quartileCounts[quartile] === 1) {
-        labelPosition = tools.indexOf(tool);
-      } else {
-        const positions = tools.reduce((acc, curr, index) => {
-        if (this.quartileData[curr].quartile === quartile) {
-            acc.push(index);
-        }
-        return acc;
-        }, []);
-
-        const sum = positions.reduce((sum, pos) => sum + pos, 0);
-        labelPosition = sum / positions.length;
-      }
-
-      if (!addedLabelPositions.has(labelPosition)) {
-        layout.annotations.push({
-            x: labelPosition,
-            y: 1.03,
-            xref: 'x',
-            yref: 'paper',
-            text: `Q${quartile}`,
-            showarrow: false,
-            font: {
-            size: 16,
-            color: 'rgba(11, 87, 159, 0.5)'
-            }
-        });
-
-        addedLabelPositions.add(labelPosition);
-      }
-    });
-    this.layout = layout;
-
-    Plotly.relayout(this.graphDiv, { annotations: layout.annotations });
+  getClassifiedTraces(classifications, labelKey) {
+    return this.originalTraces.map((trace, i) => i < this.participantCount
+      ? { ...trace, name: `${trace.name} — ${classifications[i][labelKey]}` }
+      : trace);
   }
 
   calculateTrend(data) {
@@ -742,38 +682,16 @@ export class LinePlot extends LitElement {
     const Q2_y = this.percentile(sortedY, 50);
     const Q3_y = this.percentile(sortedY, 75);
   
-    const IQR_x = (Q3_x - Q1_x).toFixed(2);
-    const IQR_y = (Q3_y - Q1_y).toFixed(2);
-
     return {
-      IQR_x: { value: parseFloat(IQR_x).toFixed(2), color: this.getInterquartileBgColor(parseFloat(IQR_x), Q1_x, Q2_x, Q3_x) },
-      IQR_y: { value: parseFloat(IQR_y).toFixed(2), color: this.getInterquartileBgColor(parseFloat(IQR_y), Q1_y, Q2_y, Q3_y) },
-      Q1_x: { value: parseFloat(Q1_x).toFixed(2), color: this.getInterquartileBgColor(parseFloat(Q1_x), Q1_x, Q2_x, Q3_x) },
-      Q2_x: { value: parseFloat(Q2_x).toFixed(2), color: this.getInterquartileBgColor(parseFloat(Q2_x), Q1_x, Q2_x, Q3_x) },
-      Q3_x: { value: parseFloat(Q3_x).toFixed(2), color: this.getInterquartileBgColor(parseFloat(Q3_x), Q1_x, Q2_x, Q3_x) },
-      Q1_y: { value: parseFloat(Q1_y).toFixed(2), color: this.getInterquartileBgColor(parseFloat(Q1_y), Q1_y, Q2_y, Q3_y) },
-      Q2_y: { value: parseFloat(Q2_y).toFixed(2), color: this.getInterquartileBgColor(parseFloat(Q2_y), Q1_y, Q2_y, Q3_y) },
-      Q3_y: { value: parseFloat(Q3_y).toFixed(2), color: this.getInterquartileBgColor(parseFloat(Q3_y), Q1_y, Q2_y, Q3_y) },
+      IQR_x: (Q3_x - Q1_x).toFixed(2),
+      IQR_y: (Q3_y - Q1_y).toFixed(2),
+      Q1_x: Q1_x.toFixed(2),
+      Q2_x: Q2_x.toFixed(2),
+      Q3_x: Q3_x.toFixed(2),
+      Q1_y: Q1_y.toFixed(2),
+      Q2_y: Q2_y.toFixed(2),
+      Q3_y: Q3_y.toFixed(2),
     };
-  }
-
-  getInterquartileBgColor(value, Q1, Q2, Q3) {
-    if (value < Q1) {
-      return {
-        category: 'Low (below Q1)',
-        bgColor: '#D37676'
-      };
-    } else if (value >= Q1 && value <= Q3) {
-      return {
-        category: 'Medium (between Q1 and Q3)',
-        bgColor: '#FAEDCE'
-      };
-    } else {
-      return {
-        category: 'High (above Q3)',
-        bgColor: '#A5DD9B'
-      };
-    }
   }
 
   getQuartileBgColor(quartile) {
@@ -788,18 +706,6 @@ export class LinePlot extends LitElement {
     }
   }
 
-  calculateQuartilesSteps(data) {
-    data.sort((a, b) => a - b); // Sort the data
-    const flattenedData = data.flat();
-    flattenedData.sort((a, b) => a - b);
-
-    const q1 = this.percentile(flattenedData, 25);
-    const q2 = this.percentile(flattenedData, 50); // Median
-    const q3 = this.percentile(flattenedData, 75);
-
-    return { Q1: q1, Q2: q2, Q3: q3 };
-  }
-
   percentile(data, p) {
     const index = (p / 100) * (data.length - 1);
     const lower = Math.floor(index);
@@ -809,79 +715,25 @@ export class LinePlot extends LitElement {
     return data[lower] * (1 - weight) + data[upper] * weight;
   }
 
-  calculateQuartiles(data) {
-    let quartileDataX = data.map((trace) => trace.x);
-    let quartileDataY = data.map((trace) => trace.y);
-
-    const quartilesX = this.calculateQuartilesSteps(quartileDataX);
-    const quartilesY = this.calculateQuartilesSteps(quartileDataY);
-    const results = [];
-
-    for (let i = 0; i < quartileDataX.length; i++) {
-      const x = quartileDataX[i];
-      const y = quartileDataY[i];
-      const quartileName = data[i].name;
-
-      let quartile = 0;
-      let label = '';
-
-      if (x[i] >= quartilesX.Q2 && y[i] <= quartilesY.Q2) {
-        quartile = 1;
-        label = "Top";
-      } else if (x[i] >= quartilesX.Q2 && y[i] > quartilesY.Q2) {
-        quartile = 3;
-        label = "Interquartile";
-      } else if (x[i] < quartilesX.Q2 && y[i] > quartilesY.Q2) {
-        quartile = 4;
-        label = "Bottom";
-      } else if (x[i] < quartilesX.Q2 && y[i] <= quartilesY.Q2) {
-        quartile = 2;
-        label = "Interquartile";
-      }
-      results.push({ x, y, quartileName, quartile, label });
-    }
-
-    return results;
+  calculateQuartiles(data, areas) {
+    const quartiles = rankAreas(areas, this.data.inline_data.visualization.y_optimization === 'minimize');
+    return data.map((trace, i) => {
+      const quartile = quartiles[i];
+      return { quartileName: trace.name, quartile, label: `Q${quartile}`, area: areas[i], bgColor: this.getQuartileBgColor(quartile).bgColor };
+    });
   }
 
-  calculateAverage(data) {
-    let averageDataX = data.map((trace) => trace.x);
-    let averageDataY = data.map((trace) => trace.y);
-
-    const averageX = statistics.mean(averageDataX);
-    const averageY = statistics.mean(averageDataY);
-
-    const results = [];
-
-    for (let i = 0; i < averageDataX.length; i++) {
-      const x = averageDataX[i];
-      const y = averageDataY[i];
-      const quartileName = data[i].name;
-
-      let category = '';
-      let bgColor = '';
-
-      // Classification based on average
-      if (x >= averageX && y >= averageY) {
-        category = 'High performance';
-        bgColor = '#A5DD9B';
-      } else if (x < averageX && y < averageY) {
-        category = 'Low performance';
-        bgColor = '#D37676';
-      } else {
-        category = 'Medium performance';
-        bgColor = '#FAEDCE';
-      }
-      results.push({
-        x,
-        y,
-        quartileName,
-        bgColor,
-        category,
-      });
-    }
-
-    return results
+  calculateAverage(data, areas) {
+    const differences = compareAreasToMean(areas, this.data.inline_data.visualization.y_optimization === 'minimize');
+    return data.map((trace, i) => {
+      const difference = differences[i];
+      return {
+        quartileName: trace.name,
+        area: areas[i],
+        category: difference > 0 ? 'Better than average' : difference < 0 ? 'Worse than average' : 'At average',
+        bgColor: difference > 0 ? '#A5DD9B' : difference < 0 ? '#D37676' : '#FAEDCE',
+      };
+    });
   }
 
   async downloadChart(format) {
@@ -1141,11 +993,11 @@ export class LinePlot extends LitElement {
                       @click="${() => this.setClassificationView('default') }">
                       ${ this.viewText.default }
                   </div>
-                  <div class="${ (this.viewSelected == 'Quartiles') ? 'active disabled' : '' }"
+                  <div class="${ (this.viewSelectedKey == 'quartiles') ? 'active disabled' : '' }"
                       @click="${() => this.setClassificationView('quartiles') }">
                       ${ this.viewText.quartiles }
                   </div>
-                  <div class="${ (this.viewSelected == 'Average') ? 'active disabled' : '' }"
+                  <div class="${ (this.viewSelectedKey == 'average') ? 'active disabled' : '' }"
                       @click="${() => this.setClassificationView('average') }">
                         ${ this.viewText.average }
                   </div>
@@ -1202,6 +1054,13 @@ export class LinePlot extends LitElement {
             </div>
           </div>
         </div>
+        <p class="legend-hint">Click a legend entry to show or hide a curve. Statistics use all participants.</p>
+        ${this.classificationNotice ? html`
+          <div class="selection-notice" role="status">
+            ${this.classificationNotice}
+            <button type="button" @click=${() => { this.classificationNotice = ''; }}>Dismiss</button>
+          </div>
+        ` : ''}
         <div class="graph-row" id="todownload">
           <div class=${ this.sorted ? 'col-8': 'col-12' } id="chartCapture">
             <div class="chart" id="line-chart"></div>
@@ -1225,11 +1084,12 @@ export class LinePlot extends LitElement {
                         <thead>
                             <tr>
                                 <th class="tools-th">${this.showInterquartileTable ? 'Statistic' : 'Participants'}</th>
+                                ${this.showQuartileTable || this.showAverageTable ? html`<th>Shared-range AUC</th>` : ''}
                                 <th class="classify-th">
-                                    ${ this.viewSelected == 'Quartiles'
-                                      ? 'Quartile'
-                                      : this.viewSelected == 'Average'
-                                      ? 'Average'
+                                    ${ this.viewSelectedKey == 'quartiles'
+                                      ? 'AUC quartile'
+                                      : this.viewSelectedKey == 'average'
+                                      ? 'Compared with mean'
                                       : this.viewSelected == 'Interquartile range'
                                       ? 'Interquartile range'
                                       : this.viewSelected == 'Trend'
@@ -1250,6 +1110,7 @@ export class LinePlot extends LitElement {
                                 ${ this.quartileData.map(quartile => html`
                                     <tr>
                                         <td>${ quartile.quartileName }</td>
+                                        <td>${ quartile.area.toPrecision(5) }</td>
                                         <td style="background-color: ${ quartile.bgColor }">${ quartile.label }</td>
                                     </tr>
                                 `) }
@@ -1258,6 +1119,7 @@ export class LinePlot extends LitElement {
                                 ${ this.averageData.map(quartile => html`
                                     <tr>
                                         <td>${ quartile.quartileName }</td>
+                                        <td>${ quartile.area.toPrecision(5) }</td>
                                         <td style="background-color: ${ quartile.bgColor }">${ quartile.category }</td>
                                     </tr>
                                 `) }
@@ -1266,7 +1128,7 @@ export class LinePlot extends LitElement {
                                 ${ Object.entries(this.interquartileData).map(([key,quarteline]) => html`
                                     <tr>
                                         <td>${ key }</td>
-                                        <td style="background-color: ${ quarteline.color.bgColor }">${ quarteline.value }</td>
+                                        <td>${ quarteline }</td>
                                     </tr>
                                 `) }
                             ` : '' }
