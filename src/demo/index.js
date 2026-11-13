@@ -7,24 +7,24 @@ import { fetchDataInfo } from '../utils.js';
 
 export default class WidgetTest extends LitElement {
     static groups = [
-        { label: 'Line plot', samples: [
-            { label: 'Default', file: 'LINEPLOT.json' },
+        { label: 'Line plot', description: 'Trends and relationships between numerical variables.', samples: [
+            { label: 'Default', file: 'LINEPLOT.json', description: 'Multiple series with interquartile and error views.' },
         ] },
-        { label: 'Bar plot', samples: [
-            { label: 'Default', file: 'BARPLOT.json' },
-            { label: 'Mixed signs', file: 'BARPLOT_NEGATIVE_MIXED.json' },
-            { label: 'All negative', file: 'BARPLOT_NEGATIVE_ALL.json' },
-            { label: 'Minimize', file: 'BARPLOT_MINIMIZE.json' },
+        { label: 'Bar plot', description: 'One metric compared across participants, with quartile classification.', samples: [
+            { label: 'Default', file: 'BARPLOT.json', description: 'Positive values, highest ranked first.' },
+            { label: 'Mixed signs', file: 'BARPLOT_NEGATIVE_MIXED.json', description: 'Bars above and below the zero baseline.' },
+            { label: 'All negative', file: 'BARPLOT_NEGATIVE_ALL.json', description: 'Every value below zero.' },
+            { label: 'Minimize', file: 'BARPLOT_MINIMIZE.json', description: 'Lower is better: ranked lowest first. Use "Reverse Order" after sorting to invert.' },
         ] },
-        { label: 'Scatter plot', samples: [
-            { label: 'Default', file: 'SCATTERPLOT.json' },
+        { label: 'Scatter plot', description: 'Two metrics compared, with quartile and clustering classifications.', samples: [
+            { label: 'Default', file: 'SCATTERPLOT.json', description: 'Square, diagonal and K-means classifications.' },
         ] },
-        { label: 'Box plot', samples: [
-            { label: 'Default', file: 'BOXPLOT.json' },
+        { label: 'Box plot', description: 'Distribution of a metric per participant.', samples: [
+            { label: 'Default', file: 'BOXPLOT.json', description: 'Quartiles, fences and mean per participant.' },
         ] },
-        { label: 'Radar plot', samples: [
-            { label: 'Standard', file: 'RADARPLOT.json' },
-            { label: 'Technical (normalized)', file: 'RADARPLOT_TECHNICAL.json' },
+        { label: 'Radar plot', description: 'Several metrics per tool on a common center.', samples: [
+            { label: 'Standard', file: 'RADARPLOT.json', description: 'Raw values, no normalization (metrics on similar scales).' },
+            { label: 'Technical (normalized)', file: 'RADARPLOT_TECHNICAL.json', description: 'Per-axis 0-1 normalization with log scale for RAM, runtime, I/O and throughput.' },
         ] },
     ];
 
@@ -166,30 +166,50 @@ export default class WidgetTest extends LitElement {
         return JSON.stringify(dataObj);
     }
 
-    buttonStyle(active, small = false) {
-        return `padding:${small ? '4px 10px' : '6px 12px'};cursor:pointer;border:1px solid #888;border-radius:4px;`
-            + `background:${active ? '#0b7285' : '#fff'};color:${active ? '#fff' : '#000'}`;
+    isActive(file) {
+        return this.dataJSON.endsWith('/' + file);
     }
 
     render() {
         const activeGroup = WidgetTest.groups.find(group =>
-            group.samples.some(({ file }) => this.dataJSON.endsWith('/' + file)));
+            group.samples.some(({ file }) => this.isActive(file)));
+        const activeSample = activeGroup.samples.find(({ file }) => this.isActive(file));
+        const select = (file) => { this.dataJSON = './files/' + file; };
         return html`
-            <div style="display:flex;gap:8px;flex-wrap:wrap;padding:8px 8px 0;font-family:sans-serif">
-                ${WidgetTest.groups.map(group => html`
-                    <button style=${this.buttonStyle(group === activeGroup)}
-                        @click=${() => { this.dataJSON = './files/' + group.samples[0].file; }}>
-                        ${group.label}
-                    </button>`)}
+            <style>
+                .demo { font-family: sans-serif; padding: 12px 16px; border-bottom: 1px solid #ddd; }
+                .demo h1 { margin: 0 0 2px; font-size: 20px; }
+                .demo .subtitle { margin: 0 0 12px; color: #666; font-size: 13px; }
+                .demo .tabs, .demo .variants { display: flex; gap: 6px; flex-wrap: wrap; }
+                .demo .tabs { border-bottom: 2px solid #0b7285; }
+                .demo .tab { padding: 8px 16px; cursor: pointer; border: 1px solid #ccc; border-bottom: none;
+                    border-radius: 6px 6px 0 0; background: #f1f3f5; color: #333; }
+                .demo .tab.active { background: #0b7285; color: #fff; border-color: #0b7285; }
+                .demo .variants { margin-top: 10px; align-items: center; }
+                .demo .variants-label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: .05em; }
+                .demo .pill { padding: 4px 12px; cursor: pointer; border: 1px solid #0b7285; border-radius: 999px;
+                    background: #fff; color: #0b7285; }
+                .demo .pill.active { background: #0b7285; color: #fff; }
+                .demo .description { margin: 10px 0 0; font-size: 13px; color: #444; }
+            </style>
+            <div class="demo">
+                <h1>OEB Widgets Graphs</h1>
+                <p class="subtitle">Demo of every plot type and its data variants</p>
+                <div class="tabs">
+                    ${WidgetTest.groups.map(group => html`
+                        <button class="tab ${group === activeGroup ? 'active' : ''}"
+                            @click=${() => select(group.samples[0].file)}>${group.label}</button>`)}
+                </div>
+                ${activeGroup.samples.length > 1 ? html`
+                    <div class="variants">
+                        <span class="variants-label">Sample</span>
+                        ${activeGroup.samples.map(({ label, file }) => html`
+                            <button class="pill ${this.isActive(file) ? 'active' : ''}"
+                                @click=${() => select(file)}>${label}</button>`)}
+                    </div>` : ''}
+                <p class="description"><strong>${activeGroup.label}:</strong> ${activeGroup.description}
+                    ${activeSample.description}</p>
             </div>
-            ${activeGroup.samples.length > 1 ? html`
-                <div style="display:flex;gap:8px;flex-wrap:wrap;padding:8px;font-family:sans-serif">
-                    ${activeGroup.samples.map(({ label, file }) => html`
-                        <button style=${this.buttonStyle(this.dataJSON.endsWith('/' + file), true)}
-                            @click=${() => { this.dataJSON = './files/' + file; }}>
-                            ${label}
-                        </button>`)}
-                </div>` : ''}
             <div>
                 ${this._jsonInfoData.render({
                     initial: () => html`<oeb-loader></oeb-loader>`,

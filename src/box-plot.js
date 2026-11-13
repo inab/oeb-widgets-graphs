@@ -137,7 +137,7 @@ export class BoxPlot extends LitElement {
         }
 
         if(this.sorted) {
-            (this.sortedName == 'minimum') ? traces.sort((a, b) => a.median[0] > b.median[0]) : this.traces.sort((a, b) => a.median[0] < b.median[0])
+            traces.sort((a, b) => this.sortedName == 'minimum' ? a.median[0] - b.median[0] : b.median[0] - a.median[0]);
             this.viewSelected = this.viewText[this.sortedName];
         }
 
@@ -149,7 +149,7 @@ export class BoxPlot extends LitElement {
     renderChart() {
         // Order de default traces in some order
         if(this.sorted) {
-            (this.sortedName == 'minimum') ? this.traces.sort((a, b) => a.median[0] > b.median[0]) : this.traces.sort((a, b) => a.median[0] < b.median[0]);
+            this.traces.sort((a, b) => this.sortedName == 'minimum' ? a.median[0] - b.median[0] : b.median[0] - a.median[0]);
             this.viewSelected = this.viewText[this.sortedName];
             this.showAdditionalTable = true;
             this.tracesTable = this.traces;

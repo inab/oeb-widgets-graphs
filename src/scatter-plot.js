@@ -1570,11 +1570,19 @@ export class ScatterPlot extends LitElement {
         Plotly.relayout(this.graphDiv, this.layout);
     }
 
+    // Range that always includes the zero baseline so negative values stay visible.
+    getFullRange(values, positivePadding) {
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const padding = min < 0 ? (max - min) * 0.05 : positivePadding;
+        return [min < 0 ? min - padding : 0, max > 0 ? max + padding : 0];
+    }
+
     // Original View (Real dimensions)
     setOriginalView() {
         const layout = {
             xaxis: {
-                range: [0, Math.max(...this.xValues) + (Math.min(...this.xValues) / 3)],
+                range: this.getFullRange(this.xValues, Math.min(...this.xValues) / 3),
                 title: {
                     text: this.visualizationData.x_axis,
                     font: {
@@ -1586,7 +1594,7 @@ export class ScatterPlot extends LitElement {
                 }
             },
             yaxis: {
-                range: [0, Math.max(...this.yValues) + 0.05],
+                range: this.getFullRange(this.yValues, 0.05),
                 title: {
                     text: this.visualizationData.y_axis,
                     font: {
