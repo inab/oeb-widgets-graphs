@@ -139,19 +139,91 @@ export class ScatterPlot extends LitElement {
         };
     }
 
+    xAxisTitle() {
+        const title = this.axisTitle(this.visualizationData.x_axis);
+        const width = this.graphDiv?.clientWidth;
+        if (!width || typeof title.text !== 'string' || /[<>]/.test(title.text)) {
+            return title;
+        }
+
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        context.font = `bold ${title.font.size}px Arial, sans-serif`;
+        const maxWidth = Math.max(80, width - 100);
+        const lines = [];
+        let line = '';
+        for (const word of title.text.split(/\s+/)) {
+            const candidate = line ? `${line} ${word}` : word;
+            if (line && context.measureText(candidate).width > maxWidth) {
+                lines.push(line);
+                line = '';
+            }
+            for (const character of (line ? ` ${word}` : word)) {
+                if (line && context.measureText(line + character).width > maxWidth) {
+                    lines.push(line);
+                    line = '';
+                }
+                line += character;
+            }
+        }
+        if (line) lines.push(line);
+        title.text = lines.join('<br>');
+        return title;
+    }
+
+    observeChartSize() {
+        if (this.chartResizeObserver) return;
+        this.chartResizeObserver = new ResizeObserver((entries) => {
+            const width = entries[0].contentRect.width;
+            if (!width || width === this.observedChartWidth) return;
+            this.observedChartWidth = width;
+            this.resizeChart();
+        });
+        this.chartResizeObserver.observe(this.graphDiv);
+    }
+
+    resizeChart() {
+        if (!this.graphDiv?._fullLayout || !this.visualizationData) return;
+        const title = this.xAxisTitle();
+        Plotly.relayout(this.graphDiv, {
+            autosize: true,
+            'xaxis.title.text': title.text,
+            'legend.y': this.legendY(title),
+        });
+    }
+
+    legendY(title) {
+        const lines = title?.text?.split('<br>').length ?? 1;
+        return -0.35 - Math.max(0, lines - 2) * 0.1;
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        if (this.graphDiv) this.observeChartSize();
+    }
+
+    disconnectedCallback() {
+        this.chartResizeObserver?.disconnect();
+        this.chartResizeObserver = null;
+        this.observedChartWidth = null;
+        super.disconnectedCallback();
+    }
+
     // Margin and legend shared by every layout of the chart.
     getChartFrame() {
         return {
             margin: { l: 60, r: 30, t: 0, b: 10, pad: 4 },
             legend: {
                 orientation: 'h',
-                x: 0,
-                y: -0.2,
+                x: 1,
+                xanchor: 'right',
+                y: this.legendY(this.visualizationData ? this.xAxisTitle() : null),
                 xref: 'paper',
                 yref: 'paper',
                 font: {
-                    size: 16,
+                    size: 13,
                 },
+                maxheight: 0.25,
                 itemdoubleclick: false,
             },
         };
@@ -168,6 +240,7 @@ export class ScatterPlot extends LitElement {
         this.chartCapture = this.shadowRoot.querySelector('#chartCapture');
         this.benchmarkingTable = this.shadowRoot.querySelector('#benchmarkingTable');
         this.toolsCol = this.shadowRoot.querySelector('#toolsCol');
+        this.observeChartSize();
         if (changedProperties?.size && [...changedProperties.keys()].every(
             (property) => property === 'quartileDataArray' || property === 'isOptimal' || property === 'selectionNotice'
         )) {
@@ -254,7 +327,7 @@ export class ScatterPlot extends LitElement {
                 height: 600,
                 annotations: this.getOptimizationArrow(this.optimalview),
                 xaxis: {
-                    title: this.axisTitle(this.visualizationData.x_axis),
+                    title: this.xAxisTitle(),
                 },
                 yaxis: {
                     title: this.axisTitle(this.visualizationData.y_axis),
@@ -274,7 +347,7 @@ export class ScatterPlot extends LitElement {
         }
 
         if(layout.xaxis) {
-            layout.xaxis.title = this.axisTitle(this.visualizationData.x_axis);
+            layout.xaxis.title = this.xAxisTitle();
         }
 
         if(layout.yaxis) {
@@ -309,6 +382,7 @@ export class ScatterPlot extends LitElement {
 
             gd.removeListener('plotly_legendclick', this.onLegendClick);
             gd.on('plotly_legendclick', this.onLegendClick);
+            this.resizeChart();
         });
     }
 
@@ -456,7 +530,7 @@ export class ScatterPlot extends LitElement {
         let layout = {
             shapes: shapes,
             xaxis: {
-                title: this.axisTitle(this.visualizationData.x_axis)
+                title: this.xAxisTitle()
             },
             yaxis: {
                 title: this.axisTitle(this.visualizationData.y_axis),
@@ -545,7 +619,7 @@ export class ScatterPlot extends LitElement {
             shapes: this.showShapesDiagonal ? shapes : [],
             xaxis: {
                 range: ranges ? ranges.x : [this.optimalXaxis[0], this.optimalXaxis[1]],
-                title: this.axisTitle(this.visualizationData.x_axis)
+                title: this.xAxisTitle()
             },
             yaxis: {
                 range: ranges ? ranges.y : [this.optimalYaxis[0], this.optimalYaxis[1]],
@@ -1069,7 +1143,7 @@ export class ScatterPlot extends LitElement {
                     shapes: [],
                     annotations: this.getOptimizationArrow(this.optimalview),
                     xaxis: {
-                        title: this.axisTitle(this.visualizationData.x_axis),
+                        title: this.xAxisTitle(),
                     },
                     yaxis: {
                         title: this.axisTitle(this.visualizationData.y_axis),
@@ -1273,7 +1347,7 @@ export class ScatterPlot extends LitElement {
             height: 600,
             xaxis: {
                 range: [this.optimalXaxis[0], this.optimalXaxis[1]],
-                title: this.axisTitle(this.visualizationData.x_axis),
+                title: this.xAxisTitle(),
             },
             yaxis: {
                 range: [this.optimalYaxis[0], this.optimalYaxis[1]],
@@ -1310,7 +1384,7 @@ export class ScatterPlot extends LitElement {
         const layout = {
             xaxis: {
                 range: this.getFullRange(this.xValues, Math.min(...this.xValues) / 3),
-                title: this.axisTitle(this.visualizationData.x_axis)
+                title: this.xAxisTitle()
             },
             yaxis: {
                 range: this.getFullRange(this.yValues, 0.05),
@@ -1438,7 +1512,7 @@ export class ScatterPlot extends LitElement {
                 annotations: this.getOptimizationArrow(this.optimalview),
                 xaxis: {
                     range: [this.optimalXaxis[0], this.optimalXaxis[1]],
-                    title: this.axisTitle(this.visualizationData.x_axis),
+                    title: this.xAxisTitle(),
                 },
                 yaxis: {
                     range: [this.optimalYaxis[0], this.optimalYaxis[1]],

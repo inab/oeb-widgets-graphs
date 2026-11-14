@@ -64,6 +64,24 @@ export const tooltipStyles = css`
     visibility: visible;
   }
 
+  @media (max-width: 640px) {
+    .popover__content {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      top: auto;
+      bottom: 12px;
+      width: auto;
+      max-height: calc(100vh - 24px);
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+
+    .popover__content:before {
+      display: none;
+    }
+  }
+
   .popover__message__title {
     text-align: center;
     margin: 0 0 .4rem;

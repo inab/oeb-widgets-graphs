@@ -1463,6 +1463,19 @@ export const graphStyles = css`
         width: auto;
     }
 
+    @media (max-width: 900px) {
+        .line-plot .tools-table {
+            table-layout: fixed;
+        }
+
+        .line-plot .tools-table th,
+        .line-plot .tools-table td {
+            padding: 6px;
+            font-size: 13px !important;
+            overflow-wrap: anywhere;
+        }
+    }
+
     #chartCapture {
         justify-content: center;
     }
@@ -1508,14 +1521,101 @@ export const graphStyles = css`
         padding-top: 20px;
     }
 
-    @media (max-width: 640px) {
+    .scatter-plot {
+        container: scatter / inline-size;
+    }
+
+    @container scatter (max-width: 900px) {
+        .scatter-plot #graph-filters .col-8 {
+            width: 100%;
+        }
+
+        .scatter-plot .btn-group.btn-graphs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .scatter-plot #todownload {
+            flex-direction: column;
+        }
+
+        .scatter-plot #todownload > .col-8,
+        .scatter-plot #todownload > .col-4 {
+            width: 100%;
+        }
+
+        .scatter-plot .tools-col {
+            padding-left: 0;
+            margin-top: 16px;
+        }
+
+        .scatter-plot .tools-table {
+            table-layout: fixed;
+        }
+
+        .scatter-plot .tools-table th,
+        .scatter-plot .tools-table td {
+            overflow-wrap: anywhere;
+        }
+
+        .scatter-plot .toolColumn span {
+            max-width: calc(100% - 25px);
+        }
+    }
+
+    @container scatter (max-width: 480px) {
         .scatter-plot .info-table {
             padding-left: 0;
             padding-right: 0;
         }
 
+        .scatter-plot .custom-table {
+            table-layout: fixed;
+        }
+
         .scatter-plot .custom-table th,
         .scatter-plot .custom-table td {
+            font-size: 12px !important;
+            overflow-wrap: anywhere;
+        }
+
+        .scatter-plot .btn-group.btn-graphs {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .scatter-plot .classification-dropdown,
+        .scatter-plot .view-switch {
+            grid-column: 1 / -1;
+        }
+
+        .scatter-plot .view-switch {
+            justify-content: center;
+        }
+
+        .scatter-plot .download-btn {
+            min-width: 0;
+            width: 100%;
+        }
+
+        .scatter-plot .download-dropdown .dropdown-content {
+            right: 0;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .info-table {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .custom-table {
+            table-layout: fixed;
+        }
+
+        .custom-table th,
+        .custom-table td {
             font-size: 12px !important;
             overflow-wrap: anywhere;
         }
@@ -1622,6 +1722,15 @@ export const graphStyles = css`
 
     .dropdown:hover .dropdown-content {
         display: block;
+    }
+
+    .scatter-plot .dropdown:focus-within .dropdown-content {
+        display: block;
+    }
+
+    .scatter-plot .dropdown:hover,
+    .scatter-plot .dropdown:focus-within {
+        z-index: 2;
     }
 
     .dropdown .btn-icon-wrapper {

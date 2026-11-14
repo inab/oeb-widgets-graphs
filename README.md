@@ -153,6 +153,8 @@ K-means clustering. The view selector shows the active axis range; changing
 views preserves the selected participants.
 At least one participant must remain visible; K-means needs at least four
 participants. A message explains when a selection reaches the limit.
+On narrow screens or in narrow containers, the classification table moves
+below the chart. Scroll the legend to reach additional participants.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/scatterplot.html) |
 [Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/SCATTERPLOT.json)
