@@ -4,7 +4,6 @@ import { plotlyStyles } from "./plotly-styles.js";
 import { graphStyles } from './graph-styles.js';
 import { oebIcon, isBSC } from './utils';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import { Tooltip } from './ui-tooltip.js';
 import { color } from 'd3';
@@ -53,6 +52,8 @@ export class RadarPlot extends LitElement {
         this.tracesEntries = [];
         this.tracesDescription = [];
         this.datasetModDate = '';
+        this.markerColors = ['(242, 131, 131, .6)', '(160, 191, 219, .6)', '(232, 167, 109, .6)', '(176, 132, 123, .6)', '(235, 155, 210, .6)', '(219, 219, 125, .6)', '(195, 169, 219, .6)', '(131, 214, 194, .6)', '(217, 215, 215, .6)', '(140, 216, 219, .6)', '(242, 153, 143, .6)', '(161, 227, 152, .6)'];
+        this.markerColorsLines = ['#D62728', '#4981B6', '#FF7F0E', '#8C564B', '#E377C2', '#BCBD22', '#9467BD', '#0C9E7B', '#7F7F7F', '#31B8BD', '#FB8072', '#62D353'];
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
@@ -69,39 +70,93 @@ export class RadarPlot extends LitElement {
     }
 
     firstUpdated() {
-        const data = this.data.inline_data;
-        this.datasetId = this.data._id;
-        this.datasetModDate = data.visualization.dates.modification;
+        this.datasetId = this.data._id ?? this.data.series_type;
+        this.datasetModDate = this.data.visualization.dates?.modification ?? '';
+        this.representations = this.data.visualization?.representations[0].metrics_series;
+        
+        const dataObj = {
+            _id: this.datasetId,
+            dates: this.datasetModDate,
+            inline_data: {
+                challenge_participants:[],
+                visualization:{}
+            }
+        }
 
-        this.tracesEntries = data.challenge_participants.map(entry => entry.value);
-        this.tracesLabels = data.challenge_participants.map(entry => entry.label);
-        this.tracesDescription = data.challenge_participants.map(entry => this.getLongDescription(entry.label));
-        // close the polygon
-        this.tracesEntries.push(this.tracesEntries[0]);
-        this.tracesLabels.push(this.tracesLabels[0]);
+        this.data?.challenge_participants.forEach(participant => {
+            let participant_new = dataObj.inline_data.challenge_participants.find(p => p.name === participant.label);
+            if(!participant_new) {
+                participant_new = {
+                    name: participant.label,
+                    type: 'scatterpolar',
+                    fill: 'toself',
+                    theta: [],
+                    r_value: [],
+                    optimization: ''
+                }
+                dataObj.inline_data.challenge_participants.push(participant_new);
+            }
+            participant_new.r_value = [ ...participant_new.r_value, participant.values[0].v];
+            participant_new.theta = [ ...participant_new.theta, participant.metric_id];
+        });
 
-        const colors = Array(this.tracesEntries.length).fill('#0b579f');
-        this.traces = [{
-            name: this.data.name,
-            mode : "markers+lines",
-            line : {
-                color   :   "#0b579f",
-                width   :   "2",
-                dash    :   "solid",
-                shape    :   "linear"
-            },
-            r: this.tracesEntries,
-            theta: this.tracesLabels,
-            text: this.tracesDescription,
-            type: 'scatterpolar',
-            marker: {
-                color: colors,
-            },
-            fill: 'toself',
-            fillcolor: 'rgba(11, 87, 159, .3)',
-            hovertext: this.tracesDescription,
-            hovertemplate : "<b>%{theta}</b> <i>(%{text})</i><br>value: %{r:.2f}<extra></extra>",
-        }];
+        // Metrics declaring "scale" (linear|log) are normalized to 0-1 per axis so
+        // metrics with different units or unbounded ranges can share one chart.
+        this.normalized = this.representations.some(item => item.scale);
+        this.axisBounds = this.normalized ? this.getAxisBounds(dataObj.inline_data.challenge_participants) : {};
+
+        this.dataTraces = dataObj.inline_data.challenge_participants.map((participant, index) => {
+            let theta_full_value = participant.theta.map(theta_value => {
+                let found_item = this.representations.find(item => item.metric_id == theta_value);
+                return found_item ? found_item.metric_id + " (<i>" + found_item.title + "</i>): " : 'Unknown';
+            });
+            theta_full_value.push(theta_full_value[0]);
+
+            let adjusted_r = participant.r_value.map((value, i) => {
+                let metric = participant.theta[i];
+                let metricData = this.representations.find(item => item.metric_id == metric);
+        
+                if (metricData && metricData.optimization === "minimize") {
+                    return -value;
+                } else {
+                    return value;
+                }
+            });
+
+            let hoverValues = participant.r_value.map((value, i) => this.formatRealValue(participant.theta[i], value));
+            if (this.normalized) {
+                adjusted_r = participant.r_value.map((value, i) => this.normalizeValue(participant.theta[i], value));
+                hoverValues.push(hoverValues[0]);
+                theta_full_value = theta_full_value.map((label, i) => `<b>${label}</b> ${hoverValues[i]}`);
+            }
+
+            adjusted_r.push(adjusted_r[0]);
+
+            let trace = {
+                name: participant.name,
+                mode: "markers+lines",
+                line: {
+                    color: this.markerColorsLines[index],
+                    width   :   "2",
+                    dash    :   "solid",
+                    shape    :   "linear"
+                },
+                r: adjusted_r,
+                theta: participant.theta.concat(participant.theta[0]),
+                theta_full: this.representations.find((item) => item.metric_id == participant.name),
+                text: participant.name || "No name",
+                hovertext: participant.name,
+                customdata: theta_full_value,
+                type: 'scatterpolar',
+                marker: {
+                    color: this.markerColorsLines[index],
+                },
+                fill: 'toself',
+                fillcolor: this.markerColors[index],
+                hovertemplate : this.normalized ? "%{customdata}<extra></extra>" : "<b>%{customdata}</b> %{r:.2f}<extra></extra>",
+            }
+            this.traces.push(trace);
+        });
 
         this.layout = {
             autosize: true,
@@ -120,6 +175,7 @@ export class RadarPlot extends LitElement {
             polar: {
                 radialaxis: {
                     visible: true,
+                    ...(this.normalized ? { range: [0, 1], tickvals: [0, 0.25, 0.5, 0.75, 1], ticktext: ['worst', '', '', '', 'best'] } : {}),
                     color: "red",
                     gridcolor : "white",
                     linecolor : "white",
@@ -134,7 +190,6 @@ export class RadarPlot extends LitElement {
                     linecolor : "white",
                     tickcolor : "white",
                 },
-                
                 bgcolor:"#E5ECF6",
                 bordercolor: "#E5ECF6",
                 outlinecolor : "#E5ECF6",
@@ -143,6 +198,51 @@ export class RadarPlot extends LitElement {
             margin: { l: 50, r: 50, t: 100, b: 110, pad: 4 },
             images: this.getImagePosition()
         };
+    }
+
+    getMetricSpec(metricId) {
+        return this.representations.find(item => item.metric_id == metricId) ?? {};
+    }
+
+    getAxisBounds(participants) {
+        const bounds = {};
+        participants.forEach(participant => {
+            participant.theta.forEach((metricId) => {
+                const values = participant.r_value.filter((_, j) => participant.theta[j] === metricId);
+                const observedMin = Math.min(...values);
+                const observedMax = Math.max(...values);
+                const current = bounds[metricId] ?? { min: Infinity, max: -Infinity };
+                bounds[metricId] = { min: Math.min(current.min, observedMin), max: Math.max(current.max, observedMax) };
+            });
+        });
+        Object.entries(bounds).forEach(([metricId, range]) => {
+            const spec = this.getMetricSpec(metricId);
+            if (spec.scale === 'log') {
+                range.min = spec.min ?? 10 ** Math.floor(Math.log10(range.min));
+                range.max = spec.max ?? 10 ** Math.ceil(Math.log10(range.max));
+            } else {
+                range.min = spec.min ?? Math.min(0, range.min);
+                range.max = spec.max ?? range.max;
+            }
+        });
+        return bounds;
+    }
+
+    // Maps a value to 0-1 where 1 is always the best result for the metric.
+    normalizeValue(metricId, value) {
+        const spec = this.getMetricSpec(metricId);
+        const { min, max } = this.axisBounds[metricId];
+        const transform = spec.scale === 'log' ? Math.log10 : (v) => v;
+        const span = transform(max) - transform(min);
+        let ratio = span > 0 ? (transform(Math.max(value, min)) - transform(min)) / span : 0.5;
+        ratio = Math.min(1, Math.max(0, ratio));
+        return spec.optimization === 'minimize' ? 1 - ratio : ratio;
+    }
+
+    formatRealValue(metricId, value) {
+        const unit = this.getMetricSpec(metricId).unit;
+        const formatted = Math.abs(value) >= 1000 ? value.toLocaleString('en-US') : +value.toPrecision(4);
+        return unit ? `${formatted} ${unit}` : `${formatted}`;
     }
 
     getLongDescription(text) {
@@ -194,7 +294,6 @@ export class RadarPlot extends LitElement {
     }
 
     renderChart() {
-        // TODO
         let layout = this.layout;
 
         Plotly.newPlot(this.graphDiv, this.traces, layout, GRAPH_CONFIG).then((gd) => {
@@ -216,6 +315,9 @@ export class RadarPlot extends LitElement {
     }
 
     formatDateString(dateString) {
+        if(dateString === '') {
+            return "";
+        }
         const date = new Date(dateString);
         return date.toLocaleString("en-US", {
             year: "numeric",
@@ -274,6 +376,7 @@ export class RadarPlot extends LitElement {
                     <div class="col-8">
                     </div>
                 </div>
+                <p class="legend-hint">Click a participant in the legend to show or hide it.</p>
                 <div class="graph-row" id="todownload">
                     <div class=${ this.isSorted ? 'col-8': 'col-12' } id="chartCapture">
                         <div class="chart" id="radar-chart"></div>
@@ -283,8 +386,8 @@ export class RadarPlot extends LitElement {
                                     <tr>
                                         <th class="first-th">Dataset ID</th>
                                         <td>${ this.datasetId }</td>
-                                        <th>Last Update</th>
-                                        <td class="last-td">${ this.formatDateString(this.datasetModDate) }</td>
+                                        ${this.datasetModDate != '' ? html `<th>Last Update</th>` : '' }
+                                        ${this.datasetModDate != '' ? html `<td class="last-td">${ this.formatDateString(this.datasetModDate) }</td>` : ''}
                                     </tr>
                                 </tbody>
                             </table>

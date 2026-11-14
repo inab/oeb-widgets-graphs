@@ -1,0 +1,242 @@
+<p align="center">
+  <img src="https://github.com/inab/oeb-widgets-graphs/blob/b67955da608e66e105fcef54b7da4d2818f18d69/docs/assets/image/opeb_logo.gif?raw=true" width="200" alt="OpenEBench logo" />
+</p>
+
+<h1 align="center">OpenEBench Graph Widgets</h1>
+
+<p align="center">
+  Interactive benchmarking charts for <a href="https://openebench.bsc.es/">OpenEBench</a>, built with <a href="https://lit.dev/">Lit</a> and Plotly.
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@inb/oeb-widgets-graphs"><img src="https://img.shields.io/npm/v/%40inb%2Foeb-widgets-graphs?label=npm%20published" alt="Published npm version" /></a>
+  <a href="https://github.com/inab/oeb-widgets-graphs/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache 2.0" /></a>
+  <a href="https://nodejs.org/en/about/previous-releases"><img src="https://img.shields.io/badge/Node.js-26%20LTS%20recommended-339933" alt="Node.js 26 LTS recommended" /></a>
+  <img src="https://img.shields.io/github/languages/code-size/inab/oeb-widgets-graphs" alt="GitHub code size" />
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/1c1a2f2025bdc0f0bb545e657408bc4e1c749e6c/docs/assets/videos/scatter-plot.gif?raw=true" alt="Example scatter plot" />
+</p>
+
+## Contents
+
+- [Documentation and examples](#documentation-and-examples)
+- [Requirements and dependencies](#requirements-and-dependencies)
+- [Development](#development)
+- [Usage](#usage)
+- [Plot types](#plot-types)
+  - [Bar plot](#bar-plot)
+  - [Scatter plot](#scatter-plot)
+  - [Box plot](#box-plot)
+  - [Radar plot](#radar-plot)
+  - [Line plot](#line-plot)
+- [Project structure](#project-structure)
+
+## Documentation and examples
+
+- [Full documentation and live demos](https://inab.github.io/oeb-widgets-graphs/)
+- [Example applications](https://github.com/inab/demo_oeb-widgets-graphs)
+
+## Requirements and dependencies
+
+For development and builds, use a supported Node.js LTS release. Node.js **26 LTS**
+is recommended and pinned in `.nvmrc`. The build has also been tested with
+Node.js 24. Vite accepts Node.js 20.19+ or 22.12+, but Node.js 20 is
+end-of-life and is not recommended.
+
+The main dependencies and their declared version ranges are:
+
+| Dependency | Version range | Purpose |
+| --- | --- | --- |
+| [Lit](https://lit.dev/) | `^3.3.3` | Web components |
+| [Plotly.js](https://plotly.com/javascript/) | `^4.3.0` | Chart rendering |
+| [D3](https://d3js.org/) | `^7.9.2` | Data visualization utilities |
+| [Bootstrap](https://getbootstrap.com/) | `^5.3.9` | UI styles |
+| [jsPDF](https://github.com/parallax/jsPDF) | `^4.2.1` | PDF export |
+| [jsPDF-AutoTable](https://github.com/simonbengtsson/jsPDF-AutoTable) | `^5.0.9` | Tables in PDF exports |
+| [html2canvas](https://html2canvas.hertzen.com/) | `^1.4.1` | HTML capture for exports |
+| [simple-statistics](https://simple-statistics.github.io/) | `^8.0.0` | Statistical calculations |
+| [pareto-frontier](https://www.npmjs.com/package/pareto-frontier) | `^1.1.1` | Pareto frontier calculations |
+| [Vite](https://vite.dev/) | `^8.3.8` | Development server and build tool |
+
+These are ranges, not exact installed versions. See
+[`package.json`](https://github.com/inab/oeb-widgets-graphs/blob/main/package.json)
+for all dependencies and
+[`package-lock.json`](https://github.com/inab/oeb-widgets-graphs/blob/main/package-lock.json)
+for the locked versions.
+
+## Development
+
+Install the Node.js version from `.nvmrc` with [nvm](https://github.com/nvm-sh/nvm), if using it:
+
+```sh
+nvm install
+nvm use
+```
+
+Install dependencies and start the development server:
+
+```sh
+npm ci
+npm run dev
+```
+
+Build the distributable package:
+
+```sh
+npm run build
+```
+
+The build writes the package to `dist/` and copies this README into it.
+See the [demo source](https://github.com/inab/oeb-widgets-graphs/tree/main/src/demo)
+for sample data and local development examples.
+
+## Usage
+
+Install the package:
+
+```sh
+npm install @inb/oeb-widgets-graphs
+```
+
+Import it and provide the widget type and JSON data:
+
+```html
+<widget-element id="benchmark"></widget-element>
+
+<script type="module">
+  import '@inb/oeb-widgets-graphs';
+
+  const response = await fetch('/path/to/BARPLOT.json');
+  if (!response.ok) throw new Error('Failed to load benchmark data');
+  const graphData = await response.json();
+  const widget = document.querySelector('#benchmark');
+  widget.setAttribute('type', 'bar-plot');
+  widget.setAttribute('data', JSON.stringify(graphData));
+</script>
+```
+
+The supported types are `bar-plot`, `2D-plot` (scatter), `box-plot`,
+`radar-plot` and `line-plot`. Each type expects its corresponding data
+structure; examples are linked below.
+
+Alternatively, a built UMD bundle can be loaded directly:
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@main/dist/oeb-widgets-graphs.umd.js"></script>
+```
+
+## Plot types
+
+### Bar plot
+
+Compares participants using one metric. Results can be sorted and classified
+into quartiles, shown alongside the chart in a table. Negative values are
+supported; the original view includes the zero baseline. Results are ranked
+highest first by default; set `visualization.optimization` to `"minimize"` to
+rank lowest first (and make the lowest quartile the best one). Once sorted,
+a "Reverse Order" button lets the user invert the display order; quartile
+classification is not affected. The view selector shows whether the original
+or optimal axis range is active.
+
+[Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/barplot.html) |
+[Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BARPLOT.json)
+
+<img width="320" height="240" alt="Bar plot example" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/bar-plot.gif?raw=true" />
+
+### Scatter plot
+
+Compares participants on two metrics. Available classifications include square
+quartiles, diagonal quartiles based on distance from the optimal corner, and
+K-means clustering. The view selector shows the active axis range; changing
+views preserves the selected participants.
+At least one participant must remain visible; K-means needs at least four
+participants. A message explains when a selection reaches the limit.
+On narrow screens or in narrow containers, the classification table moves
+below the chart. Scroll the legend to reach additional participants.
+
+[Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/scatterplot.html) |
+[Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/SCATTERPLOT.json)
+
+<img width="320" height="240" alt="Scatter plot example" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/scatter-plot.gif?raw=true" />
+
+### Box plot
+
+Shows the distribution of each participant's metric using summary statistics.
+Participants can be ordered by minimum or maximum median value, or returned
+to the input order with Default Sort. Median values in the table and plot hover
+values display five decimal places; sorting uses the original precision. The
+table shows `--` for hidden participants. At least one participant must remain
+visible.
+
+[Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/boxplot.html) |
+[Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BOXPLOT.json)
+
+<img width="320" height="240" alt="Box plot example" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/box-plot.gif?raw=true" />
+
+### Radar plot
+
+Compares multiple metrics on axes radiating from a common center, with one
+trace per tool. It has two modes, chosen by the metric definitions in
+`metrics_series`. Click a participant in the legend to show or hide it.
+
+**Standard mode** (default). Values are plotted as they are, without
+normalization, so it is only reliable when all metrics share a similar scale.
+Metrics marked for minimization are plotted with their values negated.
+
+**Normalized mode**, for metrics with different units or unbounded ranges, such
+as technical benchmarking (e.g. peak RAM vs. mean CPU). It is enabled when any
+metric declares `"scale": "linear"` or `"log"`, optionally with `unit`, `min`
+and `max`. Every axis is then normalized to 0-1 with the best result on the
+outside (minimized metrics are inverted). Use `"log"` for values spanning orders
+of magnitude (MB vs. GB) and `min`/`max` to fix ranges such as 0-1 vs. 0-100
+(or more for parallel CPU usage). Hover shows the real value with its unit.
+
+```json
+{ "metric_id": "PEAK_RAM", "title": "Peak RAM usage", "optimization": "minimize",
+  "scale": "log", "unit": "MB" }
+```
+
+[Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/radarplot.html) |
+Example data: [standard](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT.json),
+[normalized](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT_TECHNICAL.json)
+
+<img width="320" height="240" alt="Radar plot example" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/radar-plot.gif?raw=true" />
+
+### Line plot
+
+Displays relationships between numerical variables with connected data points,
+allowing trends and multiple datasets to be compared. By default, a diagonal
+random-classifier reference line is shown. For ROC curves it represents chance:
+the true positive rate equals the false positive rate, with AUC 0.5 over [0, 1].
+Set `inline_data.visualization.show_random_classifier` to `false` for other
+plots, such as precision-recall curves. The line is excluded from
+classification and statistical calculations. No precision-recall baseline is
+calculated automatically. Click a legend entry to show or hide a curve; at
+least one participant must remain visible. Statistics continue to use all
+participants, regardless of visibility.
+
+The Quartiles (AUC) and Average (AUC) views compare the area under each curve
+over the X range shared by all participants, using linear interpolation at the
+range boundaries. The Y-axis optimization determines whether a higher or lower
+area is better. These comparisons require finite points, monotonic X values,
+and a nonzero shared X range. In these views, the legend labels identify each
+curve's classification, and the table lists its shared-range AUC with a
+tooltip explaining the calculation. The plot
+shows the shared X range and, in Average view, the mean AUC across all
+participants. This mean is a number, not a participant curve. Outside these
+comparison views, AUC annotations use each curve's full input range.
+The interquartile-range table instead pools all participant points on each axis.
+
+[Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/lineplot.html) |
+Example data: [ROC](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT.json),
+[precision-recall](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT_PRECISION_RECALL.json)
+
+<img width="500" height="400" alt="Line plot example" src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/25e27732a42364a677df669c70f1512d5058e7d3/docs/assets/videos/line-plot-new.gif?raw=true" />
+
+## Project structure
+
+- `src/`: widget components and shared styles.
+- `src/demo/`: local demo and example JSON data.
+- `dist/`: built distributable package.

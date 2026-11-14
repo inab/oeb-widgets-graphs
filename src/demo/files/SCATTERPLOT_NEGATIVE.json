@@ -1,0 +1,114 @@
+{
+  "_id": "OEBDTEST_SC_NEG",
+  "dates": {
+    "modification": "2023-12-05T13:09:13Z"
+  },
+  "inline_data": {
+    "challenge_participants": [
+      {
+        "tool_id": "Tool_1",
+        "metric_x": -3.836,
+        "stderr_x": 0,
+        "metric_y": -0.771,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_2",
+        "metric_x": -1.481,
+        "stderr_x": 0,
+        "metric_y": 4.843,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_3",
+        "metric_x": -4.275,
+        "stderr_x": 0,
+        "metric_y": 1.043,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_4",
+        "metric_x": -0.055,
+        "stderr_x": 0,
+        "metric_y": 4.95,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_5",
+        "metric_x": 2.374,
+        "stderr_x": 0,
+        "metric_y": 4.776,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_6",
+        "metric_x": -2.494,
+        "stderr_x": 0,
+        "metric_y": 0.738,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_7",
+        "metric_x": -1.771,
+        "stderr_x": 0,
+        "metric_y": 4.958,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_8",
+        "metric_x": 3.62,
+        "stderr_x": 0,
+        "metric_y": -1.642,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_9",
+        "metric_x": -3.414,
+        "stderr_x": 0,
+        "metric_y": -0.912,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_10",
+        "metric_x": -2.9,
+        "stderr_x": 0,
+        "metric_y": 1.365,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_11",
+        "metric_x": 0.302,
+        "stderr_x": 0,
+        "metric_y": -0.635,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_12",
+        "metric_x": -4.963,
+        "stderr_x": 0,
+        "metric_y": 0.771,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_13",
+        "metric_x": -1.677,
+        "stderr_x": 0,
+        "metric_y": 2.097,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_14",
+        "metric_x": 3.578,
+        "stderr_x": 0,
+        "metric_y": 3.214,
+        "stderr_y": 0
+      }
+    ],
+    "visualization": {
+      "type": "2D-plot",
+      "x_axis": "Score difference X",
+      "y_axis": "Score difference Y",
+      "optimization": "top-right"
+    }
+  }
+}

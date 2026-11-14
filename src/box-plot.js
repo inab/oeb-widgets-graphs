@@ -4,7 +4,6 @@ import { plotlyStyles } from "./plotly-styles.js";
 import { graphStyles } from './graph-styles.js';
 import { oebIcon, isBSC } from './utils';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import { Tooltip } from './ui-tooltip.js';
 
@@ -33,6 +32,7 @@ export class BoxPlot extends LitElement {
         orientation: 'v',
         graphStyleSelected: 'empty',
         isDownloading: false,
+        selectionNotice: { state: true },
     };
 
     constructor() {
@@ -76,12 +76,17 @@ export class BoxPlot extends LitElement {
                 font: {
                     size: 16,
                 },
-                itemdoubleclick: "toggle",
+                itemdoubleclick: false,
             },
             images: this.getImagePosition(this.optimalview),
             showlegend: true,
         };
         this.isDownloading = false;
+        this.selectionNotice = '';
+        this.onLegendClick = (event) => {
+            this.toggleParticipant(event.curveNumber);
+            return false;
+        };
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
@@ -89,12 +94,17 @@ export class BoxPlot extends LitElement {
         super.attributeChangedCallback(name, oldVal, JSON.parse(newVal));
     }
 
-    updated() {
+    updated(changedProperties) {
         this.graphDiv = this.shadowRoot.querySelector('#box-chart');
         this.todoDownload = this.shadowRoot.querySelector('#todownload');
         this.chartCapture = this.shadowRoot.querySelector('#chartCapture');
         this.tableColumn = this.shadowRoot.querySelector('#table-column');
         this.benchmarkingTable = this.shadowRoot.querySelector('#benchmarkingTable');
+        if (changedProperties.size && [...changedProperties.keys()].every(
+            property => property === 'selectionNotice' || property === 'tracesTable'
+        )) {
+            return;
+        }
         this.myPlot = Plotly.newPlot(this.graphDiv, [], {}, { displayModeBar: false, responsive: true, hovermode: false });
         this.renderChart();
     }
@@ -137,20 +147,19 @@ export class BoxPlot extends LitElement {
             traces.push(trace);
         }
 
+        this.originalTraces = [...traces];
         if(this.sorted) {
-            (this.sortedName == 'minimum') ? traces.sort((a, b) => a.median[0] > b.median[0]) : this.traces.sort((a, b) => a.median[0] < b.median[0])
+            traces.sort((a, b) => this.sortedName == 'minimum' ? a.median[0] - b.median[0] : b.median[0] - a.median[0]);
             this.viewSelected = this.viewText[this.sortedName];
         }
 
-        // Copy original traces to reset current filter states
-        this.originalTraces = traces;
         this.traces = traces;
     }
 
     renderChart() {
         // Order de default traces in some order
         if(this.sorted) {
-            (this.sortedName == 'minimum') ? this.traces.sort((a, b) => a.median[0] > b.median[0]) : this.traces.sort((a, b) => a.median[0] < b.median[0]);
+            this.traces.sort((a, b) => this.sortedName == 'minimum' ? a.median[0] - b.median[0] : b.median[0] - a.median[0]);
             this.viewSelected = this.viewText[this.sortedName];
             this.showAdditionalTable = true;
             this.tracesTable = this.traces;
@@ -158,8 +167,8 @@ export class BoxPlot extends LitElement {
         }
 
         if(this.orientation == 'Horizontal') {
-            delete this.layout.xaxis
-            this.layout.yaxis = {
+            delete this.layout.yaxis
+            this.layout.xaxis = {
                 title: {
                     text: this.visualizationData.y_axis,
                     font: {
@@ -168,7 +177,8 @@ export class BoxPlot extends LitElement {
                         color: 'black',
                         weight: 'bold',
                     },
-                }
+                },
+                hoverformat: '.5f'
             }
         } else {
             delete this.layout.xaxis
@@ -181,7 +191,8 @@ export class BoxPlot extends LitElement {
                         color: 'black',
                         weight: 'bold',
                     },
-                }
+                },
+                hoverformat: '.5f'
             }
         }
 
@@ -200,7 +211,7 @@ export class BoxPlot extends LitElement {
                     font: {
                         size: 16,
                     },
-                    itemdoubleclick: "toggle",
+                    itemdoubleclick: false,
                 },
                 showlegend: true,
                 margin: { l: 50, r: 50, t: 100, b: 110, pad: 4 },
@@ -213,6 +224,8 @@ export class BoxPlot extends LitElement {
 
 
         Plotly.newPlot(this.graphDiv, this.traces, layout, GRAPH_CONFIG).then((gd) => {
+            gd.removeListener('plotly_legendclick', this.onLegendClick);
+            gd.on('plotly_legendclick', this.onLegendClick);
             // Animate traces from opacity 0 to 1
             Plotly.animate(gd, {
                 data: this.traces.map((trace, index) => ({
@@ -237,25 +250,6 @@ export class BoxPlot extends LitElement {
                 this.optimalXaxis = layoutObj.xaxis.range;
                 this.optimalYaxis = layoutObj.yaxis.range;
             }
-
-            // Capture legend event
-            gd.on('plotly_legendclick', (event) => {
-                let traceIndex = event.curveNumber;
-
-                // If Pareto was clicked (index 0) do nothing
-                if (traceIndex === 0) {
-                    return false;
-                } else if (traceIndex === 1) {
-                    return true;
-                } else {
-                    // Update the graph based on the selected trace
-                    // Si response es false la trace no se oculta de la legend
-                    let response = this.updatePlotOnSelection(traceIndex);
-                    if (response == false) {
-                        return false;
-                    }
-                }
-            });
         });
     }
 
@@ -264,6 +258,8 @@ export class BoxPlot extends LitElement {
         let layout = this.layout;
 
         Plotly.newPlot(this.graphDiv, traces, layout, GRAPH_CONFIG).then((gd) => {
+            gd.removeListener('plotly_legendclick', this.onLegendClick);
+            gd.on('plotly_legendclick', this.onLegendClick);
             // Animate traces from opacity 0 to 1
             Plotly.animate(gd, {
                 data: traces.map((trace, index) => ({
@@ -288,43 +284,23 @@ export class BoxPlot extends LitElement {
                 this.optimalXaxis = layoutObj.xaxis.range;
                 this.optimalYaxis = layoutObj.yaxis.range;
             }
-
-            // Capture legend event
-            gd.on('plotly_legendclick', (event) => {
-                let traceIndex = event.curveNumber;
-
-                // If Pareto was clicked (index 0) do nothing
-                if (traceIndex === 0) {
-                    return false;
-                } else if (traceIndex === 1) {
-                    return true;
-                } else {
-                    // Update the graph based on the selected trace
-                    // Si response es false la trace no se oculta de la legend
-                    let response = this.updatePlotOnSelection(traceIndex);
-                    if (response == false) {
-                        return false;
-                    }
-                }
-            });
         });
     }
 
     handleChangeSort(sortType) {
         this.tracesTable = [];
-        let data = this.traces;
+        let data = sortType === 'default' ? [...this.originalTraces] : [...this.traces];
 
         // Sort the traces based on the sortType
         if (sortType === 'minimum') {
             data.sort((a, b) => a.median[0] - b.median[0]);
         } else if (sortType === 'maximus') {
             data.sort((a, b) => b.median[0] - a.median[0]);
-        } else {
-            data = this.originalTraces;
         }
 
-        // this.traces = data;
+        this.traces = data;
         this.tracesTable = data;
+        this.sorted = sortType === 'default' ? false : sortType;
         this.sortedName = sortType;
         this.viewSelected = this.viewText[sortType];
 
@@ -332,6 +308,23 @@ export class BoxPlot extends LitElement {
         this.showAdditionalTable = (sortType != 'default') ? true : false;
 
         this.repaintGraph(data);
+    }
+
+    handleTableRowClick(index) {
+        this.toggleParticipant(index);
+    }
+
+    toggleParticipant(index) {
+        const trace = this.traces[index];
+        const hidden = trace.visible === 'legendonly' || trace.visible === false;
+        if (!hidden && this.traces.filter(item => item.visible !== 'legendonly' && item.visible !== false).length <= 1) {
+            this.selectionNotice = 'At least one participant must remain visible.';
+            return;
+        }
+        this.selectionNotice = '';
+        trace.visible = hidden ? true : 'legendonly';
+        this.tracesTable = [...this.traces];
+        Plotly.restyle(this.graphDiv, { visible: trace.visible }, [index]);
     }
 
     handleChangeOrientation(selectedOrientation) {
@@ -351,7 +344,7 @@ export class BoxPlot extends LitElement {
         this.layout = {
             title: '',
             autosize: true,
-            legend: {"orientation": "h"},
+            legend: { "orientation": "h", itemdoubleclick: false },
             showlegend: true,
             height: 600,
             margin: { l: 50, r: 50, t: 100, b: 110, pad: 4 },
@@ -369,7 +362,8 @@ export class BoxPlot extends LitElement {
                         color: 'black',
                         weight: 'bold',
                     },
-                }
+                },
+                hoverformat: '.5f'
             }
         } else {
             delete this.layout.xaxis
@@ -382,7 +376,8 @@ export class BoxPlot extends LitElement {
                         color: 'black',
                         weight: 'bold',
                     },
-                }
+                },
+                hoverformat: '.5f'
             }
         }
 
@@ -443,8 +438,6 @@ export class BoxPlot extends LitElement {
                 pdf.text(`Benchmarking Results of ${this.datasetId} at ${this.formatDateString(this.datasetModDate)}`, 105, 10, null, null, 'center');
 
                 if (this.sorted) {
-                    this.isDownloading = true;
-
                     // Agregar un pequeño retraso para asegurarse de que los cambios se hayan renderizado
                     await new Promise(resolve => setTimeout(resolve, 200));
 
@@ -531,8 +524,6 @@ export class BoxPlot extends LitElement {
                     table.style.width = '100%';
                     table.style.minWidth = '100%';
 
-                    this.isDownloading = false;
-
                     // Save the PDF
                     pdf.save(`benchmarking_chart__performance_${this.datasetId}.${format}`);
                 } else {
@@ -549,8 +540,6 @@ export class BoxPlot extends LitElement {
                 Plotly.downloadImage(this.graphDiv, { format: 'svg', filename: `benchmarking_chart_${this.datasetId}.${format}` });
             } else if (format === 'png') {
                 if(this.sorted) {
-                    this.isDownloading = true;
-
                     // Agregar un pequeño retraso para asegurarse de que los cambios se hayan renderizado
                     await new Promise(resolve => setTimeout(resolve, 200));
 
@@ -611,9 +600,6 @@ export class BoxPlot extends LitElement {
                     tableColumn.style.display = 'block';
                     table.style.width = '100%';
                     table.style.minWidth = '100%';
-
-                    this.isDownloading = false;
-
                 } else {
                     const options = { format, height: 700, width: 800 };
                     Plotly.toImage(this.$refs.chart, options)
@@ -724,6 +710,12 @@ export class BoxPlot extends LitElement {
                         </div>
                     </div>
                 </div>
+                ${this.selectionNotice ? html`
+                    <div class="selection-notice" role="status">
+                        ${this.selectionNotice}
+                        <button type="button" @click=${() => { this.selectionNotice = ''; }}>Dismiss</button>
+                    </div>
+                ` : ''}
                 <div class="graph-row" id="todownload">
                     <div class=${ this.isSorted ? 'col-8': 'col-12' } id="chartCapture">
                         <div class="chart" id="box-chart"></div>
@@ -748,14 +740,12 @@ export class BoxPlot extends LitElement {
                                         <tr>
                                             <th class="tools-th">Participants</th>
                                             <th class="classify-th">
-                                                <span>${ this.viewKmeans ? 'Clusters' : 'Quartile' }</span>
+                                                <span>Median</span>
                                                 <ui-tooltip
                                                     for="anchor"
                                                     icon="info"
-                                                    textTitle="The performance label"
-                                                    textBody="The values will be displayed in the graph data order 'optimization'.<br/>
-                                                        Else, the default order should be the received data order.<br/>
-                                                        Its possible to change display order by click in 'Sort & Classify Data' button.">
+                                                    textTitle="Participant order"
+                                                    textBody="Participants follow the selected sort order. Default Sort restores the input order. Select a participant to show or hide it on the plot; hidden participants show --.">
                                                 </ui-tooltip>
                                             </th>
                                         </tr>
@@ -764,11 +754,11 @@ export class BoxPlot extends LitElement {
                                         ${ this.showAdditionalTable ? html`
                                             ${ this.tracesTable.map((trace, index) => html`
                                                 <tr>
-                                                    <td class="toolColumn" @click="${() => handleTableRowClick(index) }">
+                                                    <td class="toolColumn" @click="${() => this.handleTableRowClick(index) }">
                                                         <div class="color-box" style="background-color: ${ trace.marker.color }"></div>
                                                         <span>${ trace.name }</span>
                                                     </td>
-                                                    <td class="">${ trace.median[0] }</td>
+                                                    <td class="">${ trace.visible === 'legendonly' || trace.visible === false ? '--' : trace.median[0].toFixed(5) }</td>
                                                 </tr>
                                             `) }
                                     ` : '' }

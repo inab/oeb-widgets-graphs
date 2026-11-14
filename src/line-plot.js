@@ -1,13 +1,13 @@
-timport { html, LitElement } from 'lit';
+import { html, LitElement } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import Plotly from 'plotly.js-dist'
 import { plotlyStyles } from "./plotly-styles.js";
 import { graphStyles } from './graph-styles.js';
 import { oebIcon, isBSC } from './utils';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
 import html2canvas from 'html2canvas';
-import * as statistics from 'simple-statistics'
 import regression from 'regression';
+import { getComparableAreas, rankAreas, compareAreasToMean, meanArea } from './line-statistics.js';
 
 const GRAPH_CONFIG = {
   displayModeBar: false,
@@ -32,8 +32,12 @@ export class LinePlot extends LitElement {
     showAverageTable: false,
     showInterquartileTable: false,
     showTrend: false,
+    classificationNotice: { state: true },
+    selectionNotice: { state: true },
+    showRandomClassifier: { state: true },
     viewSelected: "No Classification",
-    mode: "lines",
+    mode: "linesmarkers",
+    optimization: "default"
   };
 
   constructor() {
@@ -45,31 +49,48 @@ export class LinePlot extends LitElement {
     this.datasetModDate = '';
     this.viewSelected = "Default View";
     this.viewSelectedKey = "default";
-    this.mode = "lines";
+    this.mode = "linesmarkers";
+    this.threshold = [];
     this.quartileData = [];
     this.averageData = [];
     this.interquartileData = [];
+    this.classificationNotice = '';
+    this.selectionNotice = '';
+    this.showRandomClassifier = false;
+    this.onLegendClick = (event) => {
+      if (event.curveNumber < this.participantCount) {
+        const participants = this.graphDiv.data.slice(0, this.participantCount);
+        const trace = participants[event.curveNumber];
+        const visible = item => item.visible !== 'legendonly' && item.visible !== false;
+        if (visible(trace) && participants.filter(visible).length <= 1) {
+          this.selectionNotice = 'At least one participant must remain visible.';
+          return false;
+        }
+      }
+      this.selectionNotice = '';
+    };
     this.modeText = {
       lines: "lines",
       markers: "markers",
       linesmarkers: "lines+markers"
     };
+    this.originalTraces = [];
     this.viewText = {
       default: "Default View",
-      quartiles: "Quartiles",
-      average: "Average",
+      quartiles: "Quartiles (AUC)",
+      average: "Average (AUC)",
       interquartile: "Interquartile range",
       trend: "Trend"
     };
     this.viewTooltipTitle = {
-      quartiles: "The Square quartile label",
-      average: "The Average Value Indicator",
+      quartiles: "Quartile classification",
+      average: "Average AUC",
       interquartile: "The Interquartile Range (IQR)",
     };
     this.viewTooltipBody = {
-      quartiles: "By default, the highest values will be displayed in the first quartile. Inversely if it is specified.",
-      average: "The average represents the central tendency, calculated by summing all values and dividing by the total count.",
-      interquartile: "The IQR highlights the spread of the middle 50% of data, calculated as the difference between the third and first quartiles.",
+      quartiles: "Curves are ranked by area under the curve over their shared X range. Q1 is best; the Y-axis optimization determines whether higher or lower area is better.",
+      average: "Each curve's area over the shared X range is compared with the mean area. The Y-axis optimization determines whether higher or lower area is better.",
+      interquartile: "Values are pooled across all participant curves for each axis. Q1, Q2, and Q3 are the 25th percentile, median, and 75th percentile; IQR is Q3 minus Q1.",
     };
     this.markerColors = ['#D62728', '#FF7F0E', '#8C564B', '#E377C2', '#4981B6', '#BCBD22', '#9467BD', '#0C9E7B', '#7F7F7F', '#31B8BD', '#FB8072', '#62D353'];
     this.layout = {
@@ -101,6 +122,8 @@ export class LinePlot extends LitElement {
         showticklabels: true,
       }
     };
+    this.optimization = "default";
+    this.defaultOptimizationText = "";
   }
   
   attributeChangedCallback(name, oldVal, newVal) {
@@ -109,25 +132,135 @@ export class LinePlot extends LitElement {
   }
 
   firstUpdated() {
+    this.showRandomClassifier = this.data?.inline_data?.visualization?.show_random_classifier !== false;
+    const dataObj = {
+      _id: this.data._id,
+      dates: this.data.dates,
+      dataset_contact_ids: this.data.dataset_contact_ids,
+      inline_data: {
+        challenge_participants:[],
+        visualization:{}
+      }
+    }
+
+    const x_axis = this.data?.inline_data?.visualization?.representations?.find(
+      (representation) => representation.metrics_series.some((metric) => metric.axis === 'x')
+    )?.metrics_series.find((metric) => metric.axis === 'x');
+
+    const y_axis = this.data?.inline_data?.visualization?.representations?.find(
+        (representation) => representation.metrics_series.some((metric) => metric.axis === 'y')
+    )?.metrics_series.find((metric) => metric.axis === 'y');
+
+    // Build data for LinePlot
+    this.data?.inline_data?.challenge_participants.forEach(participant => {
+      let x_value = function() {
+          if (x_axis.metric_id === participant.metric_id) {
+              return participant.values;
+          }
+          return null;
+      };
+
+      let y_value = function() {
+          if (y_axis.metric_id === participant.metric_id) {
+              return participant.values;
+          }
+          return null;
+      };
+
+      let participant_new = dataObj.inline_data.challenge_participants.find(p => p.name === participant.label);
+      if(!participant_new) {
+        participant_new = {
+          metric_id: participant.metric_id,
+          name: participant.label,
+          x_value: [],
+          y_value: [],
+          t_error: [],
+          x_optimization: '',
+          y_optimization: ''
+        }
+        dataObj.inline_data.challenge_participants.push(participant_new);
+      }
+
+      let x_result = x_value();
+      if (x_result) {
+        participant_new.x_value = [...participant_new.x_value, ...x_result];
+      }
+
+      let y_result = y_value();
+      if (y_result) {
+        let new_axis = {
+          y_value_axis: y_result.map(({v}) => v),
+          error_value_axis: y_result.map(({e}) => e ?? 0)
+        }
+
+        participant_new.y_value = [...participant_new.y_value, ...new_axis.y_value_axis];
+        participant_new.t_error = [...participant_new.t_error, ...new_axis.error_value_axis];
+      }
+
+      console.log("participant_new:", participant_new)
+    });
+
+    dataObj.inline_data.visualization = {
+      x_axis: x_axis.title,
+      y_axis: y_axis.title,
+      x_optimization: x_axis.optimization ?? 'maximize',
+      y_optimization: y_axis.optimization ?? 'maximize',
+      type: this.type,
+      dates: ''
+    }
+
+    this.data = dataObj;
+
     const data = this.data.inline_data;
     this.datasetModDate = this.data.dates.modification;
     this.originalData = this.data;
+
     this.x = data.challenge_participants.map(entry => entry.name);
     this.datasetId = this.data._id;
+
+    this.annotations = [];
+    
     this.dataTraces = data.challenge_participants.map((participant) => {
+      this.calculateAUC(participant.x_value, participant.y_value)
+      this.annotations.push({
+        auc: this.calculateAUC(participant.x_value, participant.y_value),
+        name: participant.name
+      });
       return {
         x: participant.x_value,
         y: participant.y_value,
         name: participant.name,
         type: 'scatter',
-        mode: 'lines',
+        mode: 'lines+markers',
         line: {
-          shape: 'hv',
+          shape: 'spline',
           color: this.markerColors[data.challenge_participants.indexOf(participant)],
           width: 2
-        }
+        },
+        error_y: {
+          type: 'data',
+          array: participant.t_error,
+          visible: true,
+          color: 'rgba(0,0,0,0.5)',
+          thickness: 1.5,
+          width: 3
+        },
+        marker: { color: 'rgba(150,0,0,0.8)', symbol: 'square', size: 5 }
       }
     });
+
+    this.participantCount = this.dataTraces.length;
+    if (this.showRandomClassifier) {
+      this.dataTraces.push({
+        x: [0,1],
+        y: [0,1],
+        mode: 'lines',
+        name: 'Random Classifier',
+        line: {color: 'rgba(0,0,0,0.3)', dash: 'dot', width: 2}
+      });
+    }
+
+    this.originalTraces = [...this.dataTraces];
 
     this.layout = {
       title: '',
@@ -152,6 +285,8 @@ export class LinePlot extends LitElement {
           color: 'rgb(82, 82, 82)'
         },
         dtick: 0.5,
+        gridcolor: 'rgba(200,200,200,0.3)',
+        zerolinecolor: 'rgba(0,0,0,0.2)'
       },
       yaxis: {
         title: {
@@ -161,7 +296,9 @@ export class LinePlot extends LitElement {
         zeroline: true,
         showline: true,
         showticklabels: true,
-        dtick: 1
+        dtick: 1,
+        gridcolor: 'rgba(200,200,200,0.3)',
+        zerolinecolor: 'rgba(0,0,0,0.2)'
       },
       legend: {
         orientation: 'h',
@@ -176,17 +313,47 @@ export class LinePlot extends LitElement {
       },
       showlegend: true,
     };
+
+    this.defaultOptimizationText = `X: ${data.visualization.x_optimization === 'maximize' ? 'maximize' : 'minimize'}`;
+    this.defaultOptimizationText += `<br/> Y: ${data.visualization.y_optimization === 'maximize' ? 'maximize' : 'minimize'}`;
+
+    this.layout.annotations = this.getAucAnnotations();
   }
 
-  updated() {
+  getAucAnnotations() {
+    return this.annotations.map((annotation, index) => ({
+      x: 0,
+      y: 1 - (index * 0.05),
+      xref: 'paper',
+      yref: 'paper',
+      text: `AUC(${annotation.name}) ≈ ${annotation.auc.toFixed(2)}`,
+      showarrow: false,
+      font: { size: 14 }
+    }));
+  }
+
+  updated(changedProperties) {
     this.graphDiv = this.shadowRoot.querySelector('#line-chart');
     this.todoDownload = this.shadowRoot.querySelector('#todownload');
     this.chartCapture = this.shadowRoot.querySelector('#chartCapture');
     this.tableColumn = this.shadowRoot.querySelector('#table-column');
     this.benchmarkingTable = this.shadowRoot.querySelector('#benchmarkingTable');
-
-    this.myPlot = Plotly.newPlot(this.graphDiv, [], this.layout, { displayModeBar: false, responsive: true, hovermode: false });
+    if (changedProperties.size && [...changedProperties.keys()].every(
+      property => property === 'classificationNotice' || property === 'selectionNotice'
+    )) {
+      return;
+    }
     this.renderChart();
+  }
+
+  calculateAUC(fpr, tpr) {
+    let auc = 0;
+    for (let i = 0; i < fpr.length - 1; i++) {
+      const width = fpr[i+1] - fpr[i]; 
+      const height = (tpr[i] + tpr[i+1]) / 2;
+      auc += width * height;
+    }
+    return fpr[fpr.length - 1] < fpr[0] ? -auc : auc;
   }
 
   formatDateString(dateString) {
@@ -198,17 +365,24 @@ export class LinePlot extends LitElement {
     });
   }
 
-  renderChart() {
-    if(this.data) {
-      Plotly.newPlot(this.graphDiv, this.dataTraces, this.layout, GRAPH_CONFIG);
+  renderChart(traces) {
+    if (this.data && !traces) {
+      this.threshold = this.data.inline_data.thresholds;
+    } else if (traces && traces.length > 0) {
+      this.dataTraces = traces;
+    } else {
+      return;
     }
+    Plotly.newPlot(this.graphDiv, this.dataTraces, this.layout, GRAPH_CONFIG).then(gd => {
+      gd.removeListener('plotly_legendclick', this.onLegendClick);
+      gd.removeListener('plotly_legenddoubleclick', this.onLegendClick);
+      gd.on('plotly_legendclick', this.onLegendClick);
+      gd.on('plotly_legenddoubleclick', this.onLegendClick);
+    });
   }
 
   repaintGraph(dataMode) {
-    let traces = dataMode;
-    let layout = this.layout;
-
-    Plotly.react(this.graphDiv, traces, this.layout);
+    Plotly.react(this.graphDiv, dataMode, this.layout);
   }
 
   getImagePosition() {
@@ -229,16 +403,19 @@ export class LinePlot extends LitElement {
   handleChangeMode(mode) {
     this.mode = mode;
     let dataMode = this.dataTraces;
+    this.originalTraces.slice(0, this.participantCount).forEach(trace => {
+      trace.mode = this.modeText[mode];
+    });
     if(mode === 'lines') {
-      dataMode.forEach((trace) => {
+      dataMode.slice(0, this.participantCount).forEach((trace) => {
         trace.mode = 'lines';
       });
     } else if(mode === 'markers') {
-      dataMode.forEach((trace) => {
+      dataMode.slice(0, this.participantCount).forEach((trace) => {
         trace.mode = 'markers';
       });
     } else if(mode === 'linesmarkers') {
-      dataMode.forEach((trace) => {
+      dataMode.slice(0, this.participantCount).forEach((trace) => {
         trace.mode = 'lines+markers';
       });
     }
@@ -250,16 +427,35 @@ export class LinePlot extends LitElement {
     this.showAdditionalTable = false;
     this.showQuartileTable = false;
     this.showAverageTable = false;
+    this.showInterquartileTable = false;
+    this.quartileData = [];
+    this.averageData = [];
+    this.interquartileData = [];
   }
 
-  async setClassificationView(view) {
+  setClassificationView(view) {
+    let areas, range;
+    if (view === 'quartiles' || view === 'average') {
+      const result = getComparableAreas(this.originalTraces.slice(0, this.participantCount));
+      if (result.error) {
+        this.classificationNotice = result.error;
+        return;
+      }
+      areas = result.areas;
+      range = result.range;
+    }
+    this.classificationNotice = '';
+    this.selectionNotice = '';
     this.resetQuartileTable();
+    this.layout.annotations = this.getAucAnnotations();
     if (view === 'default') {
+      let newTraces = [...this.originalTraces];
       this.viewSelected = "Default View";
       this.viewSelectedKey = "default";
       this.sorted = false;
       this.quartileData = [];
       this.tracesTable = [];
+
       this.layout = {
         title: '',
         autosize: true,
@@ -306,33 +502,24 @@ export class LinePlot extends LitElement {
           itemdoubleclick: "toggle",
         },
         showlegend: true,
+        annotations: this.getAucAnnotations(),
       };
-      this.renderChart();
+      this.renderChart(newTraces);
     } else if (view === 'quartiles') {
-      this.viewSelected = "Quartiles";
+      let newTraces = this.originalTraces.slice(0, this.participantCount);
+      this.viewSelected = this.viewText.quartiles;
       this.viewSelectedKey = "quartiles";
       this.sorted = true;
       this.showAdditionalTable = true;
       this.showQuartileTable = true;
-      this.tracesTable = this.dataTraces;
-      this.quartileData = this.calculateQuartiles(this.dataTraces);
-
-      this.quartileData.forEach((quartile, index) => {
-        quartile.quartileName = this.dataTraces[index].name;
-        quartile.quartile = this.quartileData[index].quartile;
-        quartile.label = this.quartileData[index].label;
-        quartile.bgColor = this.getQuartileBgColor(quartile.quartile).bgColor;
-      });
-
-      Plotly.Plots.resize(this.graphDiv);
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      this.addLinesBetweenQuartiles();
-      this.addQuartileLabels();
-
-      this.renderChart();
+      this.tracesTable = newTraces;
+      this.quartileData = this.calculateQuartiles(newTraces, areas);
+      this.layout.annotations = [this.getComparisonAnnotation(range)];
+      this.layout.height = 800;
+      this.renderChart(this.getClassifiedTraces(this.quartileData, 'label'));
     } else if (view === 'average') {
-      this.viewSelected = "Average";
+      let newTraces = this.originalTraces.slice(0, this.participantCount);
+      this.viewSelected = this.viewText.average;
       this.viewSelectedKey = "average";
       this.showAdditionalTable = true;
       this.showAverageTable = true;
@@ -384,38 +571,43 @@ export class LinePlot extends LitElement {
         },
         showlegend: true,
       };
-      this.averageData = this.calculateAverage(this.dataTraces);
-      this.renderChart();
+
+      this.setOptimitacionValuesLayout(this.optimization);
+      this.averageData = this.calculateAverage(newTraces, areas);
+      this.layout.annotations = [this.getComparisonAnnotation(range, meanArea(areas))];
+      this.renderChart(this.getClassifiedTraces(this.averageData, 'category'));
     } else if (view === 'interquartile') {
+      let newTraces = [...this.originalTraces];
       this.viewSelected = "Interquartile range";
       this.viewSelectedKey = "interquartile";
       this.sorted = true;
       this.showAdditionalTable = true;
       this.showInterquartileTable = true;
-      this.interquartileData = this.calculateIQR(this.dataTraces);
-      this.addLinesBetweenQuartiles();
-      this.addQuartileLabels();
-      this.renderChart();
+      this.interquartileData = this.calculateIQR(newTraces.slice(0, this.participantCount));
+      this.renderChart(newTraces);
     } else if (view === 'trend') {
+      let newTraces = [...this.originalTraces];
       this.viewSelected = "Trend";
       this.viewSelectedKey = "trend";
       this.showTrend = true;
       this.sorted = false;
-      this.tracesTable = this.dataTraces;
-      let newTraces = this.calculateTrend(this.dataTraces);
+      this.tracesTable = newTraces;
+      let regressionTraces = this.calculateTrend(newTraces.slice(0, this.participantCount));
       let trace = {
         name: "General Trendline",
-        x: newTraces.regressionX,
-        y: newTraces.regressionY,
+        x: regressionTraces.regressionX,
+        y: regressionTraces.regressionY,
         type: 'scatter',
         mode: 'lines',
         line: {
           color: '#1A1A19',
-          width: 4,
-          dash: "dot",
+          width: 1,
+          dash: "solid",
         }
       }
-      let newDataTraces = this.dataTraces.push(trace);
+
+      newTraces = [...newTraces, trace];
+
       this.layout = {
         title: '',
         autosize: true,
@@ -463,111 +655,33 @@ export class LinePlot extends LitElement {
         },
         showlegend: true,
       };
-      this.renderChart(newDataTraces);
+
+      this.setOptimitacionValuesLayout(this.optimization);
+      this.renderChart(newTraces);
     }
   }
 
-  addLinesBetweenQuartiles() {
-    const layout = this.graphDiv.layout;
-    layout.shapes = layout.shapes || [];
-
-    const tools = Object.keys(this.quartileData);
-    for (let i = 1; i < tools.length; i++) {
-      const currentTool = this.quartileData[tools[i]];
-      const previousTool = this.quartileData[tools[i - 1]];
-
-      // If the quartile of the current tool is different from the previous tool, draw a line between them
-      if (currentTool.quartile !== previousTool.quartile) {
-        // Calculate the x-position for the line between the current and previous tools
-        const linePosition = (i + i - 1) / 2;
-
-        // Add a line shape to the layout with initial y-positions at the bottom
-        layout.shapes.push({
-          type: 'line',
-          xref: 'x',
-          yref: 'paper',
-          x0: linePosition,
-          x1: linePosition,
-          y0: 0,  // Start from the bottom
-          y1: 0,  // Start from the bottom
-          line: {
-            color: 'rgba(11, 87, 159, 0.5)',
-            width: 2,
-            dash: 'dashdot'
-          }
-        });
-
-        // Animate the line upwards to its final position
-        this.animateLine(layout.shapes.length - 1);
-      }
-    }
-    Plotly.relayout(this.graphDiv, { shapes: layout.shapes });
+  getComparisonAnnotation(range, mean) {
+    const text = `Shared X range: ${range[0]} to ${range[1]}` +
+      (mean === undefined ? '' : `<br>Mean AUC ≈ ${mean.toPrecision(5)}`);
+    return {
+      x: 0, y: 1.03, xref: 'paper', yref: 'paper',
+      xanchor: 'left', yanchor: 'bottom', align: 'left',
+      text, showarrow: false, bgcolor: 'rgba(255,255,255,0.85)',
+      font: { size: 14 }
+    };
   }
 
-  addQuartileLabels() {
-    const layout = this.graphDiv.layout;
-    layout.annotations = layout.annotations || [];
-
-    const tools = Object.keys(this.quartileData);
-    const quartileCounts = {};
-
-    tools.forEach(tool => {
-      const quartile = this.quartileData[tool].quartile;
-      quartileCounts[quartile] = (quartileCounts[quartile] || 0) + 1;
-    });
-
-    const addedLabelPositions = new Set();
-
-    tools.forEach(tool => {
-      const quartile = this.quartileData[tool].quartile;
-
-      // Calculate the label position based on quartile count
-      let labelPosition;
-      if (quartileCounts[quartile] === 1) {
-        // If quartile occurs only once, place the label above the tool
-        labelPosition = tools.indexOf(tool);
-      } else {
-        // If quartile occurs multiple times, calculate the midpoint between tools with the same quartile
-        const positions = tools.reduce((acc, curr, index) => {
-        if (this.quartileData[curr].quartile === quartile) {
-            acc.push(index);
-        }
-        return acc;
-        }, []);
-
-        const sum = positions.reduce((sum, pos) => sum + pos, 0);
-        labelPosition = sum / positions.length;
-      }
-
-      // Add label only if it hasn't been added at this position
-      if (!addedLabelPositions.has(labelPosition)) {
-        // Add a label annotation to the layout
-        layout.annotations.push({
-            x: labelPosition,
-            y: 1.03, // Top of the chart
-            xref: 'x',
-            yref: 'paper',
-            text: `Q${quartile}`,
-            showarrow: false,
-            font: {
-            size: 16,
-            color: 'rgba(11, 87, 159, 0.5)'
-            }
-        });
-
-        // Add the label position to the set of added positions
-        addedLabelPositions.add(labelPosition);
-      }
-    });
-    this.layout = layout;
-
-    Plotly.relayout(this.graphDiv, { annotations: layout.annotations });
+  getClassifiedTraces(classifications, labelKey) {
+    return this.originalTraces.map((trace, i) => i < this.participantCount
+      ? { ...trace, name: `${trace.name} — ${classifications[i][labelKey]}` }
+      : trace);
   }
 
   calculateTrend(data) {
     const points = data.flatMap(dataset => dataset.x.map((x, i) => [x, dataset.y[i]]));
     const result = regression.linear(points);
-    const regressionLine = result.points;
+    const regressionLine = result.points.sort((a, b) => a[0] - b[0]);
     const regressionX = regressionLine.map(point => point[0]);
     const regressionY = regressionLine.map(point => point[1]);
     return {
@@ -591,38 +705,16 @@ export class LinePlot extends LitElement {
     const Q2_y = this.percentile(sortedY, 50);
     const Q3_y = this.percentile(sortedY, 75);
   
-    const IQR_x = (Q3_x - Q1_x).toFixed(2);
-    const IQR_y = (Q3_y - Q1_y).toFixed(2);
-
     return {
-      IQR_x: { value: parseFloat(IQR_x), color: this.getInterquartileBgColor(parseFloat(IQR_x), Q1_x, Q2_x, Q3_x) },
-      IQR_y: { value: parseFloat(IQR_y), color: this.getInterquartileBgColor(parseFloat(IQR_y), Q1_y, Q2_y, Q3_y) },
-      Q1_x: { value: parseFloat(Q1_x), color: this.getInterquartileBgColor(parseFloat(Q1_x), Q1_x, Q2_x, Q3_x) },
-      Q2_x: { value: parseFloat(Q2_x), color: this.getInterquartileBgColor(parseFloat(Q2_x), Q1_x, Q2_x, Q3_x) },
-      Q3_x: { value: parseFloat(Q3_x), color: this.getInterquartileBgColor(parseFloat(Q3_x), Q1_x, Q2_x, Q3_x) },
-      Q1_y: { value: parseFloat(Q1_y), color: this.getInterquartileBgColor(parseFloat(Q1_y), Q1_y, Q2_y, Q3_y) },
-      Q2_y: { value: parseFloat(Q2_y), color: this.getInterquartileBgColor(parseFloat(Q2_y), Q1_y, Q2_y, Q3_y) },
-      Q3_y: { value: parseFloat(Q3_y), color: this.getInterquartileBgColor(parseFloat(Q3_y), Q1_y, Q2_y, Q3_y) },
+      IQR_x: (Q3_x - Q1_x).toFixed(2),
+      IQR_y: (Q3_y - Q1_y).toFixed(2),
+      Q1_x: Q1_x.toFixed(2),
+      Q2_x: Q2_x.toFixed(2),
+      Q3_x: Q3_x.toFixed(2),
+      Q1_y: Q1_y.toFixed(2),
+      Q2_y: Q2_y.toFixed(2),
+      Q3_y: Q3_y.toFixed(2),
     };
-  }
-
-  getInterquartileBgColor(value, Q1, Q2, Q3) {
-    if (value < Q1) {
-      return {
-        category: 'Low (below Q1)',
-        bgColor: '#D37676'
-      };
-    } else if (value >= Q1 && value <= Q3) {
-      return {
-        category: 'Medium (between Q1 and Q3)',
-        bgColor: '#FAEDCE'
-      };
-    } else {
-      return {
-        category: 'High (above Q3)',
-        bgColor: '#A5DD9B'
-      };
-    }
   }
 
   getQuartileBgColor(quartile) {
@@ -637,18 +729,6 @@ export class LinePlot extends LitElement {
     }
   }
 
-  calculateQuartilesSteps(data) {
-    data.sort((a, b) => a - b); // Sort the data
-    const flattenedData = data.flat();
-    flattenedData.sort((a, b) => a - b);
-
-    const q1 = this.percentile(flattenedData, 25);
-    const q2 = this.percentile(flattenedData, 50); // Median
-    const q3 = this.percentile(flattenedData, 75);
-
-    return { Q1: q1, Q2: q2, Q3: q3 };
-  }
-
   percentile(data, p) {
     const index = (p / 100) * (data.length - 1);
     const lower = Math.floor(index);
@@ -658,79 +738,25 @@ export class LinePlot extends LitElement {
     return data[lower] * (1 - weight) + data[upper] * weight;
   }
 
-  calculateQuartiles(data) {
-    let quartileDataX = data.map((trace) => trace.x);
-    let quartileDataY = data.map((trace) => trace.y);
-
-    const quartilesX = this.calculateQuartilesSteps(quartileDataX);
-    const quartilesY = this.calculateQuartilesSteps(quartileDataY);
-    const results = [];
-
-    for (let i = 0; i < quartileDataX.length; i++) {
-      const x = quartileDataX[i];
-      const y = quartileDataY[i];
-      const quartileName = data[i].name;
-
-      let quartile = 0;
-      let label = '';
-
-      if (x[i] >= quartilesX.Q2 && y[i] <= quartilesY.Q2) {
-        quartile = 1;
-        label = "Top";
-      } else if (x[i] >= quartilesX.Q2 && y[i] > quartilesY.Q2) {
-        quartile = 3;
-        label = "Interquartile";
-      } else if (x[i] < quartilesX.Q2 && y[i] > quartilesY.Q2) {
-        quartile = 4;
-        label = "Bottom";
-      } else if (x[i] < quartilesX.Q2 && y[i] <= quartilesY.Q2) {
-        quartile = 2;
-        label = "Interquartile";
-      }
-      results.push({ x, y, quartileName, quartile, label });
-    }
-
-    return results;
+  calculateQuartiles(data, areas) {
+    const quartiles = rankAreas(areas, this.data.inline_data.visualization.y_optimization === 'minimize');
+    return data.map((trace, i) => {
+      const quartile = quartiles[i];
+      return { quartileName: trace.name, quartile, label: `Q${quartile}`, area: areas[i], bgColor: this.getQuartileBgColor(quartile).bgColor };
+    });
   }
 
-  calculateAverage(data) {
-    let averageDataX = data.map((trace) => trace.x);
-    let averageDataY = data.map((trace) => trace.y);
-
-    const averageX = statistics.mean(averageDataX);
-    const averageY = statistics.mean(averageDataY);
-
-    const results = [];
-
-    for (let i = 0; i < averageDataX.length; i++) {
-      const x = averageDataX[i];
-      const y = averageDataY[i];
-      const quartileName = data[i].name;
-
-      let category = '';
-      let bgColor = '';
-
-      // Clasificación basada en el promedio
-      if (x >= averageX && y >= averageY) {
-        category = 'High performance';
-        bgColor = '#A5DD9B';
-      } else if (x < averageX && y < averageY) {
-        category = 'Low performance';
-        bgColor = '#D37676';
-      } else {
-        category = 'Medium performance';
-        bgColor = '#FAEDCE';
-      }
-      results.push({
-        x,
-        y,
-        quartileName,
-        bgColor,
-        category,
-      });
-    }
-
-    return results
+  calculateAverage(data, areas) {
+    const differences = compareAreasToMean(areas, this.data.inline_data.visualization.y_optimization === 'minimize');
+    return data.map((trace, i) => {
+      const difference = differences[i];
+      return {
+        quartileName: trace.name,
+        area: areas[i],
+        category: difference > 0 ? 'Better than average' : difference < 0 ? 'Worse than average' : 'At average',
+        bgColor: difference > 0 ? '#A5DD9B' : difference < 0 ? '#D37676' : '#FAEDCE',
+      };
+    });
   }
 
   async downloadChart(format) {
@@ -747,7 +773,7 @@ export class LinePlot extends LitElement {
         pdf.text(`Benchmarking Results of ${this.datasetId} at ${this.formatDateString(this.datasetModDate)}`, 105, 10, null, null, 'center');
 
         if (this.sorted) {
-            // Agregar un pequeño retraso para asegurarse de que los cambios se hayan renderizado
+            // Add a small delay to ensure changes have been rendered
             await new Promise(resolve => setTimeout(resolve, 200));
 
             let toDownloadDiv = this.todoDownload;
@@ -892,7 +918,7 @@ export class LinePlot extends LitElement {
                 height: toDownloadDiv.offsetHeight
             });
 
-            // Eliminar la fila en blanco después de la captura
+            // Remove blank row after capture
             tableBody.removeChild(blankRow);
 
             const downloadImage = downloadCanvas.toDataURL(`image/${format}`);
@@ -931,7 +957,7 @@ export class LinePlot extends LitElement {
             chartLink.download = `benchmarking_chart_${this.datasetId}.${format}`;
             document.body.appendChild(chartLink);
             chartLink.click();
-            document.body.removeChild(chartLink); 
+            document.body.removeChild(chartLink);
           }
           await new Promise(resolve => setTimeout(resolve, 500));
       }
@@ -940,11 +966,45 @@ export class LinePlot extends LitElement {
     }
   }
 
+  getOptimizationName(opt) {
+    if(opt === "default") {
+      return "Default";
+    } else if(opt === "maximize") {
+      return "Maximize";
+    } else {
+      return "Minimize";
+    }
+  }
+
+  handleChangeOptimization(opt) {
+    this.optimization = opt;
+    if(opt === 'default') {
+      this.setOptimitacionValuesLayout('default');
+    } else if(opt === 'maximize') {
+      this.setOptimitacionValuesLayout('maximize');
+    } else if(opt === 'minimize') {
+      this.setOptimitacionValuesLayout('minimize');
+    }
+  }
+
+  setOptimitacionValuesLayout(opt) {
+    if(opt === 'default') {
+      this.layout.xaxis.autorange = this.data.inline_data.visualization.x_optimization === 'maximize' ? 'max' : 'reversed';
+      this.layout.yaxis.autorange = this.data.inline_data.visualization.y_optimization === 'maximize' ? 'max' : 'reversed';
+    } else if(opt === 'maximize') {
+      this.layout.xaxis.autorange = 'max';
+      this.layout.yaxis.autorange = 'max';
+    } else if(opt === 'minimize') {
+      this.layout.xaxis.autorange = 'reversed';
+      this.layout.yaxis.autorange = 'reversed';
+    }
+  }
+
   render() {
     return html`
       <div class="line-plot oeb-graph">
         <div class="graph-row" id="graph-filters">
-          <div class="col-8">
+          <div class="col-10">
             <div class="btn-group btn-graphs" role="group" aria-label="Basic example">
               <div class="dropdown classification-dropdown">
                 <button type="button" class="btn dropbtn first-btn">
@@ -956,11 +1016,11 @@ export class LinePlot extends LitElement {
                       @click="${() => this.setClassificationView('default') }">
                       ${ this.viewText.default }
                   </div>
-                  <div class="${ (this.viewSelected == 'Quartiles') ? 'active disabled' : '' }"
+                  <div class="${ (this.viewSelectedKey == 'quartiles') ? 'active disabled' : '' }"
                       @click="${() => this.setClassificationView('quartiles') }">
                       ${ this.viewText.quartiles }
                   </div>
-                  <div class="${ (this.viewSelected == 'Average') ? 'active disabled' : '' }"
+                  <div class="${ (this.viewSelectedKey == 'average') ? 'active disabled' : '' }"
                       @click="${() => this.setClassificationView('average') }">
                         ${ this.viewText.average }
                   </div>
@@ -976,10 +1036,14 @@ export class LinePlot extends LitElement {
               </div>
               <div class="dropdown orientation-dropdown">
                 <button type="button" class="btn btn-xl btn-center dropbtn mode">
-                  Mode: <span> ${ this.mode }</span>
+                  Mode: <span> ${ (this.mode=='linesmarkers')?"Lines & Markers" : this.mode }</span>
                   <div class="btn-icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg></div>
                 </button>
                 <div class="dropdown-content">
+                  <div class="mode ${ (this.mode == 'linesmarkers') ? 'active disabled' : '' }"
+                    @click="${() => this.handleChangeMode('linesmarkers') }">
+                    ${ this.modeText.linesmarkers }
+                  </div>
                   <div class="mode ${ (this.mode == 'lines') ? 'active disabled' : '' }"
                     @click="${() => this.handleChangeMode('lines') }">
                     ${ this.modeText.lines }
@@ -988,16 +1052,12 @@ export class LinePlot extends LitElement {
                     @click="${() => this.handleChangeMode('markers') }">
                     ${ this.modeText.markers }
                   </div>
-                  <div class="mode ${ (this.mode == 'linesmarkers') ? 'active disabled' : '' }"
-                    @click="${() => this.handleChangeMode('linesmarkers') }">
-                    ${ this.modeText.linesmarkers }
-                  </div>
                 </div>
               </div>
               <div class="dropdown download-dropdown">
                 <button type="button" class="btn dropbtn btn-xl download-btn">
                   <span>Download</span>
-                  <div class="btn-icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg></div>
+                  <div class="btn-icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg></div>
                 </button>
                 <div class="dropdown-content">
                   <div class=""
@@ -1017,6 +1077,26 @@ export class LinePlot extends LitElement {
             </div>
           </div>
         </div>
+        <p class="legend-hint">
+          Click a legend entry to show or hide a curve. At least one participant must remain visible; statistics use all participants.
+          ${this.viewSelectedKey === 'quartiles' ? 'Q1–Q4 appear beside participant names in the legend; Q1 is best.' : ''}
+          ${this.viewSelectedKey === 'average' ? 'Each participant’s comparison with the mean appears in the legend.' : ''}
+        </p>
+        ${this.showRandomClassifier ? html`
+          <p class="legend-hint">The dotted random-classifier line is a chance baseline for ROC curves (true positive rate equals false positive rate), not a participant.</p>
+        ` : ''}
+        ${this.selectionNotice ? html`
+          <div class="selection-notice" role="status">
+            ${this.selectionNotice}
+            <button type="button" @click=${() => { this.selectionNotice = ''; }}>Dismiss</button>
+          </div>
+        ` : ''}
+        ${this.classificationNotice ? html`
+          <div class="selection-notice" role="status">
+            ${this.classificationNotice}
+            <button type="button" @click=${() => { this.classificationNotice = ''; }}>Dismiss</button>
+          </div>
+        ` : ''}
         <div class="graph-row" id="todownload">
           <div class=${ this.sorted ? 'col-8': 'col-12' } id="chartCapture">
             <div class="chart" id="line-chart"></div>
@@ -1039,12 +1119,23 @@ export class LinePlot extends LitElement {
                     <table class="tools-table" id="benchmarkingTable">
                         <thead>
                             <tr>
-                                <th class="tools-th">Participants</th>
+                                <th class="tools-th">${this.showInterquartileTable ? 'Statistic' : 'Participants'}</th>
+                                ${this.showQuartileTable || this.showAverageTable ? html`
+                                  <th>
+                                    Shared-range AUC
+                                    <ui-tooltip
+                                      for="anchor"
+                                      icon="info"
+                                      .textTitle=${'Shared-range AUC'}
+                                      .textBody=${'Area under a participant’s curve over the X interval covered by every participant. The interval is shown above the plot. Using the same interval makes the areas comparable; all participants are included, even when hidden.'}>
+                                    </ui-tooltip>
+                                  </th>
+                                ` : ''}
                                 <th class="classify-th">
-                                    ${ this.viewSelected == 'Quartiles'
-                                      ? 'Quartile'
-                                      : this.viewSelected == 'Average'
-                                      ? 'Average'
+                                    ${ this.viewSelectedKey == 'quartiles'
+                                      ? 'AUC quartile'
+                                      : this.viewSelectedKey == 'average'
+                                      ? 'Compared with mean'
                                       : this.viewSelected == 'Interquartile range'
                                       ? 'Interquartile range'
                                       : this.viewSelected == 'Trend'
@@ -1065,6 +1156,7 @@ export class LinePlot extends LitElement {
                                 ${ this.quartileData.map(quartile => html`
                                     <tr>
                                         <td>${ quartile.quartileName }</td>
+                                        <td>${ quartile.area.toPrecision(5) }</td>
                                         <td style="background-color: ${ quartile.bgColor }">${ quartile.label }</td>
                                     </tr>
                                 `) }
@@ -1073,6 +1165,7 @@ export class LinePlot extends LitElement {
                                 ${ this.averageData.map(quartile => html`
                                     <tr>
                                         <td>${ quartile.quartileName }</td>
+                                        <td>${ quartile.area.toPrecision(5) }</td>
                                         <td style="background-color: ${ quartile.bgColor }">${ quartile.category }</td>
                                     </tr>
                                 `) }
@@ -1081,7 +1174,7 @@ export class LinePlot extends LitElement {
                                 ${ Object.entries(this.interquartileData).map(([key,quarteline]) => html`
                                     <tr>
                                         <td>${ key }</td>
-                                        <td style="background-color: ${ quarteline.color.bgColor }">${ quarteline.value }</td>
+                                        <td>${ quarteline }</td>
                                     </tr>
                                 `) }
                             ` : '' }

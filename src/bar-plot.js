@@ -4,7 +4,7 @@ import { plotlyStyles } from "./plotly-styles.js";
 import { graphStyles } from './graph-styles.js';
 import { oebIcon, isBSC } from './utils';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import { autoTable } from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import { Tooltip } from './ui-tooltip.js';
 
@@ -29,6 +29,7 @@ export class BarPlot extends LitElement {
         sorted: false,
         showAdditionalTable: false,
         isOptimal: false,
+        isReversed: false,
         isDownloading: false,
     };
 
@@ -41,12 +42,12 @@ export class BarPlot extends LitElement {
         this.layout = {};
         this.staticNode = null;
         this.sortOrder = 'raw';
+        this.isReversed = false;
         this.optimal = 'no';
         this.quartileDataArray = [];
         this.sortText = 'Sort & Classify Data';
         this.sortTextRaw = 'Return To Raw Results';
-        this.optimalText = 'Optimal View';
-        this.optimalTextReset = 'Original View';
+        this.isOptimal = false;
         this.isDownloading = false;
     }
 
@@ -55,12 +56,16 @@ export class BarPlot extends LitElement {
         super.attributeChangedCallback(name, oldVal, JSON.parse(newVal));
     }
 
-    updated() {
+    updated(changedProperties) {
         this.graphDiv = this.shadowRoot.querySelector('#bar-chart');
         this.todoDownload = this.shadowRoot.querySelector('#todownload');
         this.chartCapture = this.shadowRoot.querySelector('#chartCapture');
-        this.myPlot = Plotly.newPlot(this.graphDiv, [], this.layout, { displayModeBar: false, responsive: true, hovermode: false });
-        this.renderChart();
+        if (changedProperties.has('data') || !this.graphDiv.data) {
+            this.myPlot = Plotly.newPlot(this.graphDiv, [], this.layout, { displayModeBar: false, responsive: true, hovermode: false });
+            this.renderChart();
+        } else if (changedProperties.has('sorted')) {
+            Plotly.Plots.resize(this.graphDiv);
+        }
     }
 
     renderChart() {
@@ -69,8 +74,9 @@ export class BarPlot extends LitElement {
             this.datasetId = this.data._id;
             this.datasetModDate = this.data.dates.modification;
             this.originalData = this.data;
+            // Optional: "minimize" ranks lowest values first; default is highest first.
+            this.datasetPolarity = data.visualization.optimization === 'minimize' ? 'minimum' : 'maximum';
 
-            const maxMetricValue = Math.max(...data.challenge_participants.map(entry => entry.metric_value));
             this.x = data.challenge_participants.map(entry => entry.tool_id);
             const y = data.challenge_participants.map(() => 0);
             const colors = Array(this.x.length).fill('#0b579f');
@@ -114,7 +120,7 @@ export class BarPlot extends LitElement {
                         }
                     },
                     fixedrange: true,
-                    range: [0, maxMetricValue + 0.1],
+                    range: this.getDefaultRange(data.challenge_participants.map(entry => entry.metric_value)),
                     tickfont: { size: 14 }
                 },
                 margin: { l: 50, r: 50, t: 100, b: 110, pad: 4 },
@@ -261,7 +267,7 @@ export class BarPlot extends LitElement {
             await new Promise(resolve => setTimeout(resolve, 100));
 
             this.showAdditionalTable = true;
-            const sortedData = this.originalData.inline_data.challenge_participants.slice().sort((a, b) => b.metric_value - a.metric_value);
+            const sortedData = this.getSortedParticipants();
 
             this.updateChart(sortedData);
 
@@ -282,6 +288,7 @@ export class BarPlot extends LitElement {
             Plotly.update(this.graphDiv)
         } else {
             this.sorted = false;
+            this.isReversed = false;
             Plotly.Plots.resize(this.graphDiv);
             await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -305,6 +312,54 @@ export class BarPlot extends LitElement {
         this.sortOrder = this.sortOrder === 'raw' ? 'sorted' : 'raw';
     }
 
+    async toggleReverse() {
+        this.isReversed = !this.isReversed;
+        if (this.sortOrder === 'raw') {
+            return;
+        }
+        const sortedData = this.getSortedParticipants();
+        this.updateChart(sortedData);
+        this.animateBars(sortedData);
+        this.quartileData = this.calculateQuartiles(sortedData);
+        this.quartileDataArray = this.getQuartileData(this.quartileData);
+        this.removeLinesBetweenQuartiles();
+        this.clearQuartileLabels();
+        this.addLinesBetweenQuartiles();
+        this.addQuartileLabels();
+        Plotly.update(this.graphDiv);
+    }
+
+    getSortedParticipants() {
+        // The user can invert the data-defined direction; quartile classification is unaffected.
+        const direction = (this.datasetPolarity === 'minimum' ? 1 : -1) * (this.isReversed ? -1 : 1);
+        return this.originalData.inline_data.challenge_participants.slice()
+            .sort((a, b) => direction * (a.metric_value - b.metric_value));
+    }
+
+    // Full view always includes the zero baseline, so negative bars stay visible.
+    getDefaultRange(values) {
+        const min = Math.min(0, ...values);
+        const max = Math.max(0, ...values);
+        const padding = (max - min) * 0.05 || 0.1;
+        return [min < 0 ? min - padding : 0, max > 0 ? max + padding : 0];
+    }
+
+    // Zoomed view around the data. It never crosses zero unless the data does.
+    getOptimalRange(values) {
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const span = max - min;
+        if (span === 0) {
+            return this.getDefaultRange(values);
+        }
+        const lower = min - span * 0.2;
+        const upper = max + span * 0.08;
+        return [
+            min >= 0 ? Math.max(0, lower) : lower,
+            max <= 0 ? Math.min(0, upper) : upper
+        ];
+    }
+
     async toggleOptimal() {
         try {
             if(this.optimal === 'no') {
@@ -315,25 +370,15 @@ export class BarPlot extends LitElement {
                 let data;
                 if (this.sortOrder !== 'raw') {
                     // If data has been sorted, use the sorted data
-                    data = this.originalData.inline_data.challenge_participants.slice().sort((a, b) => b.metric_value - a.metric_value);
+                    data = this.getSortedParticipants();
                 } else {
                     // Otherwise, use the original data
                     data = this.originalData.inline_data.challenge_participants;
                 }
 
                 const metricValues = data.map(entry => entry.metric_value);
-                const minMetric = Math.min(...metricValues);
-                const maxMetric = Math.max(...metricValues);
 
-                // Calculate range between min and max metrics
-                const metricRange = maxMetric - minMetric;
-
-                // Calculate new y-axis range with a slight buffer based on metric range
-                const minY = Math.max(0, minMetric - metricRange * 0.2);
-                const maxY = maxMetric + metricRange * 0.08;
-
-                // Update plot layout with new y-axis range
-                Plotly.relayout(this.graphDiv, { 'yaxis.range': [minY, maxY] });
+                Plotly.relayout(this.graphDiv, { 'yaxis.range': this.getOptimalRange(metricValues) });
 
                 // Animate the bars
                 this.animateBars(data);
@@ -343,14 +388,14 @@ export class BarPlot extends LitElement {
                 let data;
                 if (this.sortOrder !== 'raw') {
                     // If data has been sorted, use the sorted data
-                    data = this.originalData.inline_data.challenge_participants.slice().sort((a, b) => b.metric_value - a.metric_value);
+                    data = this.getSortedParticipants();
                 } else {
                     // Otherwise, use the original data
                     data = this.originalData.inline_data.challenge_participants;
                 }
                 // Return to original data view by restoring the original y-axis range
                 const originalLayout = {
-                    'yaxis.range': [0, Math.max(...data.map(entry => entry.metric_value)) + 0.1]
+                    'yaxis.range': this.getDefaultRange(data.map(entry => entry.metric_value))
                 };
 
                 // Update plot layout with original y-axis range
@@ -405,8 +450,8 @@ export class BarPlot extends LitElement {
         const upperArray = sortedValues.filter(value => value > q2);
 
         // Calculate median for lowerArray and upperArray
-        q1 = this.calculateMedians(lowerArray);
-        q3 = this.calculateMedians(upperArray);
+        q1 = lowerArray.length ? this.calculateMedians(lowerArray) : q2;
+        q3 = upperArray.length ? this.calculateMedians(upperArray) : q2;
 
         // Create an object to store metric positions
         const metricPositions = {};
@@ -598,8 +643,6 @@ export class BarPlot extends LitElement {
             if (format === 'pdf') {
                 const pdf = new jsPDF();
 
-                this.isDownloading = true;
-
                 pdf.setFontSize(12);
                 pdf.setFont(undefined, 'bold');
                 pdf.text(`Benchmarking Results of ${this.datasetId} at ${this.formatDateString(this.datasetModDate)}`, 105, 10, null, null, 'center');
@@ -615,9 +658,9 @@ export class BarPlot extends LitElement {
 
                     // Extract data from quartileDataArray
                     const rows = this.quartileDataArray.map(q => [q.tool, q.quartile.quartile]);
-
+                    
                     // Generate autoTable with custom styles
-                    pdf.autoTable({
+                    autoTable(pdf, {
                         head: [columns],
                         body: rows,
                         startY: 190,
@@ -658,11 +701,11 @@ export class BarPlot extends LitElement {
                     // Save the PDF
                     pdf.save(`benchmarking_chart_${this.datasetId}.${format}`);
                 }
-                this.isDownloading = false;
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
             } else if (format === 'svg') {
                 Plotly.downloadImage(this.graphDiv, { format: 'svg', width: 800, height: 600, filename: `benchmarking_chart_${this.datasetId}` });
             } else {
-                this.isDownloading = true;
                 // Download chart with table
                 if (this.sortOrder === 'sorted' && Object.keys(this.quartileData).length > 1) {
                     const toDownloadDiv = this.todoDownload;
@@ -698,7 +741,7 @@ export class BarPlot extends LitElement {
                     chartLink.click();
                     document.body.removeChild(chartLink);
                 }
-                this.isDownloading = false;
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
         } catch (error) {
             console.error('Error downloading chart:', error);
@@ -713,14 +756,6 @@ export class BarPlot extends LitElement {
         }
     }
 
-    getOptimalText() {
-        if(this.isOptimal) {
-            return html` ${ this.optimalTextReset } `;
-        } else {
-            return html` ${ this.optimalText } `;
-        }
-    }
-
     render() {
         return html`
             <div class="bar-plot oeb-graph">
@@ -731,10 +766,18 @@ export class BarPlot extends LitElement {
                                 @click="${ this.toggleSortOrder }">
                                 <span>${ this.getSortText() }</span>
                             </button>
-                            <button type="button" id="optimalBtn" class="btn btn-secondary"
-                                @click="${ this.toggleOptimal }">
-                                <span>${ this.getOptimalText() }</span>
-                            </button>
+                            ${ this.sorted ? html`
+                                <button type="button" id="reverseBtn" class="btn btn-secondary"
+                                    @click="${ this.toggleReverse }">
+                                    <span>${ this.isReversed ? 'Default Order' : 'Reverse Order' }</span>
+                                </button>` : '' }
+                            <div class="view-switch" role="group" aria-label="Chart view">
+                                <span class="view-switch-label">View</span>
+                                <button type="button" class="btn view-option" aria-pressed="${!this.isOptimal}"
+                                    @click="${() => this.isOptimal && this.toggleOptimal()}">Original</button>
+                                <button type="button" class="btn view-option" aria-pressed="${this.isOptimal}"
+                                    @click="${() => !this.isOptimal && this.toggleOptimal()}">Optimal</button>
+                            </div>
                             <div class="dropdown">
                                 <button type="button" class="btn dropbtn download-btn">
                                     <span>Download</span>
@@ -786,9 +829,10 @@ export class BarPlot extends LitElement {
                                             <ui-tooltip 
                                                 for="anchor"
                                                 icon="info"
-                                                textTitle="The Square quartile label"
-                                                textBody="By default, the highest values will be displayed in the first quartile.
-                                                    Inversely if it is specified">
+                                                textTitle="Quartile classification"
+                                                .textBody=${this.datasetPolarity === 'minimum'
+                                                    ? 'Lower values are better for this dataset; quartile 1 represents the lowest range.'
+                                                    : 'Higher values are better by default; quartile 1 represents the highest range. A dataset can specify minimization instead.'}>
                                             </ui-tooltip>
                                         </th>
                                     </tr>

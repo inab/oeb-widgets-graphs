@@ -1,0 +1,114 @@
+{
+  "_id": "OEBDTEST_SC_BR",
+  "dates": {
+    "modification": "2023-12-05T13:09:13Z"
+  },
+  "inline_data": {
+    "challenge_participants": [
+      {
+        "tool_id": "Tool_1",
+        "metric_x": 0.417,
+        "stderr_x": 0,
+        "metric_y": 0.241,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_2",
+        "metric_x": 0.715,
+        "stderr_x": 0,
+        "metric_y": 0.162,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_3",
+        "metric_x": 0.656,
+        "stderr_x": 0,
+        "metric_y": 0.044,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_4",
+        "metric_x": 0.339,
+        "stderr_x": 0,
+        "metric_y": 0.098,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_5",
+        "metric_x": 0.742,
+        "stderr_x": 0,
+        "metric_y": 0.182,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_6",
+        "metric_x": 0.504,
+        "stderr_x": 0,
+        "metric_y": 0.243,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_7",
+        "metric_x": 0.595,
+        "stderr_x": 0,
+        "metric_y": 0.134,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_8",
+        "metric_x": 0.816,
+        "stderr_x": 0,
+        "metric_y": 0.286,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_9",
+        "metric_x": 0.459,
+        "stderr_x": 0,
+        "metric_y": 0.238,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_10",
+        "metric_x": 0.641,
+        "stderr_x": 0,
+        "metric_y": 0.353,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_11",
+        "metric_x": 0.774,
+        "stderr_x": 0,
+        "metric_y": 0.129,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_12",
+        "metric_x": 0.937,
+        "stderr_x": 0,
+        "metric_y": 0.065,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_13",
+        "metric_x": 0.572,
+        "stderr_x": 0,
+        "metric_y": 0.308,
+        "stderr_y": 0
+      },
+      {
+        "tool_id": "Tool_14",
+        "metric_x": 0.399,
+        "stderr_x": 0,
+        "metric_y": 0.206,
+        "stderr_y": 0
+      }
+    ],
+    "visualization": {
+      "type": "2D-plot",
+      "x_axis": "Recall",
+      "y_axis": "Error rate",
+      "optimization": "bottom-right"
+    }
+  }
+}

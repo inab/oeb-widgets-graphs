@@ -1,7 +1,21 @@
 {
   "name": "@inb/oeb-widgets-graphs",
-  "version": "1.10.0",
+  "version": "1.1.4",
   "type": "module",
+  "main": "oeb-widgets-graphs.umd.js",
+  "module": "oeb-widgets-graphs.es.js",
+  "exports": {
+    ".": {
+      "import": "./oeb-widgets-graphs.es.js",
+      "require": "./oeb-widgets-graphs.umd.js"
+    }
+  },
+    "files": [
+    "oeb-widgets-graphs.umd.js",
+    "oeb-widgets-graphs.es.js",
+    "README.md",
+    "LICENSE"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/inab/oeb-widgets-graphs.git"
@@ -9,36 +23,56 @@
   "bugs": {
     "url": "https://github.com/inab/oeb-widgets-graphs/issues"
   },
+  "homepage": "https://inab.github.io/oeb-widgets-graphs/",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "vite build && node scripts/prepare-dist.cjs",
+    "preview": "vite preview",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
-    "access": "public"
+    "access": "public",
+    "directory": "dist"
   },
   "devDependencies": {
-    "vite": "^5.3.4"
+    "vite": "^8.3.8"
   },
   "dependencies": {
-    "@lit/task": "^1.0.1",
+    "@lit/task": "^1.0.3",
     "@popperjs/core": "^2.11.8",
-    "bootstrap": "^5.3.3",
+    "bootstrap": "^5.3.9",
     "clusters": "^0.0.4",
-    "d3": "^7.9.0",
+    "d3": "^7.9.2",
     "html2canvas": "^1.4.1",
-    "jspdf": "^2.5.1",
-    "jspdf-autotable": "^3.8.2",
-    "lit": "^3.1.4",
-    "lodash": "^4.17.21",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.9",
+    "lit": "^3.3.3",
+    "lodash": "^4.18.1",
     "pareto-frontier": "^1.1.1",
-    "plotly.js-dist": "^2.34.0",
+    "plotly.js-dist": "^4.3.0",
     "regression": "^2.0.1",
-    "simple-statistics": "^7.8.3"
+    "simple-statistics": "^8.0.0"
   },
-  "main": "./src/widget-element.js",
   "author": "Barcelona Supercomuting Center (BSC)",
   "license": "Apache-2.0",
-  "description": "Collection of OEB widgets for graphs components"
+  "description": "Collection of OEB widgets for graphs components",
+  "keywords": [
+    "lit",
+    "OEB",
+    "widgets",
+    "visualization",
+    "chart",
+    "graphs",
+    "scatter",
+    "barplot",
+    "boxplot",
+    "radarplot",
+    "benchmarking",
+    "openEBench",
+    "visualizer",
+    "elixir-europe",
+    "elixir-spain"
+  ]
 }

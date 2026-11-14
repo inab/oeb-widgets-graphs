@@ -4,7 +4,7 @@ import { plotlyStyles } from "./plotly-styles.js";
 import { graphStyles } from './graph-styles.js';
 import { oebIcon, isBSC } from './utils';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import { autoTable } from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import pf from 'pareto-frontier';
 import * as statistics from 'simple-statistics'
@@ -30,6 +30,8 @@ export class ScatterPlot extends LitElement {
         datasetId: '',
         sorted: false,
         showAdditionalTable: false,
+        quartileDataArray: { state: true },
+        selectionNotice: { state: true },
         isOptimal: true,
         viewSelected: "Classification",
         isDownloading: false,
@@ -42,9 +44,9 @@ export class ScatterPlot extends LitElement {
         this.markerColors = ['#D62728', '#FF7F0E', '#8C564B', '#E377C2', '#4981B6', '#BCBD22', '#9467BD', '#0C9E7B', '#7F7F7F', '#31B8BD', '#FB8072', '#62D353'];
         this.symbols = ['circle', 'triangle-up', 'pentagon', 'cross', 'x', 'star', 'star-diamond', 'square', 'diamond-tall'];
         this.optimal = 'yes';
+        this.isOptimal = true;
         this.quartileDataArray = [];
-        this.optimalText = 'Optimal View';
-        this.optimalTextReset = 'Original View';
+        this.selectionNotice = '';
         this.viewSelected = "Classification";
         this.viewText = {
             noClassification: 'No Classification',
@@ -67,23 +69,164 @@ export class ScatterPlot extends LitElement {
         this.layout = {
             autosize: true,
             height: 600,
-            margin: { l: 60, r: 30, t: 0, b: 10, pad: 4 },
-            legend: {
-                orientation: 'h',
-                x: 0,
-                y: -0.2,
-                xref: 'paper',
-                yref: 'paper',
-                font: {
-                    size: 16,
-                },
-                itemdoubleclick: "toggle",
-            },
+            ...this.getChartFrame(),
             images: this.getImagePosition(this.optimalview),
             showlegend: true,
         };
         this.dataInline = {};
         this.isDownloading = false;
+        this.onLegendClick = (event) => {
+            const traceIndex = event.curveNumber;
+            if (traceIndex === 0) {
+                return false;
+            }
+            if (traceIndex > 1) {
+                if (this.updatePlotOnSelection(traceIndex) !== false) {
+                    this.toggleTraceVisibility(traceIndex);
+                }
+                return false;
+            }
+        };
+    }
+
+    // The Pareto frontier of the points for the optimal corner. A single point is
+    // extended with two extra points so that it can be drawn as a line.
+    getParetoPoints(points, extendSinglePoint = false) {
+        const direction = this.formatOptimalDisplay(this.optimalview);
+        const paretoPoints = pf.getParetoFrontier(points, { optimize: direction });
+
+        if (extendSinglePoint && paretoPoints.length == 1) {
+            paretoPoints.unshift([paretoPoints[0][0], 0]);
+            paretoPoints.push([Math.max(...this.xValues), paretoPoints[1][1]]);
+        }
+        return paretoPoints;
+    }
+
+    getParetoTraceUpdate(points, extendSinglePoint = false) {
+        const paretoPoints = this.getParetoPoints(points, extendSinglePoint);
+        return {
+            x: [paretoPoints.map((point) => point[0])],
+            y: [paretoPoints.map((point) => point[1])],
+        };
+    }
+
+    // Global frontier (fixed) and dynamic frontier (updated when tools are hidden).
+    createParetoTraces(x, y) {
+        const base = { x, y, mode: 'lines', type: 'scatter', opacity: 0 };
+        return [
+            {
+                ...base,
+                name: '<span style="color:black;">Global Pareto Frontier</span>',
+                line: { dash: 'dot', width: 2, color: 'rgb(152, 152, 152)' },
+            },
+            {
+                ...base,
+                name: 'Dynamic Pareto Frontier',
+                line: { dash: 'dot', width: 2, color: 'rgb(244, 124, 33)' },
+            },
+        ];
+    }
+
+    axisTitle(text) {
+        return {
+            text,
+            font: {
+                family: 'Arial, sans-serif',
+                size: 18,
+                color: 'black',
+                weight: 'bold',
+            },
+        };
+    }
+
+    xAxisTitle() {
+        const title = this.axisTitle(this.visualizationData.x_axis);
+        const width = this.graphDiv?.clientWidth;
+        if (!width || typeof title.text !== 'string' || /[<>]/.test(title.text)) {
+            return title;
+        }
+
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        context.font = `bold ${title.font.size}px Arial, sans-serif`;
+        const maxWidth = Math.max(80, width - 100);
+        const lines = [];
+        let line = '';
+        for (const word of title.text.split(/\s+/)) {
+            const candidate = line ? `${line} ${word}` : word;
+            if (line && context.measureText(candidate).width > maxWidth) {
+                lines.push(line);
+                line = '';
+            }
+            for (const character of (line ? ` ${word}` : word)) {
+                if (line && context.measureText(line + character).width > maxWidth) {
+                    lines.push(line);
+                    line = '';
+                }
+                line += character;
+            }
+        }
+        if (line) lines.push(line);
+        title.text = lines.join('<br>');
+        return title;
+    }
+
+    observeChartSize() {
+        if (this.chartResizeObserver) return;
+        this.chartResizeObserver = new ResizeObserver((entries) => {
+            const width = entries[0].contentRect.width;
+            if (!width || width === this.observedChartWidth) return;
+            this.observedChartWidth = width;
+            this.resizeChart();
+        });
+        this.chartResizeObserver.observe(this.graphDiv);
+    }
+
+    resizeChart() {
+        if (!this.graphDiv?._fullLayout || !this.visualizationData) return;
+        const title = this.xAxisTitle();
+        Plotly.relayout(this.graphDiv, {
+            autosize: true,
+            'xaxis.title.text': title.text,
+            'legend.y': this.legendY(title),
+        });
+    }
+
+    legendY(title) {
+        const lines = title?.text?.split('<br>').length ?? 1;
+        return -0.35 - Math.max(0, lines - 2) * 0.1;
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        if (this.graphDiv) this.observeChartSize();
+    }
+
+    disconnectedCallback() {
+        this.chartResizeObserver?.disconnect();
+        this.chartResizeObserver = null;
+        this.observedChartWidth = null;
+        super.disconnectedCallback();
+    }
+
+    // Margin and legend shared by every layout of the chart.
+    getChartFrame() {
+        return {
+            margin: { l: 60, r: 30, t: 0, b: 10, pad: 4 },
+            legend: {
+                orientation: 'h',
+                x: 1,
+                xanchor: 'right',
+                y: this.legendY(this.visualizationData ? this.xAxisTitle() : null),
+                xref: 'paper',
+                yref: 'paper',
+                font: {
+                    size: 13,
+                },
+                maxheight: 0.25,
+                itemdoubleclick: false,
+            },
+        };
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
@@ -91,12 +234,18 @@ export class ScatterPlot extends LitElement {
         super.attributeChangedCallback(name, oldVal, JSON.parse(newVal));
     }
 
-    updated() {
+    updated(changedProperties) {
         this.graphDiv = this.shadowRoot.querySelector('#scatter-chart');
         this.todoDownload = this.shadowRoot.querySelector('#todownload');
         this.chartCapture = this.shadowRoot.querySelector('#chartCapture');
         this.benchmarkingTable = this.shadowRoot.querySelector('#benchmarkingTable');
         this.toolsCol = this.shadowRoot.querySelector('#toolsCol');
+        this.observeChartSize();
+        if (changedProperties?.size && [...changedProperties.keys()].every(
+            (property) => property === 'quartileDataArray' || property === 'isOptimal' || property === 'selectionNotice'
+        )) {
+            return;
+        }
         this.myPlot = Plotly.newPlot(this.graphDiv, [], {}, { displayModeBar: false, responsive: true, hovermode: false });
         this.renderChart();
     }
@@ -124,77 +273,10 @@ export class ScatterPlot extends LitElement {
         ]);
 
         if (this.optimalview != null) {
-            let direction = this.formatOptimalDisplay(this.optimalview);
-            let paretoPoints = pf.getParetoFrontier(this.dataPoints, { optimize: direction });
-
-            // If the pareto returns only one point, we create two extra points to represent it.
-            if(paretoPoints.length == 1) {
-                const extraPoint = [paretoPoints[0][0], 0];
-                const extraPoint2 = [Math.max(...this.xValues), paretoPoints[0][1]];
-                paretoPoints.unshift(extraPoint);
-                paretoPoints.push(extraPoint2);
-            }
-
-            const globalParetoTrace = {
-                x: paretoPoints.map((point) => point[0]),
-                y: paretoPoints.map((point) => point[1]),
-                mode: 'lines',
-                type: 'scatter',
-                name: '<span style="color:black;">Global Pareto Frontier</span>',
-                line: {
-                    dash: 'dot',
-                    width: 2,
-                    color: 'rgb(152, 152, 152)',
-                },
-                opacity: 0,
-            };
-
-            const dynamicParetoTrace = {
-                x: paretoPoints.map((point) => point[0]),
-                y: paretoPoints.map((point) => point[1]),
-                mode: 'lines',
-                type: 'scatter',
-                name: 'Dynamic Pareto Frontier',
-                line: {
-                    dash: 'dot',
-                    width: 2,
-                    color: 'rgb(244, 124, 33)',
-                },
-                opacity: 0,
-            };
-
-            // Add the pareto trace to the trace array
-            traces.push(globalParetoTrace, dynamicParetoTrace);
+            const paretoPoints = this.getParetoPoints(this.dataPoints, true);
+            traces.push(...this.createParetoTraces(paretoPoints.map((point) => point[0]), paretoPoints.map((point) => point[1])));
         } else {
-            const globalParetoTrace = {
-                x: ['0'],
-                y: ['0'],
-                mode: 'lines',
-                type: 'scatter',
-                name: '<span style="color:black;">Global Pareto Frontier</span>',
-                line: {
-                    dash: 'dot',
-                    width: 2,
-                    color: 'rgb(152, 152, 152)',
-                },
-                opacity: 0,
-            };
-
-            const dynamicParetoTrace = {
-                x: ['0'],
-                y: ['0'],
-                mode: 'lines',
-                type: 'scatter',
-                name: 'Dynamic Pareto Frontier',
-                line: {
-                    dash: 'dot',
-                    width: 2,
-                    color: 'rgb(244, 124, 33)',
-                },
-                opacity: 0,
-            };
-
-            traces.push(globalParetoTrace, dynamicParetoTrace);
+            traces.push(...this.createParetoTraces(['0'], ['0']));
         }
 
         // Go through each object in challenge participants
@@ -245,39 +327,12 @@ export class ScatterPlot extends LitElement {
                 height: 600,
                 annotations: this.getOptimizationArrow(this.optimalview),
                 xaxis: {
-                    title: {
-                        text: this.visualizationData.x_axis,
-                        font: {
-                            family: 'Arial, sans-serif',
-                            size: 18,
-                            color: 'black',
-                            weight: 'bold',
-                        },
-                    },
+                    title: this.xAxisTitle(),
                 },
                 yaxis: {
-                    title: {
-                        text: this.visualizationData.y_axis,
-                        font: {
-                            family: 'Arial, sans-serif',
-                            size: 18,
-                            color: 'black',
-                            weight: 'bold',
-                        },
-                    },
+                    title: this.axisTitle(this.visualizationData.y_axis),
                 },
-                margin: { l: 60, r: 30, t: 0, b: 10, pad: 4 },
-                legend: {
-                    orientation: 'h',
-                    x: 0,
-                    y: -0.2,
-                    xref: 'paper',
-                    yref: 'paper',
-                    font: {
-                        size: 16,
-                    },
-                    itemdoubleclick: "toggle",
-                },
+                ...this.getChartFrame(),
                 images: this.getImagePosition(this.optimalview),
                 showlegend: true,
             };
@@ -292,27 +347,11 @@ export class ScatterPlot extends LitElement {
         }
 
         if(layout.xaxis) {
-            layout.xaxis.title = {
-                text: this.visualizationData.x_axis,
-                font: {
-                    family: 'Arial, sans-serif',
-                    size: 18,
-                    color: 'black',
-                    weight: 'bold',
-                }
-            };
+            layout.xaxis.title = this.xAxisTitle();
         }
 
         if(layout.yaxis) {
-            layout.yaxis.title = {
-                text: this.visualizationData.y_axis,
-                font: {
-                    family: 'Arial, sans-serif',
-                    size: 18,
-                    color: 'black',
-                    weight: 'bold',
-                }
-            };
+            layout.yaxis.title = this.axisTitle(this.visualizationData.y_axis);
         }
 
         Plotly.newPlot(this.graphDiv, traces, layout, GRAPH_CONFIG).then((gd) => {
@@ -341,30 +380,15 @@ export class ScatterPlot extends LitElement {
                 this.optimalYaxis = layoutObj.yaxis.range;
             }
 
-            // Capture legend event
-            gd.on('plotly_legendclick', (event) => {
-                let traceIndex = event.curveNumber;
-
-                // If Pareto was clicked (index 0) do nothing
-                if (traceIndex === 0) {
-                    return false;
-                } else if (traceIndex === 1) {
-                    return true;
-                } else {
-                    // Update the graph based on the selected trace
-                    // Si response es false la trace no se oculta de la legend
-                    let response = this.updatePlotOnSelection(traceIndex);
-                    if (response == false) {
-                        return false;
-                    }
-                }
-            });
+            gd.removeListener('plotly_legendclick', this.onLegendClick);
+            gd.on('plotly_legendclick', this.onLegendClick);
+            this.resizeChart();
         });
     }
 
     toggleView() {
-        this.isOptimal = (typeof this.isOptimal !== 'undefined') ? !this.isOptimal : false;
-        this.optimal = this.optimal === 'no' ? 'yes' : 'no';
+        this.isOptimal = !this.isOptimal;
+        this.optimal = this.isOptimal ? 'yes' : 'no';
         if (this.isOptimal) {
             this.setOptimalView();
         } else {
@@ -399,37 +423,28 @@ export class ScatterPlot extends LitElement {
 
         if(!toolHidden) {
             const visibleTools = this.dataPoints.filter((tool) => !tool.hidden);
-            if (visibleTools.length <= 4) {
-                this.showMessageError = true;
-                this.dismissCountDown = 5;
-
-                const timer = setInterval(() => {
-                    if (this.dismissCountDown > 0) {
-                        this.dismissCountDown -= 1;
-                    } else {
-                        this.showMessageError = false;
-                        clearInterval(timer);
-                    }
-                }, 1000);
+            const minimum = this.viewKmeans ? 4 : 1;
+            if (visibleTools.length <= minimum) {
+                this.selectionNotice = this.viewKmeans
+                    ? 'K-means requires at least four visible participants.'
+                    : 'At least one participant must remain visible.';
                 return false;
             }
-        } else {
-            this.showMessageError = false;
         }
 
+        this.selectionNotice = '';
         this.dataPoints[traceIndex].hidden = !toolHidden;
 
         const updatedVisibleTools = this.dataPoints.filter((tool) => !tool.hidden);
+        const ranges = {
+            x: [...this.graphDiv.layout.xaxis.range],
+            y: [...this.graphDiv.layout.yaxis.range],
+        };
+        const visibleToolNames = this.toolID.filter((tool, index) => !this.dataPoints[index].hidden);
 
         const newTraces = null;
         if(this.optimalview != null) {
-            let direction = this.formatOptimalDisplay(this.optimalview);
-            const newParetoPoints = pf.getParetoFrontier(updatedVisibleTools, { optimize: direction });
-
-            this.newTraces = {
-                x: [newParetoPoints.map((point) => point[0])],
-                y: [newParetoPoints.map((point) => point[1])]
-            };
+            this.newTraces = this.getParetoTraceUpdate(updatedVisibleTools);
         }
 
         // Update Square Quartiles
@@ -439,17 +454,8 @@ export class ScatterPlot extends LitElement {
             const updatedXCoordinates = updatedVisibleTools.map((participant) => participant[0]);
             const updatedYCoordinates = updatedVisibleTools.map((participant) => participant[1]);
 
-            // Create a list of visible tools with their hiding status
-            const visibleTools = this.toolID.map((tool, index) => ({
-                name: tool,
-                hidden: this.dataPoints[index].hidden
-            })).filter(tool => !tool.hidden);
-
-            // List of visible tools
-            const visibleToolNames = visibleTools.map(tool => tool.name);
             // Update data with visible tools
-            this.calculateQuartiles(updatedXCoordinates, updatedYCoordinates, visibleToolNames);
-            this.setOptimalView()
+            this.calculateQuartiles(updatedXCoordinates, updatedYCoordinates, visibleToolNames, ranges);
         }
 
         // Update Diagonal Quartiles
@@ -459,27 +465,17 @@ export class ScatterPlot extends LitElement {
             const updatedYCoordinates = updatedVisibleTools.map((participant) => participant[1])
 
             // Update data with visible tools
-            this.getDiagonalQuartile(updatedXCoordinates, updatedYCoordinates);
-            this.setOptimalView()
+            this.calculateDiagonalQuartiles(updatedXCoordinates, updatedYCoordinates, visibleToolNames, ranges);
         }
 
         // If the K-means view is active, K-means Clustering is recalculated, otherwise it is not.
         if (this.viewKmeans === true) {
 
-            // Create a list of visible tools with their hiding status
-            const visibleTools = this.toolID.map((tool, index) => ({
-                name: tool,
-                hidden: this.dataPoints[index].hidden
-            })).filter(tool => !tool.hidden);
-
-            // List of visible tools
-            const visibleToolNames = visibleTools.map(tool => tool.name);
-
             // Recalculate Clustering
             let better = this.optimalview;
 
             // Update data with visible tools
-            this.createShapeClustering(updatedVisibleTools, visibleToolNames, better, this.allToolID);
+            this.createShapeClustering(updatedVisibleTools, visibleToolNames, better, this.allToolID, ranges);
             this.showShapesKmeans = true;
 
             // Create a new layout
@@ -494,7 +490,7 @@ export class ScatterPlot extends LitElement {
     }
 
     // Calculate square quartiles
-    calculateQuartiles (xValues, yValues, toolID){
+    calculateQuartiles (xValues, yValues, toolID, ranges){
         const cuartilesX = statistics.quantile(xValues, 0.5);
         const cuartilesY = statistics.quantile(yValues, 0.5);
 
@@ -509,8 +505,8 @@ export class ScatterPlot extends LitElement {
                 type: 'line',
                 x0: cuartilesX,
                 x1: cuartilesX,
-                y0: 0,
-                y1: Math.max(...yValues) + Math.max(cuartilesY),
+                y0: this.lineStart(yValues, cuartilesY),
+                y1: Math.max(...yValues) + Math.abs(cuartilesY),
                 line: {
                 color: '#C0D4E8',
                 width: 2,
@@ -521,8 +517,8 @@ export class ScatterPlot extends LitElement {
                 type: 'line',
                 y0: cuartilesY,
                 y1: cuartilesY,
-                x0: 0,
-                x1: Math.max(...xValues) + Math.max(cuartilesX),
+                x0: this.lineStart(xValues, cuartilesX),
+                x1: Math.max(...xValues) + Math.abs(cuartilesX),
                 line: {
                 color: '#C0D4E8',
                 width: 2,
@@ -534,44 +530,20 @@ export class ScatterPlot extends LitElement {
         let layout = {
             shapes: shapes,
             xaxis: {
-                title: {
-                    text: this.visualizationData.x_axis,
-                    font: {
-                        family: 'Arial, sans-serif',
-                        size: 18,
-                        color: 'black',
-                        weight: 'bold',
-                    },
-                }
+                title: this.xAxisTitle()
             },
             yaxis: {
-                title: {
-                    text: this.visualizationData.y_axis,
-                    font: {
-                        family: 'Arial, sans-serif',
-                        size: 18,
-                        color: 'black',
-                        weight: 'bold',
-                    },
-                },
+                title: this.axisTitle(this.visualizationData.y_axis),
             },
-            margin: { l: 60, r: 30, t: 0, b: 10, pad: 4 },
-            legend: {
-                orientation: 'h',
-                x: 0,
-                y: -0.2,
-                xref: 'paper',
-                yref: 'paper',
-                font: {
-                    size: 16,
-                },
-                itemdoubleclick: "toggle",
-            },
+            ...this.getChartFrame(),
             images: this.getImagePosition(this.optimalview),
             showlegend: true,
         }
 
-        if(this.isOptimal || this.optimal == 'yes') {
+        if (ranges) {
+            layout.xaxis.range = ranges.x;
+            layout.yaxis.range = ranges.y;
+        } else if(this.isOptimal || this.optimal == 'yes') {
             layout.xaxis.range = [this.optimalXaxis[0], this.optimalXaxis[1]];
             layout.yaxis.range = [this.optimalYaxis[0], this.optimalYaxis[1]];
         }
@@ -584,13 +556,13 @@ export class ScatterPlot extends LitElement {
         Plotly.relayout(this.graphDiv, this.layout);
     }
 
-    calculateDiagonalQuartiles(xValues, yValues){
+    calculateDiagonalQuartiles(xValues, yValues, visibleToolID = this.allToolID, ranges){
         let toolsNotHidden = xValues.map((x, i) => [x, yValues[i]]);
         let normalizedValues = this.normalizeData(xValues, yValues);
         let [xNorm, yNorm] = [normalizedValues[0], normalizedValues[1]];
 
-        let maxX = Math.max.apply(null, xValues);
-        let maxY = Math.max.apply(null, yValues);
+        const maxX = Math.max(...xValues.map(Math.abs));
+        const maxY = Math.max(...yValues.map(Math.abs));
         let better = this.optimalview;
 
         // Calculate the scores for each of the tool. based on their distance to the x and y axis
@@ -600,26 +572,10 @@ export class ScatterPlot extends LitElement {
         let scoresCoords = {};
 
         for (let i = 0; i < xNorm.length; i++) {
-            if (better == "bottom-right"){
-                scores.push(xNorm[i] + (1 - yNorm[i]));
-                scoresCoords[xNorm[i] + (1 - yNorm[i])] =  [xValues[i], yValues[i]];
-
-                //append the score to the data array
-                toolsNotHidden[i]['score'] = xNorm[i] + (1 - yNorm[i]);
-            }
-            else if (better == "top-right"){
-                scores.push(xNorm[i] + yNorm[i]);
-                scoresCoords[xNorm[i] + yNorm[i]] = [xValues[i], yValues[i]];
-
-                //append the score to the data array
-                toolsNotHidden[i]['score'] = xNorm[i] + yNorm[i];
-            }else if (better == "top-left"){
-                scores.push(1 -xNorm[i] + yNorm[i]);
-                scoresCoords[(1 -xNorm[i]) + yNorm[i]] = [xValues[i], yValues[i]];
-
-                //append the score to the data array
-                toolsNotHidden[i]['score'] = (1 -xNorm[i]) + yNorm[i];
-            }
+            const score = this.getCornerScore(xNorm[i], yNorm[i], better);
+            scores.push(score);
+            scoresCoords[score] = [xValues[i], yValues[i]];
+            toolsNotHidden[i]['score'] = score;
         }
         scores.sort(function(a, b){return b-a});
 
@@ -657,47 +613,20 @@ export class ScatterPlot extends LitElement {
         let annotationDiagonal = this.asigneQuartileDiagonal(toolsNotHidden, firstQuartile, secondQuartile, thirdQuartile, better);
 
         // Diagonal Q. Table
-        this.createTableDiagonal(toolsNotHidden);
+        this.createTableDiagonal(toolsNotHidden, visibleToolID);
 
         let layout = {
             shapes: this.showShapesDiagonal ? shapes : [],
             xaxis: {
-                range: [this.optimalXaxis[0], this.optimalXaxis[1]],
-                title: {
-                    text: this.visualizationData.x_axis,
-                    font: {
-                        family: 'Arial, sans-serif',
-                        size: 18,
-                        color: 'black',
-                        weight: 'bold',
-                    },
-                }
+                range: ranges ? ranges.x : [this.optimalXaxis[0], this.optimalXaxis[1]],
+                title: this.xAxisTitle()
             },
             yaxis: {
-                range: [this.optimalYaxis[0], this.optimalYaxis[1]],
-                title: {
-                    text: this.visualizationData.y_axis,
-                    font: {
-                        family: 'Arial, sans-serif',
-                        size: 18,
-                        color: 'black',
-                        weight: 'bold',
-                    },
-                },
+                range: ranges ? ranges.y : [this.optimalYaxis[0], this.optimalYaxis[1]],
+                title: this.axisTitle(this.visualizationData.y_axis),
             },
             annotations: this.getOptimizationArrow(this.optimalview).concat(annotationDiagonal),
-            margin: { l: 60, r: 30, t: 0, b: 10, pad: 4 },
-            legend: {
-                orientation: 'h',
-                x: 0,
-                y: -0.2,
-                xref: 'paper',
-                yref: 'paper',
-                font: {
-                    size: 16,
-                },
-                itemdoubleclick: "toggle",
-            },
+            ...this.getChartFrame(),
             images: this.getImagePosition(this.optimalview),
             showlegend: true,
         };
@@ -762,14 +691,14 @@ export class ScatterPlot extends LitElement {
     }
 
     // Create visualization Kmeans Clustering
-    createShapeClustering (dataPoints, toolIDVisible, better, allToolID) {
+    createShapeClustering (dataPoints, toolIDVisible, better, allToolID, ranges) {
         clusterMaker.k(4);
         clusterMaker.iterations(500);
         clusterMaker.data(dataPoints);
 
         // Obtener los resultados de los clusters
         let results = clusterMaker.clusters();
-        let sortedResults = JSON.parse(JSON.stringify(results));
+        let sortedResults = JSON.parse(JSON.stringify(results)).filter(cluster => cluster.points.length > 0);
 
         this.orderResultKMeans(sortedResults, better)
 
@@ -821,7 +750,7 @@ export class ScatterPlot extends LitElement {
             borderpad: 4
         });
 
-        return [{
+        const polygon = hullPoints.length >= 3 ? [{
                 type: 'path',
                 path: path,
                 line: {
@@ -829,8 +758,14 @@ export class ScatterPlot extends LitElement {
                 },
                 fillcolor: 'rgba(0, 72, 129, 183)',
                 opacity: 0.2
-            }, ...lines];
+            }] : [];
+        return [...polygon, ...lines];
         }).flat();
+
+        if (ranges) {
+            this.layout.xaxis = { ...this.layout.xaxis, range: ranges.x };
+            this.layout.yaxis = { ...this.layout.yaxis, range: ranges.y };
+        }
 
         // Update the layout with the new annotations
         Plotly.relayout(this.graphDiv, this.layout);
@@ -878,27 +813,9 @@ export class ScatterPlot extends LitElement {
 
         let [xNorm, yNorm] = this.normalizeData(centroidsX, centroidsY)
 
-        let scores = [];
-        if (better == "top-right") {
-            for (let i = 0; i < xNorm.length; i++) {
-                let distance = xNorm[i] + yNorm[i];
-                scores.push(distance);
-                sortedResults[i]['score'] = distance;
-            };
-
-        } else if (better == "bottom-right") {
-            for (let i = 0; i < xNorm.length; i++) {
-                let distance = xNorm[i] + (1 - yNorm[i]);
-                scores.push(distance);
-                sortedResults[i]['score'] = distance;
-            };
-        } else if (better == "top-left") {
-            for (let i = 0; i < xNorm.length; i++) {
-                let distance = (1 - xNorm[i]) + yNorm[i];
-                scores.push(distance);
-                sortedResults[i]['score'] = distance;
-            };
-        };
+        sortedResults.forEach((result, i) => {
+            result['score'] = this.getCornerScore(xNorm[i], yNorm[i], better);
+        });
 
         this.sortByKey(sortedResults, "score");
     }
@@ -910,11 +827,23 @@ export class ScatterPlot extends LitElement {
         });
     }
 
-    normalizeData(xValues, yValues) {
-        let maxX = Math.max.apply(null, xValues);
-        let maxY = Math.max.apply(null, yValues);
+    // Lines start at 0 unless there are negative values
+    lineStart(values, median) {
+        const min = Math.min(...values);
+        return min < 0 ? min - Math.abs(median) : 0;
+    }
 
-        return [xValues.map(x => x / maxX), yValues.map(y => y / maxY)];
+    // Scales to [0, 1]. Non-negative data is divided by its max; data with negatives is min-max scaled.
+    normalizeAxis(values) {
+        const max = Math.max(...values);
+        const min = Math.min(...values);
+        if (min >= 0) return values.map(v => max === 0 ? 0 : v / max);
+        const range = max - min || 1;
+        return values.map(v => (v - min) / range);
+    }
+
+    normalizeData(xValues, yValues) {
+        return [this.normalizeAxis(xValues), this.normalizeAxis(yValues)];
     }
 
     assignGroupToDataPoints(dataPoints, sortedResults) {
@@ -991,6 +920,7 @@ export class ScatterPlot extends LitElement {
 
         let annotationDiagonal = [];
         poly.forEach((group) => {
+            if (group.length === 0) return;
             let center = (this.getCentroid(group))
             const centroidX = center[0];
             const centroidY = center[1];
@@ -1018,12 +948,12 @@ export class ScatterPlot extends LitElement {
         return annotationDiagonal
     }
 
-    createTableDiagonal(visibleTool) {
+    createTableDiagonal(visibleTool, visibleToolID) {
         this.quartileDataArray = [];
 
         this.allToolID.forEach((tool) => {
             const toolName = tool;
-            const visibleToolInfo = visibleTool.find(item => item[0] === this.xValues[this.allToolID.indexOf(tool)]);
+            const visibleToolInfo = visibleTool[visibleToolID.indexOf(tool)];
 
             let quartile = 0;
             let label = '--';
@@ -1037,6 +967,34 @@ export class ScatterPlot extends LitElement {
         });
     }
 
+    // An optimal corner is "top|bottom-left|right": which side of each axis is better.
+    getCornerDirections(better) {
+        return { xHigher: better.endsWith('right'), yHigher: better.startsWith('top') };
+    }
+
+    // Score in [0, 2]: higher means closer to the optimal corner. Inputs are normalized values.
+    getCornerScore(xNorm, yNorm, better) {
+        const { xHigher, yHigher } = this.getCornerDirections(better);
+        return (xHigher ? xNorm : 1 - xNorm) + (yHigher ? yNorm : 1 - yNorm);
+    }
+
+    // Values on the median line belong to the right side on X and to the better side on Y.
+    isOnTopHalf(y, medianY, better) {
+        return this.getCornerDirections(better).yHigher ? y >= medianY : y > medianY;
+    }
+
+    // 1 = quadrant of the optimal corner, 2 = flipped on X, 3 = flipped on Y, 4 = opposite corner.
+    getSquareRank(isRight, isTop, better) {
+        const { xHigher, yHigher } = this.getCornerDirections(better);
+        const flippedX = isRight !== xHigher;
+        const flippedY = isTop !== yHigher;
+        return 1 + (flippedX ? 1 : 0) + (flippedY ? 2 : 0);
+    }
+
+    getSquareLabel(rank) {
+        return rank === 1 ? 'Top' : rank === 4 ? 'Bottom' : 'Interquartile';
+    }
+
     // Sort tools for Square Quartiles
     sortToolsForSquare(better, allToolsWithId, visibleToolID, cuartilesX, cuartilesY, xValues, yValues) {
         this.quartileDataArray = [];
@@ -1048,50 +1006,9 @@ export class ScatterPlot extends LitElement {
             let cuartil = 0;
             let label = '--';
 
-            if (index !== -1) { // Si la herramienta está presente en visibleToolID
-                if (better === "bottom-right") {
-                if (x >= cuartilesX && y <= cuartilesY) {
-                    cuartil = 1;
-                    label = 'Top';
-                } else if (x >= cuartilesX && y > cuartilesY) {
-                    cuartil = 3;
-                    label = 'Interquartile';
-                } else if (x < cuartilesX && y > cuartilesY) {
-                    cuartil = 4;
-                    label = 'Bottom';
-                } else if (x < cuartilesX && y <= cuartilesY) {
-                    cuartil = 2;
-                    label = 'Interquartile';
-                }
-                } else if (better === "top-right") {
-                if (x >= cuartilesX && y < cuartilesY) {
-                    cuartil = 3;
-                    label = 'Interquartile';
-                } else if (x >= cuartilesX && y >= cuartilesY) {
-                    cuartil = 1;
-                    label = 'Top';
-                } else if (x < cuartilesX && y >= cuartilesY) {
-                    cuartil = 2;
-                    label = 'Interquartile';
-                } else if (x < cuartilesX && y < cuartilesY) {
-                    cuartil = 4;
-                    label = 'Bottom';
-                }
-                } else if (better === "top-left") {
-                if (x >= cuartilesX && y < cuartilesY) {
-                    cuartil = 4;
-                    label = 'Bottom';
-                } else if (x >= cuartilesX && y >= cuartilesY) {
-                    cuartil = 2;
-                    label = 'Interquartile';
-                } else if (x < cuartilesX && y >= cuartilesY) {
-                    cuartil = 1;
-                    label = 'Top';
-                } else if (x < cuartilesX && y < cuartilesY) {
-                    cuartil = 3;
-                    label = 'Interquartile';
-                }
-                }
+            if (index !== -1) {
+                cuartil = this.getSquareRank(x >= cuartilesX, this.isOnTopHalf(y, cuartilesY, better), better);
+                label = this.getSquareLabel(cuartil);
             }
             this.quartileDataArray.push({ tool_id: tool, cuartil: cuartil, label: label });
         });
@@ -1184,36 +1101,16 @@ export class ScatterPlot extends LitElement {
 
     // Asigna position
     asignaPositionCuartil(better){
-        // 1: top, 2y3: Middle, 4:Botton
-        let num_bottom_right, num_bottom_left, num_top_right, num_top_left;
-        if (better == "bottom-right") {
-            num_bottom_right = "Top"; // 1
-            num_bottom_left = "Interquartile"; // 2
-            num_top_right = "Interquartile"; // 3
-            num_top_left = "Bottom"; // 4
-        }
-        else if (better == "top-right") {
-            num_bottom_right = "Interquartile"; // 3
-            num_bottom_left = "Bottom"; // 4
-            num_top_right = "Top"; // 1
-            num_top_left = "Interquartile"; // 2
-
-        } else if (better == "top-left") {
-            num_bottom_right = "Bottom"; // 4
-            num_bottom_left = "Interquartile"; // 3
-            num_top_right = "Interquartile"; // 2
-            num_top_left = "Top"; // 1
-        }
-
-        let positions = [{ position: 'bottom-right', numCuartil: num_bottom_right },
-            { position: 'bottom-left', numCuartil: num_bottom_left },
-            { position: 'top-right', numCuartil: num_top_right },
-            { position: 'top-left', numCuartil: num_top_left },]
-
-        return positions
+        return [
+            { position: 'bottom-right', numCuartil: this.getSquareLabel(this.getSquareRank(true, false, better)) },
+            { position: 'bottom-left', numCuartil: this.getSquareLabel(this.getSquareRank(false, false, better)) },
+            { position: 'top-right', numCuartil: this.getSquareLabel(this.getSquareRank(true, true, better)) },
+            { position: 'top-left', numCuartil: this.getSquareLabel(this.getSquareRank(false, true, better)) },
+        ];
     }
 
     resetChart() {
+        this.selectionNotice = '';
         this.sorted = false;
 
         // Redimensionar el gráfico
@@ -1239,61 +1136,19 @@ export class ScatterPlot extends LitElement {
             const updatedVisibleTools = this.dataPoints.filter((tool) => !tool.hidden);
 
             if (this.optimalview != null){
-                let direction = this.formatOptimalDisplay(this.optimalview);
-                const newParetoPoints = pf.getParetoFrontier(updatedVisibleTools, { optimize: direction });
-
-                // If the pareto returns only one point, we create two extra points to represent it.
-                if (newParetoPoints.length == 1) {
-                    const extraPoint = [newParetoPoints[0][0], 0];
-                    const extraPoint2 = [Math.max(...this.xValues), newParetoPoints[0][1]];
-                    newParetoPoints.unshift(extraPoint);
-                    newParetoPoints.push(extraPoint2);
-                }
-
-                // Update the trace of the Pareto frontier
-                const newTraces = {
-                    x: [newParetoPoints.map((point) => point[0])],
-                    y: [newParetoPoints.map((point) => point[1])]
-                };
+                const newTraces = this.getParetoTraceUpdate(updatedVisibleTools, true);
 
                 // Then modify
                 const layout = {
-                    shapes: false ? shapes : [],
+                    shapes: [],
                     annotations: this.getOptimizationArrow(this.optimalview),
                     xaxis: {
-                        title: {
-                            text: this.visualizationData.x_axis,
-                            font: {
-                                family: 'Arial, sans-serif',
-                                size: 18,
-                                color: 'black',
-                                weight: 'bold',
-                            },
-                        },
+                        title: this.xAxisTitle(),
                     },
                     yaxis: {
-                        title: {
-                            text: this.visualizationData.y_axis,
-                            font: {
-                                family: 'Arial, sans-serif',
-                                size: 18,
-                                color: 'black',
-                                weight: 'bold',
-                            },
-                        },
+                        title: this.axisTitle(this.visualizationData.y_axis),
                     },
-                    margin: { l: 60, r: 30, t: 0, b: 10, pad: 4 },
-                    legend: {
-                        orientation: 'h',
-                        x: 0,
-                        y: -0.2,
-                        xref: 'paper',
-                        yref: 'paper',
-                        font: {
-                            size: 16,
-                        },
-                        itemdoubleclick: "toggle",
-                    },
+                    ...this.getChartFrame(),
                     images: this.getImagePosition(this.optimalview),
                     showlegend: true,
                 };
@@ -1375,8 +1230,6 @@ export class ScatterPlot extends LitElement {
                     document.body.removeChild(link);
                 }
             } else if(format === 'pdf') {
-                this.isDownloading = true;
-
                 const pdf = new jsPDF();
                 pdf.setFontSize(12);
                 pdf.setFont(undefined, 'bold');
@@ -1398,7 +1251,7 @@ export class ScatterPlot extends LitElement {
                     const markerColors = ['#D62728', '#FF7F0E', '#8C564B', '#E377C2', '#4981B6', '#BCBD22', '#9467BD', '#0C9E7B', '#7F7F7F', '#31B8BD', '#FB8072', '#62D353']
 
                     // Generate autoTable with custom styles
-                    pdf.autoTable({
+                    autoTable(pdf, {
                         head: [columns],
                         body: rows,
                         startY: 190,
@@ -1449,9 +1302,7 @@ export class ScatterPlot extends LitElement {
 
                 // Save the PDF
                 pdf.save(`benchmarking_chart_${this.datasetId}.${format}`);
-                this.isDownloading = false;
             } else if(format === 'svg') {
-                this.isDownloading = true;
                 const options = { format, height: 700, width: 800 };
                 Plotly.toImage(this.graphDiv, options).then((url) => {
                     const link = document.createElement('a');
@@ -1460,19 +1311,15 @@ export class ScatterPlot extends LitElement {
                     link.click();
                 })
                 .catch((error) => {
-                    this.isDownloading = false;
                     console.error(`Error downloading graphic as ${format}`, error);
                 });
-                this.isDownloading = false;
             } else if(format === 'json') {
-                this.isDownloading = true;
                 const chartData = this.originalData // Obtener datos del gráfico
                 const jsonData = JSON.stringify(chartData);
                 const link = document.createElement('a');
                 link.href = `data:text/json;charset=utf-8,${encodeURIComponent(jsonData)}`;
                 link.download = `${this.datasetId}.json`;
                 link.click();
-                this.isDownloading = false;
             }
 
         } catch (error) {
@@ -1483,43 +1330,15 @@ export class ScatterPlot extends LitElement {
     // Handle the click on the table row
     handleTableRowClick(index) {
         const traceIndex = index + 2; // Adjust the index
-        this.toggleTraceVisibility(traceIndex);
-        this.updatePlotOnSelection(traceIndex)
+        if (this.updatePlotOnSelection(traceIndex) !== false) {
+            this.toggleTraceVisibility(traceIndex);
+        }
     }
 
     // Toggle trace visibility
     toggleTraceVisibility(traceIndex) {
-        let graphData = this.graphDiv.data;
-        let graphLayout = this.graphDiv.layout;
-
-        if (graphData.length <= 5){
-            return;
-        }
-
-        // Check the visibility state of the trace
-        let isVisible = graphData[traceIndex].visible;
-        if (isVisible === undefined) {
-            isVisible = true;
-        }
-
-        // Count the number of currently visible traces
-        let visibleCount = 0;
-        graphData.forEach(trace => {
-            if(trace.visible) {
-                visibleCount++;
-            }
-        });
-
-        // If there are only four visible traces and the trace being toggled is currently visible, return without changing its visibility
-        if (visibleCount === 6 && isVisible !== 'legendonly') {
-            return;
-        }
-
-        // Update the visibility state of the trace
-        graphData[traceIndex].visible = isVisible === true ? 'legendonly' : true;
-
-        // Update the chart with the new data
-        Plotly.react(this.graphDiv, graphData, graphLayout);
+        const hidden = this.dataPoints[traceIndex - 2].hidden;
+        Plotly.restyle(this.graphDiv, { visible: hidden ? 'legendonly' : true }, [traceIndex]);
     }
 
     setOptimalView() {
@@ -1528,39 +1347,13 @@ export class ScatterPlot extends LitElement {
             height: 600,
             xaxis: {
                 range: [this.optimalXaxis[0], this.optimalXaxis[1]],
-                title: {
-                    text: this.visualizationData.x_axis,
-                    font: {
-                        family: 'Arial, sans-serif',
-                        size: 18,
-                        color: 'black',
-                        weight: 'bold',
-                    },
-                },
+                title: this.xAxisTitle(),
             },
             yaxis: {
-                title: {
-                    text: this.visualizationData.y_axis,
-                    font: {
-                        family: 'Arial, sans-serif',
-                        size: 18,
-                        color: 'black',
-                        weight: 'bold',
-                    },
-                },
+                range: [this.optimalYaxis[0], this.optimalYaxis[1]],
+                title: this.axisTitle(this.visualizationData.y_axis),
             },
-            margin: { l: 60, r: 30, t: 0, b: 10, pad: 4 },
-            legend: {
-                orientation: 'h',
-                x: 0,
-                y: -0.2,
-                xref: 'paper',
-                yref: 'paper',
-                font: {
-                    size: 16,
-                },
-                itemdoubleclick: "toggle",
-            },
+            ...this.getChartFrame(),
             images: this.getImagePosition(this.optimalview),
             showlegend: true,
         };
@@ -1578,45 +1371,26 @@ export class ScatterPlot extends LitElement {
         Plotly.relayout(this.graphDiv, this.layout);
     }
 
+    // Range that always includes the zero baseline so negative values stay visible.
+    getFullRange(values, positivePadding) {
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const padding = min < 0 ? (max - min) * 0.05 : positivePadding;
+        return [min < 0 ? min - padding : 0, max > 0 ? max + padding : 0];
+    }
+
     // Original View (Real dimensions)
     setOriginalView() {
         const layout = {
             xaxis: {
-                range: [0, Math.max(...this.xValues) + (Math.min(...this.xValues) / 3)],
-                title: {
-                    text: this.visualizationData.x_axis,
-                    font: {
-                        family: 'Arial, sans-serif',
-                        size: 18,
-                        color: 'black',
-                        weight: 'bold',
-                    },
-                }
+                range: this.getFullRange(this.xValues, Math.min(...this.xValues) / 3),
+                title: this.xAxisTitle()
             },
             yaxis: {
-                range: [0, Math.max(...this.yValues) + 0.05],
-                title: {
-                    text: this.visualizationData.y_axis,
-                    font: {
-                        family: 'Arial, sans-serif',
-                        size: 18,
-                        color: 'black',
-                        weight: 'bold',
-                    },
-                },
+                range: this.getFullRange(this.yValues, 0.05),
+                title: this.axisTitle(this.visualizationData.y_axis),
             },
-            margin: { l: 60, r: 30, t: 0, b: 10, pad: 4 },
-            legend: {
-                orientation: 'h',
-                x: 0,
-                y: -0.2,
-                xref: 'paper',
-                yref: 'paper',
-                font: {
-                    size: 16,
-                },
-                itemdoubleclick: "toggle",
-            },
+            ...this.getChartFrame(),
             images: this.getImagePosition(this.optimalview),
             showlegend: true,
         };
@@ -1627,6 +1401,11 @@ export class ScatterPlot extends LitElement {
     }
 
     setClassificationView(classificationType) {
+        if (classificationType === 'toggleKmeansVisibility' && this.dataPoints.length < 4) {
+            this.selectionNotice = 'K-means requires at least four participants.';
+            return;
+        }
+        this.selectionNotice = '';
         Plotly.redraw(this.graphDiv)
         if(classificationType == 'noClassification') {
             this.resetChart();
@@ -1667,29 +1446,16 @@ export class ScatterPlot extends LitElement {
 
             // Calculate Pareto Frontier
             const updatedVisibleTools = this.dataPoints.filter(tool => !tool.hidden);
-            const direction = this.formatOptimalDisplay(this.optimalview);
-            const newParetoPoints = pf.getParetoFrontier(updatedVisibleTools, { optimize: direction });
-            const newTraces = { x: [newParetoPoints.map(point => point[0])], y: [newParetoPoints.map(point => point[1])] };
+            const newTraces = this.getParetoTraceUpdate(updatedVisibleTools);
 
             if(this.layout) {
-                this.layout.annotation = this.getOptimizationArrow(this.optimalview);
+                this.layout.annotations = this.getOptimizationArrow(this.optimalview);
             }
 
             const layout = {
-                shapes: false ? shapes : [],
+                shapes: [],
                 annotations: this.getOptimizationArrow(this.optimalview),
-                margin: { l: 60, r: 30, t: 0, b: 10, pad: 4 },
-                legend: {
-                    orientation: 'h',
-                    x: 0,
-                    y: -0.2,
-                    xref: 'paper',
-                    yref: 'paper',
-                    font: {
-                        size: 16,
-                    },
-                    itemdoubleclick: "toggle",
-                },
+                ...this.getChartFrame(),
                 images: this.getImagePosition(this.optimalview),
                 showlegend: true
             };
@@ -1734,54 +1500,25 @@ export class ScatterPlot extends LitElement {
 
             // Calculate Pareto Frontier
             const updatedVisibleTools = this.dataPoints.filter(tool => !tool.hidden);
-            const direction = this.formatOptimalDisplay(this.optimalview);
-            const newParetoPoints = pf.getParetoFrontier(updatedVisibleTools, { optimize: direction });
-            const newTraces = { x: [newParetoPoints.map(point => point[0])], y: [newParetoPoints.map(point => point[1])] };
+            const newTraces = this.getParetoTraceUpdate(updatedVisibleTools);
 
 
             if(this.layout) {
-                this.layout.shapes = false ? shapes : [];
+                this.layout.shapes = [];
             }
 
             const layout = {
-                shapes: false ? shapes : [],
+                shapes: [],
                 annotations: this.getOptimizationArrow(this.optimalview),
                 xaxis: {
                     range: [this.optimalXaxis[0], this.optimalXaxis[1]],
-                    title: {
-                        text: this.visualizationData.x_axis,
-                        font: {
-                            family: 'Arial, sans-serif',
-                            size: 18,
-                            color: 'black',
-                            weight: 'bold',
-                        },
-                    },
+                    title: this.xAxisTitle(),
                 },
                 yaxis: {
                     range: [this.optimalYaxis[0], this.optimalYaxis[1]],
-                    title: {
-                        text: this.visualizationData.y_axis,
-                        font: {
-                            family: 'Arial, sans-serif',
-                            size: 18,
-                            color: 'black',
-                            weight: 'bold',
-                        },
-                    },
+                    title: this.axisTitle(this.visualizationData.y_axis),
                 },
-                margin: { l: 60, r: 30, t: 0, b: 10, pad: 4 },
-                legend: {
-                    orientation: 'h',
-                    x: 0,
-                    y: -0.2,
-                    xref: 'paper',
-                    yref: 'paper',
-                    font: {
-                        size: 16,
-                    },
-                    itemdoubleclick: "toggle",
-                },
+                ...this.getChartFrame(),
                 images: this.getImagePosition(this.optimalview),
                 showlegend: true
             };
@@ -1819,6 +1556,7 @@ export class ScatterPlot extends LitElement {
             this.viewKmeans = true;
             this.viewDefault = false;
             this.showShapesKmeans = true;
+            this.showAdditionalTable = true;
             this.viewSelected = this.viewText.kmeans;
 
             // Update visibility of Points
@@ -1826,14 +1564,12 @@ export class ScatterPlot extends LitElement {
 
             // Calculate Pareto Frontier
             const updatedVisibleTools = this.dataPoints.filter(tool => !tool.hidden);
-            const direction = this.formatOptimalDisplay(this.optimalview);
-            const newParetoPoints = pf.getParetoFrontier(updatedVisibleTools, { optimize: direction });
-            const newTraces = { x: [newParetoPoints.map(point => point[0])], y: [newParetoPoints.map(point => point[1])] };
+            const newTraces = this.getParetoTraceUpdate(updatedVisibleTools);
 
             // Update visibility of traces in legend
             const visibleArray = Array(numTraces).fill(true);
             const layout = {
-                shapes: false ? this.shapes : [],
+                shapes: [],
                 annotations: this.getOptimizationArrow(this.optimalview)
             };
 
@@ -1851,7 +1587,10 @@ export class ScatterPlot extends LitElement {
     // Get coordinates for line
     getDiagonalLine (scores, scoresCoords, quartile, better, maxX, maxY) {
         let target;
-        for(let i = 0; i < scores.length; i++){
+        if (scores.length === 1) {
+            target = [scoresCoords[scores[0]], scoresCoords[scores[0]]];
+        }
+        for(let i = 0; i < scores.length && !target; i++){
             if(scores[i] <= quartile){
 
                 // When la longitud de las tools es menor de la esperada se ejecuta este condicional.
@@ -1878,16 +1617,9 @@ export class ScatterPlot extends LitElement {
         let xCoords;
         let yCoords;
 
-        if (better == "bottom-right"){
-            xCoords = [halfPoint[0] - 2 * maxX, halfPoint[0] + 2 * maxX];
-            yCoords = [halfPoint[1] - 2 * maxY, halfPoint[1] + 2 * maxY];
-        } else if (better == "top-right"){
-            xCoords = [halfPoint[0] + 2 * maxX, halfPoint[0] - 2 * maxX];
-            yCoords = [halfPoint[1] - 2 * maxY, halfPoint[1] + 2 * maxY];
-        } else if (better == "top-left"){
-            xCoords = [halfPoint[0] + 2 * maxX, halfPoint[0] - 2 * maxX];
-            yCoords = [halfPoint[1] + 2 * maxY, halfPoint[1] - 2 * maxY];
-        };
+        const { xHigher, yHigher } = this.getCornerDirections(better);
+        xCoords = yHigher ? [halfPoint[0] + 2 * maxX, halfPoint[0] - 2 * maxX] : [halfPoint[0] - 2 * maxX, halfPoint[0] + 2 * maxX];
+        yCoords = xHigher ? [halfPoint[1] - 2 * maxY, halfPoint[1] + 2 * maxY] : [halfPoint[1] + 2 * maxY, halfPoint[1] - 2 * maxY];
 
         return [xCoords, yCoords];
     }
@@ -1947,8 +1679,8 @@ export class ScatterPlot extends LitElement {
                 ayAdjustment = -30;
                 break;
 
+            case 'bottom-left':
             default:
-                // By default, place the arrow in the upper left corner
                 arrowX = 0;
                 arrowY = 0;
                 axAdjustment = 30;
@@ -2036,24 +1768,18 @@ export class ScatterPlot extends LitElement {
         return ImagePositions
     }
 
-    getOptimalText() {
-        if(this.isOptimal) {
-            return html` ${ this.optimalTextReset } `;
-        } else {
-            return html` ${ this.optimalText } `;
-        }
-    }
-
     render() {
         return html`
-            <div class="bar-plot oeb-graph">
+            <div class="scatter-plot oeb-graph">
                 <div class="graph-row" id="graph-filters">
                     <div class="col-8">
                         <div class="btn-group btn-graphs" role="group" aria-label="">
                             <div class="dropdown classification-dropdown">
                                 <button type="button" class="btn dropbtn first-btn">
                                     <span>${ this.viewSelected }</span>
-                                    <div class="btn-icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg></div>
+                                    <div class="btn-icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                        <path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg>
+                                    </div>
                                 </button>
                                 <div class="dropdown-content">
                                     <div class="${ this.viewDefault ? 'active disabled' : '' }"
@@ -2076,11 +1802,14 @@ export class ScatterPlot extends LitElement {
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" id="optimalBtn" class="btn btn-secondary"
-                                @click="${ this.toggleView }">
-                                <span>${ this.getOptimalText() }</span>
-                            </button>
-                            <button type="button" id="optimalBtn" class="btn btn-secondary"
+                            <div class="view-switch" role="group" aria-label="Chart view">
+                                <span class="view-switch-label">View</span>
+                                <button type="button" class="btn view-option" aria-pressed="${!this.isOptimal}"
+                                    @click="${() => this.isOptimal && this.toggleView()}">Original</button>
+                                <button type="button" class="btn view-option" aria-pressed="${this.isOptimal}"
+                                    @click="${() => !this.isOptimal && this.toggleView()}">Optimal</button>
+                            </div>
+                            <button type="button" id="resetBtn" class="btn btn-secondary"
                                 @click="${ this.resetChart }">
                                 <span>Reset Chart</span>
                             </button>
@@ -2111,6 +1840,12 @@ export class ScatterPlot extends LitElement {
                         </div>
                     </div>
                 </div>
+                ${this.selectionNotice ? html`
+                    <div class="selection-notice" role="status">
+                        ${this.selectionNotice}
+                        <button type="button" @click=${() => { this.selectionNotice = ''; }}>Dismiss</button>
+                    </div>
+                ` : ''}
                 <div class="graph-row" id="todownload">
                     <div class=${ this.sorted ? 'col-8': 'col-12' } id="chartCapture">
                         <div class="chart" id="scatter-chart"></div>
@@ -2139,9 +1874,12 @@ export class ScatterPlot extends LitElement {
                                                 <ui-tooltip
                                                     for="anchor"
                                                     icon="info"
-                                                    textTitle="The Square quartile label"
-                                                    textBody="Quartiles 2 and 3 are 'Mid (M)', representing average rankings, while 'Top (T)' 
-                                                        denotes quartiles above average and 'Bottom (B)' those below, offering clarity in ranking.">
+                                                    .textTitle=${this.viewKmeans ? 'Clusters' : 'Quartile classification'}
+                                                    .textBody=${this.viewKmeans
+                                                        ? 'Participants are grouped into four clusters using both metrics. Hidden participants show --.'
+                                                        : this.viewDiagonal
+                                                        ? 'Quartile 1 is closest to the optimal corner; quartile 4 is furthest away. Hidden participants show --.'
+                                                        : 'Top is the optimal quadrant, Bottom is the opposite quadrant, and Interquartile covers the other two. Hidden participants show --.'}>
                                                 </ui-tooltip>
                                             </th>
                                         </tr>
@@ -2150,7 +1888,7 @@ export class ScatterPlot extends LitElement {
                                         ${ this.showAdditionalTable ? html`
                                             ${ this.quartileDataArray.map((quartile, index) => html`
                                                 <tr>
-                                                    <td class="toolColumn" @click="${() => handleTableRowClick(index) }">
+                                                    <td class="toolColumn" @click="${() => this.handleTableRowClick(index) }">
                                                         <div class="color-box" style="background-color: ${ this.markerColors[index % this.markerColors.length] }"></div>
                                                         <span>${ quartile.tool_id }</span>
                                                     </td>

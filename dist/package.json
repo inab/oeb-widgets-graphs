@@ -1,0 +1,13 @@
+{
+  "name": "@inb/oeb-widgets-graphs",
+  "version": "1.1.4",
+  "main": "oeb-widgets-graphs.umd.js",
+  "module": "oeb-widgets-graphs.es.js",
+  "exports": {
+    ".": {
+      "import": "./oeb-widgets-graphs.es.js",
+      "require": "./oeb-widgets-graphs.umd.js"
+    }
+  },
+  "license": "Apache-2.0"
+}

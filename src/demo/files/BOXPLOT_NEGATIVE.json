@@ -1,0 +1,75 @@
+{
+  "_id": "OEBDTEST_BX_NEG",
+  "dates": {
+    "modification": "2023-05-27T19:18:32Z"
+  },
+  "inline_data": {
+    "challenge_participants": [
+      {
+        "name": "Tool_1",
+        "metric_id": "score difference",
+        "q1": -2.06,
+        "mean": -1.46,
+        "median": -1.5,
+        "q3": -0.94,
+        "lowerfence": -2.94,
+        "upperfence": -0.06
+      },
+      {
+        "name": "Tool_2",
+        "metric_id": "score difference",
+        "q1": -0.02,
+        "mean": 0.43,
+        "median": 0.4,
+        "q3": 0.82,
+        "lowerfence": -0.68,
+        "upperfence": 1.48
+      },
+      {
+        "name": "Tool_3",
+        "metric_id": "score difference",
+        "q1": -3.97,
+        "mean": -3.145,
+        "median": -3.2,
+        "q3": -2.43,
+        "lowerfence": -5.18,
+        "upperfence": -1.22
+      },
+      {
+        "name": "Tool_4",
+        "metric_id": "score difference",
+        "q1": 1.45,
+        "mean": 1.825,
+        "median": 1.8,
+        "q3": 2.15,
+        "lowerfence": 0.9,
+        "upperfence": 2.7
+      },
+      {
+        "name": "Tool_5",
+        "metric_id": "score difference",
+        "q1": -0.83,
+        "mean": -0.155,
+        "median": -0.2,
+        "q3": 0.43,
+        "lowerfence": -1.82,
+        "upperfence": 1.42
+      },
+      {
+        "name": "Tool_6",
+        "metric_id": "score difference",
+        "q1": 2.01,
+        "mean": 2.535,
+        "median": 2.5,
+        "q3": 2.99,
+        "lowerfence": 1.24,
+        "upperfence": 3.76
+      }
+    ],
+    "visualization": {
+      "type": "box-plot",
+      "y_axis": "score difference",
+      "optimization": "minimum"
+    }
+  }
+}

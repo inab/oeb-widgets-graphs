@@ -1350,6 +1350,60 @@ export const graphStyles = css`
         background-color: #ddd;
     }
 
+    .view-switch {
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+        background: #f7f7f7;
+        border: 1px solid #dfe3ee;
+        padding: 3px;
+        gap: 2px;
+    }
+
+    .view-switch-label {
+        padding: 0 6px;
+        color: #555;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .btn-group.btn-graphs .view-option {
+        border: 0;
+        border-radius: 3px;
+        padding: 6px 9px;
+    }
+
+    .btn-group.btn-graphs .view-option[aria-pressed="true"] {
+        background: #0b579f;
+        color: white;
+    }
+
+    .btn-group.btn-graphs .view-option:focus-visible {
+        outline: 2px solid #0b579f;
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 640px) {
+        #graph-filters .col-8 {
+            width: 100%;
+        }
+
+        .btn-group.btn-graphs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        #todownload {
+            flex-direction: column;
+        }
+
+        #todownload > .col-8,
+        #todownload > .col-4 {
+            width: 100%;
+        }
+    }
+
     .oeb-graph {
         font-family: "Roboto", sans-serif;
         padding: 10px;
@@ -1358,6 +1412,16 @@ export const graphStyles = css`
 
     .tools-col {
         padding-left: 10px;
+    }
+
+    .legend-hint {
+        margin: 0 0 8px;
+        color: #555;
+        font-size: 13px;
+    }
+
+    #bar-chart .plotly .nsewdrag {
+        cursor: default;
     }
 
     .tools-table {
@@ -1383,6 +1447,7 @@ export const graphStyles = css`
         border: 1px solid #e0e0e0;
         padding: 10px;
         font-size: 16px !important;
+        cursor: default;
     }
 
     .tools-table .tools-th {
@@ -1391,6 +1456,24 @@ export const graphStyles = css`
 
     .tools-table .classify-th {
         width: 40%;
+    }
+
+    .line-plot .tools-table .tools-th,
+    .line-plot .tools-table .classify-th {
+        width: auto;
+    }
+
+    @media (max-width: 900px) {
+        .line-plot .tools-table {
+            table-layout: fixed;
+        }
+
+        .line-plot .tools-table th,
+        .line-plot .tools-table td {
+            padding: 6px;
+            font-size: 13px !important;
+            overflow-wrap: anywhere;
+        }
     }
 
     #chartCapture {
@@ -1434,6 +1517,110 @@ export const graphStyles = css`
         padding: 5px 25px;
     }
 
+    .scatter-plot .info-table {
+        padding-top: 20px;
+    }
+
+    .scatter-plot {
+        container: scatter / inline-size;
+    }
+
+    @container scatter (max-width: 900px) {
+        .scatter-plot #graph-filters .col-8 {
+            width: 100%;
+        }
+
+        .scatter-plot .btn-group.btn-graphs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .scatter-plot #todownload {
+            flex-direction: column;
+        }
+
+        .scatter-plot #todownload > .col-8,
+        .scatter-plot #todownload > .col-4 {
+            width: 100%;
+        }
+
+        .scatter-plot .tools-col {
+            padding-left: 0;
+            margin-top: 16px;
+        }
+
+        .scatter-plot .tools-table {
+            table-layout: fixed;
+        }
+
+        .scatter-plot .tools-table th,
+        .scatter-plot .tools-table td {
+            overflow-wrap: anywhere;
+        }
+
+        .scatter-plot .toolColumn span {
+            max-width: calc(100% - 25px);
+        }
+    }
+
+    @container scatter (max-width: 480px) {
+        .scatter-plot .info-table {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .scatter-plot .custom-table {
+            table-layout: fixed;
+        }
+
+        .scatter-plot .custom-table th,
+        .scatter-plot .custom-table td {
+            font-size: 12px !important;
+            overflow-wrap: anywhere;
+        }
+
+        .scatter-plot .btn-group.btn-graphs {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .scatter-plot .classification-dropdown,
+        .scatter-plot .view-switch {
+            grid-column: 1 / -1;
+        }
+
+        .scatter-plot .view-switch {
+            justify-content: center;
+        }
+
+        .scatter-plot .download-btn {
+            min-width: 0;
+            width: 100%;
+        }
+
+        .scatter-plot .download-dropdown .dropdown-content {
+            right: 0;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .info-table {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .custom-table {
+            table-layout: fixed;
+        }
+
+        .custom-table th,
+        .custom-table td {
+            font-size: 12px !important;
+            overflow-wrap: anywhere;
+        }
+    }
+
     .dropbtn {
         background-color: rgb(247, 247, 247);
         border: 1px solid rgb(223, 227, 238);
@@ -1467,13 +1654,13 @@ export const graphStyles = css`
 
     .dropbtn {
         display: flex;
-        align-content: baseline;
+        align-items: center;
         justify-content: center;
     }
 
     .dropbtn.first-btn .btn-icon-wrapper,
     .dropbtn.download-btn .btn-icon-wrapper {
-        padding: 1px 5px 0px 20px;
+        padding: 0 5px 0 20px;
     }
 
     .dropbtn.first-btn svg,
@@ -1491,7 +1678,7 @@ export const graphStyles = css`
     .download-btn {
         min-width: 175px;
         display: flex;
-        align-content: baseline;
+        align-items: center;
         justify-content: center;
     }
 
@@ -1537,6 +1724,15 @@ export const graphStyles = css`
         display: block;
     }
 
+    .scatter-plot .dropdown:focus-within .dropdown-content {
+        display: block;
+    }
+
+    .scatter-plot .dropdown:hover,
+    .scatter-plot .dropdown:focus-within {
+        z-index: 2;
+    }
+
     .dropdown .btn-icon-wrapper {
         padding-left: 15px;
     }
@@ -1550,9 +1746,27 @@ export const graphStyles = css`
         transform: rotate(-90deg) translateY(0);
     }
 
-    .toolColumn {
+    .tools-table td.toolColumn {
         cursor: pointer;
         position: relative;
+    }
+
+    .selection-notice {
+        margin: 8px 0;
+        padding: 8px 12px;
+        color: #664d03;
+        background: #fff3cd;
+        border: 1px solid #ffecb5;
+        border-radius: 4px;
+    }
+
+    .selection-notice button {
+        margin-left: 8px;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        text-decoration: underline;
     }
 
     .toolColumn .color-box {

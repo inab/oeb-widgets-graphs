@@ -1,0 +1,326 @@
+{
+  "series_type": "aggregation-data-series",
+  "challenge_participants": [
+    {
+      "label": "Tool_A",
+      "metric_id": "PEAK_RAM",
+      "values": [
+        {
+          "v": 350,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_A",
+      "metric_id": "CPU_MEAN",
+      "values": [
+        {
+          "v": 95,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_A",
+      "metric_id": "RUNTIME",
+      "values": [
+        {
+          "v": 120,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_A",
+      "metric_id": "DISK_IO",
+      "values": [
+        {
+          "v": 800,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_A",
+      "metric_id": "ACCURACY",
+      "values": [
+        {
+          "v": 0.91,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_A",
+      "metric_id": "THROUGHPUT",
+      "values": [
+        {
+          "v": 52000,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_B",
+      "metric_id": "PEAK_RAM",
+      "values": [
+        {
+          "v": 12000,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_B",
+      "metric_id": "CPU_MEAN",
+      "values": [
+        {
+          "v": 380,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_B",
+      "metric_id": "RUNTIME",
+      "values": [
+        {
+          "v": 45,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_B",
+      "metric_id": "DISK_IO",
+      "values": [
+        {
+          "v": 25000,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_B",
+      "metric_id": "ACCURACY",
+      "values": [
+        {
+          "v": 0.93,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_B",
+      "metric_id": "THROUGHPUT",
+      "values": [
+        {
+          "v": 310000,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_C",
+      "metric_id": "PEAK_RAM",
+      "values": [
+        {
+          "v": 2800,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_C",
+      "metric_id": "CPU_MEAN",
+      "values": [
+        {
+          "v": 150,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_C",
+      "metric_id": "RUNTIME",
+      "values": [
+        {
+          "v": 600,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_C",
+      "metric_id": "DISK_IO",
+      "values": [
+        {
+          "v": 3000,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_C",
+      "metric_id": "ACCURACY",
+      "values": [
+        {
+          "v": 0.88,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_C",
+      "metric_id": "THROUGHPUT",
+      "values": [
+        {
+          "v": 9000,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_D",
+      "metric_id": "PEAK_RAM",
+      "values": [
+        {
+          "v": 90,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_D",
+      "metric_id": "CPU_MEAN",
+      "values": [
+        {
+          "v": 40,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_D",
+      "metric_id": "RUNTIME",
+      "values": [
+        {
+          "v": 2400,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_D",
+      "metric_id": "DISK_IO",
+      "values": [
+        {
+          "v": 150,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_D",
+      "metric_id": "ACCURACY",
+      "values": [
+        {
+          "v": 0.85,
+          "e": 0
+        }
+      ]
+    },
+    {
+      "label": "Tool_D",
+      "metric_id": "THROUGHPUT",
+      "values": [
+        {
+          "v": 1500,
+          "e": 0
+        }
+      ]
+    }
+  ],
+  "visualization": {
+    "available_metrics": [
+      "PEAK_RAM",
+      "CPU_MEAN",
+      "RUNTIME",
+      "DISK_IO",
+      "ACCURACY",
+      "THROUGHPUT"
+    ],
+    "representations": [
+      {
+        "type": "radar-plot",
+        "metrics_series": [
+          {
+            "metric_id": "PEAK_RAM",
+            "title": "Peak RAM usage",
+            "optimization": "minimize",
+            "scale": "log",
+            "unit": "MB"
+          },
+          {
+            "metric_id": "CPU_MEAN",
+            "title": "Mean CPU usage",
+            "optimization": "minimize",
+            "scale": "linear",
+            "unit": "%",
+            "min": 0,
+            "max": 800
+          },
+          {
+            "metric_id": "RUNTIME",
+            "title": "Wall-clock runtime",
+            "optimization": "minimize",
+            "scale": "log",
+            "unit": "s"
+          },
+          {
+            "metric_id": "DISK_IO",
+            "title": "Disk I/O",
+            "optimization": "minimize",
+            "scale": "log",
+            "unit": "MB"
+          },
+          {
+            "metric_id": "ACCURACY",
+            "title": "Accuracy",
+            "optimization": "maximize",
+            "scale": "linear",
+            "min": 0,
+            "max": 1
+          },
+          {
+            "metric_id": "THROUGHPUT",
+            "title": "Throughput",
+            "optimization": "maximize",
+            "scale": "log",
+            "unit": "reads/s"
+          }
+        ],
+        "type_group_id": "radar-technical"
+      }
+    ]
+  },
+  "labels": [
+    {
+      "label": "Tool_A",
+      "dataset_orig_id": "OEBDTECHA"
+    },
+    {
+      "label": "Tool_B",
+      "dataset_orig_id": "OEBDTECHB"
+    },
+    {
+      "label": "Tool_C",
+      "dataset_orig_id": "OEBDTECHC"
+    },
+    {
+      "label": "Tool_D",
+      "dataset_orig_id": "OEBDTECHD"
+    }
+  ]
+}
