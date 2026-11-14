@@ -132,7 +132,13 @@ Alternatively, a built UMD bundle can be loaded directly:
 ### Bar plot
 
 Compares participants using one metric. Results can be sorted and classified
-into quartiles, shown alongside the chart in a table.
+into quartiles, shown alongside the chart in a table. Negative values are
+supported; the original view includes the zero baseline. Results are ranked
+highest first by default; set `visualization.optimization` to `"minimize"` to
+rank lowest first (and make the lowest quartile the best one). Once sorted,
+a "Reverse Order" button lets the user invert the display order; quartile
+classification is not affected. The view selector shows whether the original
+or optimal axis range is active.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/barplot.html) |
 [Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BARPLOT.json)
@@ -143,7 +149,12 @@ into quartiles, shown alongside the chart in a table.
 
 Compares participants on two metrics. Available classifications include square
 quartiles, diagonal quartiles based on distance from the optimal corner, and
-K-means clustering.
+K-means clustering. The view selector shows the active axis range; changing
+views preserves the selected participants.
+At least one participant must remain visible; K-means needs at least four
+participants. A message explains when a selection reaches the limit.
+On narrow screens or in narrow containers, the classification table moves
+below the chart. Scroll the legend to reach additional participants.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/scatterplot.html) |
 [Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/SCATTERPLOT.json)
@@ -153,7 +164,11 @@ K-means clustering.
 ### Box plot
 
 Shows the distribution of each participant's metric using summary statistics.
-Participants can be ordered by minimum or maximum median value.
+Participants can be ordered by minimum or maximum median value, or returned
+to the input order with Default Sort. Median values in the table and plot hover
+values display five decimal places; sorting uses the original precision. The
+table shows `--` for hidden participants. At least one participant must remain
+visible.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/boxplot.html) |
 [Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BOXPLOT.json)
@@ -163,22 +178,60 @@ Participants can be ordered by minimum or maximum median value.
 ### Radar plot
 
 Compares multiple metrics on axes radiating from a common center, with one
-trace per tool. Values are not normalized across metrics; metrics with different
-scales or units should be interpreted with care. Metrics marked for
-minimization are plotted with their values negated.
+trace per tool. It has two modes, chosen by the metric definitions in
+`metrics_series`. Click a participant in the legend to show or hide it.
+
+**Standard mode** (default). Values are plotted as they are, without
+normalization, so it is only reliable when all metrics share a similar scale.
+Metrics marked for minimization are plotted with their values negated.
+
+**Normalized mode**, for metrics with different units or unbounded ranges, such
+as technical benchmarking (e.g. peak RAM vs. mean CPU). It is enabled when any
+metric declares `"scale": "linear"` or `"log"`, optionally with `unit`, `min`
+and `max`. Every axis is then normalized to 0-1 with the best result on the
+outside (minimized metrics are inverted). Use `"log"` for values spanning orders
+of magnitude (MB vs. GB) and `min`/`max` to fix ranges such as 0-1 vs. 0-100
+(or more for parallel CPU usage). Hover shows the real value with its unit.
+
+```json
+{ "metric_id": "PEAK_RAM", "title": "Peak RAM usage", "optimization": "minimize",
+  "scale": "log", "unit": "MB" }
+```
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/radarplot.html) |
-[Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT_NEW.json)
+Example data: [standard](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT.json),
+[normalized](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT_TECHNICAL.json)
 
 <img width="320" height="240" alt="Radar plot example" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/radar-plot.gif?raw=true" />
 
 ### Line plot
 
 Displays relationships between numerical variables with connected data points,
-allowing trends and multiple datasets to be compared.
+allowing trends and multiple datasets to be compared. By default, a diagonal
+random-classifier reference line is shown. For ROC curves it represents chance:
+the true positive rate equals the false positive rate, with AUC 0.5 over [0, 1].
+Set `inline_data.visualization.show_random_classifier` to `false` for other
+plots, such as precision-recall curves. The line is excluded from
+classification and statistical calculations. No precision-recall baseline is
+calculated automatically. Click a legend entry to show or hide a curve; at
+least one participant must remain visible. Statistics continue to use all
+participants, regardless of visibility.
+
+The Quartiles (AUC) and Average (AUC) views compare the area under each curve
+over the X range shared by all participants, using linear interpolation at the
+range boundaries. The Y-axis optimization determines whether a higher or lower
+area is better. These comparisons require finite points, monotonic X values,
+and a nonzero shared X range. In these views, the legend labels identify each
+curve's classification, and the table lists its shared-range AUC with a
+tooltip explaining the calculation. The plot
+shows the shared X range and, in Average view, the mean AUC across all
+participants. This mean is a number, not a participant curve. Outside these
+comparison views, AUC annotations use each curve's full input range.
+The interquartile-range table instead pools all participant points on each axis.
 
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/lineplot.html) |
-[Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT_NEW.json)
+Example data: [ROC](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT.json),
+[precision-recall](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT_PRECISION_RECALL.json)
 
 <img width="500" height="400" alt="Line plot example" src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/25e27732a42364a677df669c70f1512d5058e7d3/docs/assets/videos/line-plot-new.gif?raw=true" />
 

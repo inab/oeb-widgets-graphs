@@ -162044,6 +162044,60 @@ ${s.shaderPreludeCode.vertexSource}`,
         background-color: #ddd;
     }
 
+    .view-switch {
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+        background: #f7f7f7;
+        border: 1px solid #dfe3ee;
+        padding: 3px;
+        gap: 2px;
+    }
+
+    .view-switch-label {
+        padding: 0 6px;
+        color: #555;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .btn-group.btn-graphs .view-option {
+        border: 0;
+        border-radius: 3px;
+        padding: 6px 9px;
+    }
+
+    .btn-group.btn-graphs .view-option[aria-pressed="true"] {
+        background: #0b579f;
+        color: white;
+    }
+
+    .btn-group.btn-graphs .view-option:focus-visible {
+        outline: 2px solid #0b579f;
+        outline-offset: 2px;
+    }
+
+    @media (max-width: 640px) {
+        #graph-filters .col-8 {
+            width: 100%;
+        }
+
+        .btn-group.btn-graphs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        #todownload {
+            flex-direction: column;
+        }
+
+        #todownload > .col-8,
+        #todownload > .col-4 {
+            width: 100%;
+        }
+    }
+
     .oeb-graph {
         font-family: "Roboto", sans-serif;
         padding: 10px;
@@ -162052,6 +162106,16 @@ ${s.shaderPreludeCode.vertexSource}`,
 
     .tools-col {
         padding-left: 10px;
+    }
+
+    .legend-hint {
+        margin: 0 0 8px;
+        color: #555;
+        font-size: 13px;
+    }
+
+    #bar-chart .plotly .nsewdrag {
+        cursor: default;
     }
 
     .tools-table {
@@ -162077,6 +162141,7 @@ ${s.shaderPreludeCode.vertexSource}`,
         border: 1px solid #e0e0e0;
         padding: 10px;
         font-size: 16px !important;
+        cursor: default;
     }
 
     .tools-table .tools-th {
@@ -162085,6 +162150,24 @@ ${s.shaderPreludeCode.vertexSource}`,
 
     .tools-table .classify-th {
         width: 40%;
+    }
+
+    .line-plot .tools-table .tools-th,
+    .line-plot .tools-table .classify-th {
+        width: auto;
+    }
+
+    @media (max-width: 900px) {
+        .line-plot .tools-table {
+            table-layout: fixed;
+        }
+
+        .line-plot .tools-table th,
+        .line-plot .tools-table td {
+            padding: 6px;
+            font-size: 13px !important;
+            overflow-wrap: anywhere;
+        }
     }
 
     #chartCapture {
@@ -162128,6 +162211,110 @@ ${s.shaderPreludeCode.vertexSource}`,
         padding: 5px 25px;
     }
 
+    .scatter-plot .info-table {
+        padding-top: 20px;
+    }
+
+    .scatter-plot {
+        container: scatter / inline-size;
+    }
+
+    @container scatter (max-width: 900px) {
+        .scatter-plot #graph-filters .col-8 {
+            width: 100%;
+        }
+
+        .scatter-plot .btn-group.btn-graphs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .scatter-plot #todownload {
+            flex-direction: column;
+        }
+
+        .scatter-plot #todownload > .col-8,
+        .scatter-plot #todownload > .col-4 {
+            width: 100%;
+        }
+
+        .scatter-plot .tools-col {
+            padding-left: 0;
+            margin-top: 16px;
+        }
+
+        .scatter-plot .tools-table {
+            table-layout: fixed;
+        }
+
+        .scatter-plot .tools-table th,
+        .scatter-plot .tools-table td {
+            overflow-wrap: anywhere;
+        }
+
+        .scatter-plot .toolColumn span {
+            max-width: calc(100% - 25px);
+        }
+    }
+
+    @container scatter (max-width: 480px) {
+        .scatter-plot .info-table {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .scatter-plot .custom-table {
+            table-layout: fixed;
+        }
+
+        .scatter-plot .custom-table th,
+        .scatter-plot .custom-table td {
+            font-size: 12px !important;
+            overflow-wrap: anywhere;
+        }
+
+        .scatter-plot .btn-group.btn-graphs {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .scatter-plot .classification-dropdown,
+        .scatter-plot .view-switch {
+            grid-column: 1 / -1;
+        }
+
+        .scatter-plot .view-switch {
+            justify-content: center;
+        }
+
+        .scatter-plot .download-btn {
+            min-width: 0;
+            width: 100%;
+        }
+
+        .scatter-plot .download-dropdown .dropdown-content {
+            right: 0;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .info-table {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .custom-table {
+            table-layout: fixed;
+        }
+
+        .custom-table th,
+        .custom-table td {
+            font-size: 12px !important;
+            overflow-wrap: anywhere;
+        }
+    }
+
     .dropbtn {
         background-color: rgb(247, 247, 247);
         border: 1px solid rgb(223, 227, 238);
@@ -162161,13 +162348,13 @@ ${s.shaderPreludeCode.vertexSource}`,
 
     .dropbtn {
         display: flex;
-        align-content: baseline;
+        align-items: center;
         justify-content: center;
     }
 
     .dropbtn.first-btn .btn-icon-wrapper,
     .dropbtn.download-btn .btn-icon-wrapper {
-        padding: 1px 5px 0px 20px;
+        padding: 0 5px 0 20px;
     }
 
     .dropbtn.first-btn svg,
@@ -162185,7 +162372,7 @@ ${s.shaderPreludeCode.vertexSource}`,
     .download-btn {
         min-width: 175px;
         display: flex;
-        align-content: baseline;
+        align-items: center;
         justify-content: center;
     }
 
@@ -162231,6 +162418,15 @@ ${s.shaderPreludeCode.vertexSource}`,
         display: block;
     }
 
+    .scatter-plot .dropdown:focus-within .dropdown-content {
+        display: block;
+    }
+
+    .scatter-plot .dropdown:hover,
+    .scatter-plot .dropdown:focus-within {
+        z-index: 2;
+    }
+
     .dropdown .btn-icon-wrapper {
         padding-left: 15px;
     }
@@ -162244,9 +162440,27 @@ ${s.shaderPreludeCode.vertexSource}`,
         transform: rotate(-90deg) translateY(0);
     }
 
-    .toolColumn {
+    .tools-table td.toolColumn {
         cursor: pointer;
         position: relative;
+    }
+
+    .selection-notice {
+        margin: 8px 0;
+        padding: 8px 12px;
+        color: #664d03;
+        background: #fff3cd;
+        border: 1px solid #ffecb5;
+        border-radius: 4px;
+    }
+
+    .selection-notice button {
+        margin-left: 8px;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        text-decoration: underline;
     }
 
     .toolColumn .color-box {
@@ -185583,20 +185797,36 @@ var Zu = /* @__PURE__ */ t(((e, t, n) => {
   .popover__wrapper {
     position: relative;
     display: inline-block;
+    vertical-align: middle;
+  }
+
+  .quartile-info {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border: 0;
+    background: transparent;
+    cursor: help;
+  }
+
+  .quartile-info:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
   }
 
   .popover__content {
     opacity: 0;
     visibility: hidden;
     position: absolute;
-    left: -150px;
-    top: 65px;
-    transform: translate(0, 10px);
-    background-color: rgba(0, 0, 0, .7);
-    padding: .6rem 1.5rem;
+    right: -8px;
+    top: calc(100% + 8px);
+    background-color: #303943;
+    color: white;
+    padding: .7rem;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
-    width: auto;
-    min-width: 200px;
+    width: min(240px, calc(100vw - 48px));
+    border-radius: 4px;
     font-size: 14px;
   }
 
@@ -185604,30 +185834,50 @@ var Zu = /* @__PURE__ */ t(((e, t, n) => {
     position: absolute;
     z-index: -1;
     content: "";
-    right: calc(50% - 10px);
+    right: 12px;
     top: -8px;
     border-style: solid;
     border-width: 0 10px 10px 10px;
-    border-color: transparent transparent rgba(0, 0, 0, .7) transparent;
+    border-color: transparent transparent #303943 transparent;
     transition-duration: 0.3s;
     transition-property: transform;
   }
 
-  .popover__wrapper:hover .popover__content {
+  .popover__wrapper:hover .popover__content,
+  .popover__wrapper:focus-within .popover__content {
     z-index: 10;
     opacity: 1;
     visibility: visible;
-    transform: translate(0, -20px);
-    transition: all 0.5s cubic-bezier(0.75, -0.02, 0.2, 0.97);
+  }
+
+  @media (max-width: 640px) {
+    .popover__content {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      top: auto;
+      bottom: 12px;
+      width: auto;
+      max-height: calc(100vh - 24px);
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+
+    .popover__content:before {
+      display: none;
+    }
   }
 
   .popover__message__title {
     text-align: center;
+    margin: 0 0 .4rem;
   }
   
   .popover__message__body {
     text-align: center;
     font-weight: normal;
+    margin: 0;
+    white-space: pre-line;
   }
 `, ed = class extends me {
 	static get styles() {
@@ -185658,16 +185908,18 @@ var Zu = /* @__PURE__ */ t(((e, t, n) => {
         <div class="popover__wrapper">
             ${this.icon ? J`
                 <div class="popover__title">
-                    <span class="quartile-info" id="anchor">
-                        <svg fill="#ffffff" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="20px" viewBox="0 0 416.979 416.979" xml:space="preserve" stroke="#ffffff">
+                    <button type="button" class="quartile-info" id="anchor"
+                        aria-label="${this.textTitle ? `More information: ${this.textTitle}` : "More information"}"
+                        aria-describedby="tooltip-content">
+                        <svg aria-hidden="true" fill="#ffffff" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 416.979 416.979" xml:space="preserve" stroke="#ffffff">
                         <g id="SVGRepo_bgCarrier" stroke-width="0"/>
                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.833958"/>
                         <g id="SVGRepo_iconCarrier"> <g> <path d="M356.004,61.156c-81.37-81.47-213.377-81.551-294.848-0.182c-81.47,81.371-81.552,213.379-0.181,294.85 c81.369,81.47,213.378,81.551,294.849,0.181C437.293,274.636,437.375,142.626,356.004,61.156z M237.6,340.786 c0,3.217-2.607,5.822-5.822,5.822h-46.576c-3.215,0-5.822-2.605-5.822-5.822V167.885c0-3.217,2.607-5.822,5.822-5.822h46.576 c3.215,0,5.822,2.604,5.822,5.822V340.786z M208.49,137.901c-18.618,0-33.766-15.146-33.766-33.765 c0-18.617,15.147-33.766,33.766-33.766c18.619,0,33.766,15.148,33.766,33.766C242.256,122.755,227.107,137.901,208.49,137.901z"/> </g> </g>
                         </svg>
-                    </span>
+                    </button>
                 </div>
             ` : ""}
-            <div class="popover__content">
+            <div class="popover__content" id="tooltip-content" role="tooltip">
                 ${this.textTitle ? J`
                     <p class="popover__message__title">${this.textTitle}</p>
                 ` : ""}
@@ -185695,32 +185947,31 @@ var td = {
 		sorted: !1,
 		showAdditionalTable: !1,
 		isOptimal: !1,
+		isReversed: !1,
 		isDownloading: !1
 	};
 	constructor() {
-		super(), this.imgLogo = ye, this.datasetModDate = "", this.originalData = "", this.layout = {}, this.staticNode = null, this.sortOrder = "raw", this.optimal = "no", this.quartileDataArray = [], this.sortText = "Sort & Classify Data", this.sortTextRaw = "Return To Raw Results", this.optimalText = "Optimal View", this.optimalTextReset = "Original View", this.isDownloading = !1;
+		super(), this.imgLogo = ye, this.datasetModDate = "", this.originalData = "", this.layout = {}, this.staticNode = null, this.sortOrder = "raw", this.isReversed = !1, this.optimal = "no", this.quartileDataArray = [], this.sortText = "Sort & Classify Data", this.sortTextRaw = "Return To Raw Results", this.isOptimal = !1, this.isDownloading = !1;
 	}
 	attributeChangedCallback(e, t, n) {
 		this.data = JSON.parse(n), super.attributeChangedCallback(e, t, JSON.parse(n));
 	}
-	updated() {
-		this.graphDiv = this.shadowRoot.querySelector("#bar-chart"), this.todoDownload = this.shadowRoot.querySelector("#todownload"), this.chartCapture = this.shadowRoot.querySelector("#chartCapture"), this.myPlot = ge.default.newPlot(this.graphDiv, [], this.layout, {
+	updated(e) {
+		this.graphDiv = this.shadowRoot.querySelector("#bar-chart"), this.todoDownload = this.shadowRoot.querySelector("#todownload"), this.chartCapture = this.shadowRoot.querySelector("#chartCapture"), e.has("data") || !this.graphDiv.data ? (this.myPlot = ge.default.newPlot(this.graphDiv, [], this.layout, {
 			displayModeBar: !1,
 			responsive: !0,
 			hovermode: !1
-		}), this.renderChart();
+		}), this.renderChart()) : e.has("sorted") && ge.default.Plots.resize(this.graphDiv);
 	}
 	renderChart() {
 		if (this.data) {
 			let e = this.data.inline_data;
-			this.datasetId = this.data._id, this.datasetModDate = this.data.dates.modification, this.originalData = this.data;
-			let t = Math.max(...e.challenge_participants.map((e) => e.metric_value));
-			this.x = e.challenge_participants.map((e) => e.tool_id);
-			let n = e.challenge_participants.map(() => 0), r = Array(this.x.length).fill("#0b579f"), i = {
+			this.datasetId = this.data._id, this.datasetModDate = this.data.dates.modification, this.originalData = this.data, this.datasetPolarity = e.visualization.optimization === "minimize" ? "minimum" : "maximum", this.x = e.challenge_participants.map((e) => e.tool_id);
+			let t = e.challenge_participants.map(() => 0), n = Array(this.x.length).fill("#0b579f"), r = {
 				x: this.x,
-				y: n,
+				y: t,
 				type: "bar",
-				marker: { color: r }
+				marker: { color: n }
 			};
 			this.layout = {
 				title: "",
@@ -185752,7 +186003,7 @@ var td = {
 						}
 					},
 					fixedrange: !0,
-					range: [0, t + .1],
+					range: this.getDefaultRange(e.challenge_participants.map((e) => e.metric_value)),
 					tickfont: { size: 14 }
 				},
 				margin: {
@@ -185763,7 +186014,7 @@ var td = {
 					pad: 4
 				},
 				images: this.getImagePosition()
-			}, this.showAdditionalTable && this.addQuartileLabels(), this.repaintGraphHover(), ge.default.newPlot(this.graphDiv, [i], this.layout, td);
+			}, this.showAdditionalTable && this.addQuartileLabels(), this.repaintGraphHover(), ge.default.newPlot(this.graphDiv, [r], this.layout, td);
 		}
 	}
 	connectedCallback() {
@@ -185838,24 +186089,43 @@ var td = {
 	async toggleSortOrder() {
 		if (this.sortOrder === "raw") {
 			this.sorted = !0, ge.default.Plots.resize(this.graphDiv), await new Promise((e) => setTimeout(e, 100)), this.showAdditionalTable = !0;
-			let e = this.originalData.inline_data.challenge_participants.slice().sort((e, t) => t.metric_value - e.metric_value);
+			let e = this.getSortedParticipants();
 			this.updateChart(e), this.animateBars(e), this.quartileData = this.calculateQuartiles(e), this.quartileDataArray = this.getQuartileData(this.quartileData), this.addLinesBetweenQuartiles(), this.addQuartileLabels(), ge.default.update(this.graphDiv);
-		} else this.sorted = !1, ge.default.Plots.resize(this.graphDiv), await new Promise((e) => setTimeout(e, 100)), this.showAdditionalTable = !1, this.updateChart(this.originalData.inline_data.challenge_participants), this.animateBars(this.originalData.inline_data.challenge_participants), this.quartileData = {}, this.quartileDataArray = {}, this.removeLinesBetweenQuartiles(), this.clearQuartileLabels();
+		} else this.sorted = !1, this.isReversed = !1, ge.default.Plots.resize(this.graphDiv), await new Promise((e) => setTimeout(e, 100)), this.showAdditionalTable = !1, this.updateChart(this.originalData.inline_data.challenge_participants), this.animateBars(this.originalData.inline_data.challenge_participants), this.quartileData = {}, this.quartileDataArray = {}, this.removeLinesBetweenQuartiles(), this.clearQuartileLabels();
 		this.sortOrder = this.sortOrder === "raw" ? "sorted" : "raw";
+	}
+	async toggleReverse() {
+		if (this.isReversed = !this.isReversed, this.sortOrder === "raw") return;
+		let e = this.getSortedParticipants();
+		this.updateChart(e), this.animateBars(e), this.quartileData = this.calculateQuartiles(e), this.quartileDataArray = this.getQuartileData(this.quartileData), this.removeLinesBetweenQuartiles(), this.clearQuartileLabels(), this.addLinesBetweenQuartiles(), this.addQuartileLabels(), ge.default.update(this.graphDiv);
+	}
+	getSortedParticipants() {
+		let e = (this.datasetPolarity === "minimum" ? 1 : -1) * (this.isReversed ? -1 : 1);
+		return this.originalData.inline_data.challenge_participants.slice().sort((t, n) => e * (t.metric_value - n.metric_value));
+	}
+	getDefaultRange(e) {
+		let t = Math.min(0, ...e), n = Math.max(0, ...e), r = (n - t) * .05 || .1;
+		return [t < 0 ? t - r : 0, n > 0 ? n + r : 0];
+	}
+	getOptimalRange(e) {
+		let t = Math.min(...e), n = Math.max(...e), r = n - t;
+		if (r === 0) return this.getDefaultRange(e);
+		let i = t - r * .2, a = n + r * .08;
+		return [t >= 0 ? Math.max(0, i) : i, n <= 0 ? Math.min(0, a) : a];
 	}
 	async toggleOptimal() {
 		try {
 			if (this.optimal === "no") {
 				this.isOptimal = !0, ge.default.Plots.resize(this.graphDiv), await new Promise((e) => setTimeout(e, 100));
 				let e;
-				e = this.sortOrder === "raw" ? this.originalData.inline_data.challenge_participants : this.originalData.inline_data.challenge_participants.slice().sort((e, t) => t.metric_value - e.metric_value);
-				let t = e.map((e) => e.metric_value), n = Math.min(...t), r = Math.max(...t), i = r - n, a = Math.max(0, n - i * .2), o = r + i * .08;
-				ge.default.relayout(this.graphDiv, { "yaxis.range": [a, o] }), this.animateBars(e);
+				e = this.sortOrder === "raw" ? this.originalData.inline_data.challenge_participants : this.getSortedParticipants();
+				let t = e.map((e) => e.metric_value);
+				ge.default.relayout(this.graphDiv, { "yaxis.range": this.getOptimalRange(t) }), this.animateBars(e);
 			} else {
 				this.isOptimal = !1;
 				let e;
-				e = this.sortOrder === "raw" ? this.originalData.inline_data.challenge_participants : this.originalData.inline_data.challenge_participants.slice().sort((e, t) => t.metric_value - e.metric_value);
-				let t = { "yaxis.range": [0, Math.max(...e.map((e) => e.metric_value)) + .1] };
+				e = this.sortOrder === "raw" ? this.originalData.inline_data.challenge_participants : this.getSortedParticipants();
+				let t = { "yaxis.range": this.getDefaultRange(e.map((e) => e.metric_value)) };
 				ge.default.relayout(this.graphDiv, t), this.animateBars(e);
 			}
 			this.optimal = this.optimal === "no" ? "yes" : "no";
@@ -185880,7 +186150,7 @@ var td = {
 		let t = e.map((e) => e.metric_value).sort((e, t) => e - t), n = Math.floor(e.length / 2), r, i, a;
 		i = t.length % 2 == 0 ? (t[n - 1] + t[n]) / 2 : t[n];
 		let o = t.filter((e) => e < i), s = t.filter((e) => e > i);
-		r = this.calculateMedians(o), a = this.calculateMedians(s);
+		r = o.length ? this.calculateMedians(o) : i, a = s.length ? this.calculateMedians(s) : i;
 		let c = {};
 		return e.forEach((e) => {
 			let t = e.metric_value;
@@ -186055,9 +186325,6 @@ var td = {
 	getSortText() {
 		return this.sorted ? J` ${this.sortTextRaw} ` : J` ${this.sortText} `;
 	}
-	getOptimalText() {
-		return this.isOptimal ? J` ${this.optimalTextReset} ` : J` ${this.optimalText} `;
-	}
 	render() {
 		return J`
             <div class="bar-plot oeb-graph">
@@ -186068,10 +186335,18 @@ var td = {
                                 @click="${this.toggleSortOrder}">
                                 <span>${this.getSortText()}</span>
                             </button>
-                            <button type="button" id="optimalBtn" class="btn btn-secondary"
-                                @click="${this.toggleOptimal}">
-                                <span>${this.getOptimalText()}</span>
-                            </button>
+                            ${this.sorted ? J`
+                                <button type="button" id="reverseBtn" class="btn btn-secondary"
+                                    @click="${this.toggleReverse}">
+                                    <span>${this.isReversed ? "Default Order" : "Reverse Order"}</span>
+                                </button>` : ""}
+                            <div class="view-switch" role="group" aria-label="Chart view">
+                                <span class="view-switch-label">View</span>
+                                <button type="button" class="btn view-option" aria-pressed="${!this.isOptimal}"
+                                    @click="${() => this.isOptimal && this.toggleOptimal()}">Original</button>
+                                <button type="button" class="btn view-option" aria-pressed="${this.isOptimal}"
+                                    @click="${() => !this.isOptimal && this.toggleOptimal()}">Optimal</button>
+                            </div>
                             <div class="dropdown">
                                 <button type="button" class="btn dropbtn download-btn">
                                     <span>Download</span>
@@ -186132,9 +186407,8 @@ var td = {
                                             <ui-tooltip 
                                                 for="anchor"
                                                 icon="info"
-                                                textTitle="The Square quartile label"
-                                                textBody="By default, the highest values will be displayed in the first quartile.
-                                                    Inversely if it is specified">
+                                                textTitle="Quartile classification"
+                                                .textBody=${this.datasetPolarity === "minimum" ? "Lower values are better for this dataset; quartile 1 represents the lowest range." : "Higher values are better by default; quartile 1 represents the highest range. A dataset can specify minimization instead."}>
                                             </ui-tooltip>
                                         </th>
                                     </tr>
@@ -186179,21 +186453,7 @@ var rd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e) => {
 		return Array.from(e).sort(r).filter((e, t) => t === 0 || i && e[1] > a || !i && e[1] < a ? (a = e[1], !0) : !1);
 	};
 })))(), 1);
-function id(e) {
-	if (e.length === 0) return 0;
-	let t = e[0], n = 0, r;
-	if (typeof t != "number") return NaN;
-	for (let i = 1; i < e.length; i++) {
-		if (typeof e[i] != "number") return NaN;
-		r = t + e[i], Math.abs(t) >= Math.abs(e[i]) ? n += t - r + e[i] : n += e[i] - r + t, t = r;
-	}
-	return t + n;
-}
-function ad(e) {
-	if (e.length === 0) throw Error("mean requires at least one data point");
-	return id(e) / e.length;
-}
-function od(e, t) {
+function id(e, t) {
 	let n = (e.length - 1) * t;
 	if (e.length === 0) throw Error("quantile requires at least one data point.");
 	if (t < 0 || t > 1) throw Error("quantiles must be between 0 and 1");
@@ -186205,69 +186465,69 @@ function od(e, t) {
 	}
 	return e[n];
 }
-function sd(e, t, n, r) {
+function ad(e, t, n, r) {
 	for (n ||= 0, r ??= e.length - 1; r > n;) {
 		if (r - n > 600) {
 			let i = r - n + 1, a = t - n + 1, o = Math.log(i), s = .5 * Math.exp(2 * o / 3), c = .5 * Math.sqrt(o * s * (i - s) / i);
-			a - i / 2 < 0 && (c *= -1), sd(e, t, Math.max(n, Math.floor(t - a * s / i + c)), Math.min(r, Math.floor(t + (i - a) * s / i + c)));
+			a - i / 2 < 0 && (c *= -1), ad(e, t, Math.max(n, Math.floor(t - a * s / i + c)), Math.min(r, Math.floor(t + (i - a) * s / i + c)));
 		}
 		let i = e[t], a = n, o = r;
-		for (cd(e, n, t), e[r] > i && cd(e, n, r); a < o;) {
-			for (cd(e, a, o), a++, o--; e[a] < i;) a++;
+		for (od(e, n, t), e[r] > i && od(e, n, r); a < o;) {
+			for (od(e, a, o), a++, o--; e[a] < i;) a++;
 			for (; e[o] > i;) o--;
 		}
-		e[n] === i ? cd(e, n, o) : (o++, cd(e, o, r)), o <= t && (n = o + 1), t <= o && (r = o - 1);
+		e[n] === i ? od(e, n, o) : (o++, od(e, o, r)), o <= t && (n = o + 1), t <= o && (r = o - 1);
 	}
 }
-function cd(e, t, n) {
+function od(e, t, n) {
 	let r = e[t];
 	e[t] = e[n], e[n] = r;
 }
-function ld(e, t) {
+function sd(e, t) {
 	let n = e.slice();
 	if (Array.isArray(t)) {
-		dd(n, t);
+		ld(n, t);
 		let e = [];
-		for (let r = 0; r < t.length; r++) e[r] = od(n, t[r]);
+		for (let r = 0; r < t.length; r++) e[r] = id(n, t[r]);
 		return e;
 	}
-	return ud(n, md(n.length, t), 0, n.length - 1), od(n, t);
+	return cd(n, fd(n.length, t), 0, n.length - 1), id(n, t);
 }
-function ud(e, t, n, r) {
-	t % 1 == 0 ? sd(e, t, n, r) : (t = Math.floor(t), sd(e, t, n, r), sd(e, t + 1, t + 1, r));
+function cd(e, t, n, r) {
+	t % 1 == 0 ? ad(e, t, n, r) : (t = Math.floor(t), ad(e, t, n, r), ad(e, t + 1, t + 1, r));
 }
-function dd(e, t) {
+function ld(e, t) {
 	let n = /* @__PURE__ */ new Set();
 	for (let r = 0; r < t.length; r++) {
-		let i = md(e.length, t[r]);
+		let i = fd(e.length, t[r]);
 		n.add(Math.floor(i)), n.add(Math.ceil(i));
 	}
-	let r = Array.from(n).sort(pd);
-	fd(e, r, 0, r.length - 1, 0, e.length - 1);
+	let r = Array.from(n).sort(dd);
+	ud(e, r, 0, r.length - 1, 0, e.length - 1);
 }
-function fd(e, t, n, r, i, a) {
+function ud(e, t, n, r, i, a) {
 	if (n > r) return;
 	let o = n + r >> 1;
-	sd(e, t[o], i, a), fd(e, t, n, o - 1, i, t[o] - 1), fd(e, t, o + 1, r, t[o] + 1, a);
+	ad(e, t[o], i, a), ud(e, t, n, o - 1, i, t[o] - 1), ud(e, t, o + 1, r, t[o] + 1, a);
 }
-function pd(e, t) {
+function dd(e, t) {
 	return e - t;
 }
-function md(e, t) {
+function fd(e, t) {
 	let n = (e - 1) * t;
 	return t === 1 ? e - 1 : t === 0 ? 0 : (n % 1, n);
 }
-var hd = Math.sqrt(2 * Math.PI);
-function gd(e) {
+var pd = Math.sqrt(2 * Math.PI);
+function md(e) {
 	let t = e, n = e;
 	for (let r = 1; r < 30; r++) n *= e * e / (2 * r + 1), t += n;
-	return Math.round((.5 + t / hd * Math.exp(-e * e / 2)) * 1e4) / 1e4;
+	return Math.round((.5 + t / pd * Math.exp(-e * e / 2)) * 1e4) / 1e4;
 }
-var _d = [];
-for (let e = 0; e <= 3.09; e += .01) _d.push(gd(e));
+var hd = [];
+for (let e = 0; e <= 3.09; e += .01) hd.push(md(e));
 2 / Math.sqrt(Math.PI);
 // src/scatter-plot.js
-var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
+var gd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 	t.exports = {
 		data: a([], function(e) {
 			var t = e[0].length;
@@ -186371,11 +186631,11 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 			return t / e.length;
 		});
 	}
-})))(), 1), yd = {
+})))(), 1), _d = {
 	displayModeBar: !1,
 	responsive: !0,
 	hovermode: !1
-}, bd = class extends me {
+}, vd = class extends me {
 	static get styles() {
 		return [_e, ve];
 	}
@@ -186384,6 +186644,8 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 		datasetId: "",
 		sorted: !1,
 		showAdditionalTable: !1,
+		quartileDataArray: { state: !0 },
+		selectionNotice: { state: !0 },
 		isOptimal: !0,
 		viewSelected: "Classification",
 		isDownloading: !1
@@ -186412,7 +186674,7 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 			"star-diamond",
 			"square",
 			"diamond-tall"
-		], this.optimal = "yes", this.quartileDataArray = [], this.optimalText = "Optimal View", this.optimalTextReset = "Original View", this.viewSelected = "Classification", this.viewText = {
+		], this.optimal = "yes", this.isOptimal = !0, this.quartileDataArray = [], this.selectionNotice = "", this.viewSelected = "Classification", this.viewText = {
 			noClassification: "No Classification",
 			square: "Square Quartiles",
 			diagonal: "Diagonal Quartiles",
@@ -186420,6 +186682,103 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 		}, this.viewDefault = !0, this.viewKmeans = !1, this.viewSquare = !1, this.viewDiagonal = !1, this.colorIndex = 0, this.currentIndex = 0, this.optimalXaxis = [], this.optimalYaxis = [], this.dataPoints = [], this.challengeParticipants = [], this.allToolID = "", this.showAnnotationSquare = !1, this.layout = {
 			autosize: !0,
 			height: 600,
+			...this.getChartFrame(),
+			images: this.getImagePosition(this.optimalview),
+			showlegend: !0
+		}, this.dataInline = {}, this.isDownloading = !1, this.onLegendClick = (e) => {
+			let t = e.curveNumber;
+			if (t === 0) return !1;
+			if (t > 1) return this.updatePlotOnSelection(t) !== !1 && this.toggleTraceVisibility(t), !1;
+		};
+	}
+	getParetoPoints(e, t = !1) {
+		let n = this.formatOptimalDisplay(this.optimalview), r = rd.getParetoFrontier(e, { optimize: n });
+		return t && r.length == 1 && (r.unshift([r[0][0], 0]), r.push([Math.max(...this.xValues), r[1][1]])), r;
+	}
+	getParetoTraceUpdate(e, t = !1) {
+		let n = this.getParetoPoints(e, t);
+		return {
+			x: [n.map((e) => e[0])],
+			y: [n.map((e) => e[1])]
+		};
+	}
+	createParetoTraces(e, t) {
+		let n = {
+			x: e,
+			y: t,
+			mode: "lines",
+			type: "scatter",
+			opacity: 0
+		};
+		return [{
+			...n,
+			name: "<span style=\"color:black;\">Global Pareto Frontier</span>",
+			line: {
+				dash: "dot",
+				width: 2,
+				color: "rgb(152, 152, 152)"
+			}
+		}, {
+			...n,
+			name: "Dynamic Pareto Frontier",
+			line: {
+				dash: "dot",
+				width: 2,
+				color: "rgb(244, 124, 33)"
+			}
+		}];
+	}
+	axisTitle(e) {
+		return {
+			text: e,
+			font: {
+				family: "Arial, sans-serif",
+				size: 18,
+				color: "black",
+				weight: "bold"
+			}
+		};
+	}
+	xAxisTitle() {
+		let e = this.axisTitle(this.visualizationData.x_axis), t = this.graphDiv?.clientWidth;
+		if (!t || typeof e.text != "string" || /[<>]/.test(e.text)) return e;
+		let n = document.createElement("canvas").getContext("2d");
+		n.font = `bold ${e.font.size}px Arial, sans-serif`;
+		let r = Math.max(80, t - 100), i = [], a = "";
+		for (let t of e.text.split(/\s+/)) {
+			let e = a ? `${a} ${t}` : t;
+			a && n.measureText(e).width > r && (i.push(a), a = "");
+			for (let e of a ? ` ${t}` : t) a && n.measureText(a + e).width > r && (i.push(a), a = ""), a += e;
+		}
+		return a && i.push(a), e.text = i.join("<br>"), e;
+	}
+	observeChartSize() {
+		this.chartResizeObserver || (this.chartResizeObserver = new ResizeObserver((e) => {
+			let t = e[0].contentRect.width;
+			t && t !== this.observedChartWidth && (this.observedChartWidth = t, this.resizeChart());
+		}), this.chartResizeObserver.observe(this.graphDiv));
+	}
+	resizeChart() {
+		if (!this.graphDiv?._fullLayout || !this.visualizationData) return;
+		let e = this.xAxisTitle();
+		ge.default.relayout(this.graphDiv, {
+			autosize: !0,
+			"xaxis.title.text": e.text,
+			"legend.y": this.legendY(e)
+		});
+	}
+	legendY(e) {
+		let t = e?.text?.split("<br>").length ?? 1;
+		return -.35 - Math.max(0, t - 2) * .1;
+	}
+	connectedCallback() {
+		super.connectedCallback(), this.graphDiv && this.observeChartSize();
+	}
+	disconnectedCallback() {
+		this.chartResizeObserver?.disconnect(), this.chartResizeObserver = null, this.observedChartWidth = null, super.disconnectedCallback();
+	}
+	getChartFrame() {
+		return {
 			margin: {
 				l: 60,
 				r: 30,
@@ -186429,86 +186788,33 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 			},
 			legend: {
 				orientation: "h",
-				x: 0,
-				y: -.2,
+				x: 1,
+				xanchor: "right",
+				y: this.legendY(this.visualizationData ? this.xAxisTitle() : null),
 				xref: "paper",
 				yref: "paper",
-				font: { size: 16 },
-				itemdoubleclick: "toggle"
-			},
-			images: this.getImagePosition(this.optimalview),
-			showlegend: !0
-		}, this.dataInline = {}, this.isDownloading = !1;
+				font: { size: 13 },
+				maxheight: .25,
+				itemdoubleclick: !1
+			}
+		};
 	}
 	attributeChangedCallback(e, t, n) {
 		this.data = JSON.parse(n), super.attributeChangedCallback(e, t, JSON.parse(n));
 	}
-	updated() {
-		this.graphDiv = this.shadowRoot.querySelector("#scatter-chart"), this.todoDownload = this.shadowRoot.querySelector("#todownload"), this.chartCapture = this.shadowRoot.querySelector("#chartCapture"), this.benchmarkingTable = this.shadowRoot.querySelector("#benchmarkingTable"), this.toolsCol = this.shadowRoot.querySelector("#toolsCol"), this.myPlot = ge.default.newPlot(this.graphDiv, [], {}, {
+	updated(e) {
+		this.graphDiv = this.shadowRoot.querySelector("#scatter-chart"), this.todoDownload = this.shadowRoot.querySelector("#todownload"), this.chartCapture = this.shadowRoot.querySelector("#chartCapture"), this.benchmarkingTable = this.shadowRoot.querySelector("#benchmarkingTable"), this.toolsCol = this.shadowRoot.querySelector("#toolsCol"), this.observeChartSize(), e?.size && [...e.keys()].every((e) => e === "quartileDataArray" || e === "isOptimal" || e === "selectionNotice") || (this.myPlot = ge.default.newPlot(this.graphDiv, [], {}, {
 			displayModeBar: !1,
 			responsive: !0,
 			hovermode: !1
-		}), this.renderChart();
+		}), this.renderChart());
 	}
 	renderChart() {
 		let e = [], t = this.data.inline_data;
 		if (this.datasetId = this.data._id, this.datasetModDate = this.data.dates.modification, this.visualizationData = t.visualization, this.originalData = this.data, this.optimalview = t.visualization.optimization === void 0 ? null : t.visualization.optimization, this.challengeParticipants = t.challenge_participants, this.xValues = t.challenge_participants.map((e) => e.metric_x), this.yValues = t.challenge_participants.map((e) => e.metric_y), this.toolID = t.challenge_participants.map((e) => e.tool_id), this.allToolID = t.challenge_participants.map((e) => e.tool_id), this.dataPoints = t.challenge_participants.map((e) => [e.metric_x, e.metric_y]), this.optimalview != null) {
-			let t = this.formatOptimalDisplay(this.optimalview), n = rd.getParetoFrontier(this.dataPoints, { optimize: t });
-			if (n.length == 1) {
-				let e = [n[0][0], 0], t = [Math.max(...this.xValues), n[0][1]];
-				n.unshift(e), n.push(t);
-			}
-			let r = {
-				x: n.map((e) => e[0]),
-				y: n.map((e) => e[1]),
-				mode: "lines",
-				type: "scatter",
-				name: "<span style=\"color:black;\">Global Pareto Frontier</span>",
-				line: {
-					dash: "dot",
-					width: 2,
-					color: "rgb(152, 152, 152)"
-				},
-				opacity: 0
-			}, i = {
-				x: n.map((e) => e[0]),
-				y: n.map((e) => e[1]),
-				mode: "lines",
-				type: "scatter",
-				name: "Dynamic Pareto Frontier",
-				line: {
-					dash: "dot",
-					width: 2,
-					color: "rgb(244, 124, 33)"
-				},
-				opacity: 0
-			};
-			e.push(r, i);
-		} else e.push({
-			x: ["0"],
-			y: ["0"],
-			mode: "lines",
-			type: "scatter",
-			name: "<span style=\"color:black;\">Global Pareto Frontier</span>",
-			line: {
-				dash: "dot",
-				width: 2,
-				color: "rgb(152, 152, 152)"
-			},
-			opacity: 0
-		}, {
-			x: ["0"],
-			y: ["0"],
-			mode: "lines",
-			type: "scatter",
-			name: "Dynamic Pareto Frontier",
-			line: {
-				dash: "dot",
-				width: 2,
-				color: "rgb(244, 124, 33)"
-			},
-			opacity: 0
-		});
+			let t = this.getParetoPoints(this.dataPoints, !0);
+			e.push(...this.createParetoTraces(t.map((e) => e[0]), t.map((e) => e[1])));
+		} else e.push(...this.createParetoTraces(["0"], ["0"]));
 		for (let n = 0; n < t.challenge_participants.length; n++) {
 			let r = t.challenge_participants[n], i = {
 				x: [r.metric_x],
@@ -186547,59 +186853,12 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 			autosize: !0,
 			height: 600,
 			annotations: this.getOptimizationArrow(this.optimalview),
-			xaxis: { title: {
-				text: this.visualizationData.x_axis,
-				font: {
-					family: "Arial, sans-serif",
-					size: 18,
-					color: "black",
-					weight: "bold"
-				}
-			} },
-			yaxis: { title: {
-				text: this.visualizationData.y_axis,
-				font: {
-					family: "Arial, sans-serif",
-					size: 18,
-					color: "black",
-					weight: "bold"
-				}
-			} },
-			margin: {
-				l: 60,
-				r: 30,
-				t: 0,
-				b: 10,
-				pad: 4
-			},
-			legend: {
-				orientation: "h",
-				x: 0,
-				y: -.2,
-				xref: "paper",
-				yref: "paper",
-				font: { size: 16 },
-				itemdoubleclick: "toggle"
-			},
+			xaxis: { title: this.xAxisTitle() },
+			yaxis: { title: this.axisTitle(this.visualizationData.y_axis) },
+			...this.getChartFrame(),
 			images: this.getImagePosition(this.optimalview),
 			showlegend: !0
-		} : (n = this.layout, n.images = this.getImagePosition(this.optimalview)), this.layout.yaxis && this.layout.yaxis.range && (n.yaxis.range = this.layout.yaxis.range, n.xaxis.range = this.layout.xaxis.range), n.xaxis && (n.xaxis.title = {
-			text: this.visualizationData.x_axis,
-			font: {
-				family: "Arial, sans-serif",
-				size: 18,
-				color: "black",
-				weight: "bold"
-			}
-		}), n.yaxis && (n.yaxis.title = {
-			text: this.visualizationData.y_axis,
-			font: {
-				family: "Arial, sans-serif",
-				size: 18,
-				color: "black",
-				weight: "bold"
-			}
-		}), ge.default.newPlot(this.graphDiv, e, n, yd).then((t) => {
+		} : (n = this.layout, n.images = this.getImagePosition(this.optimalview)), this.layout.yaxis && this.layout.yaxis.range && (n.yaxis.range = this.layout.yaxis.range, n.xaxis.range = this.layout.xaxis.range), n.xaxis && (n.xaxis.title = this.xAxisTitle()), n.yaxis && (n.yaxis.title = this.axisTitle(this.visualizationData.y_axis)), ge.default.newPlot(this.graphDiv, e, n, _d).then((t) => {
 			ge.default.animate(t, {
 				data: e.map((e, t) => ({ opacity: 1 })),
 				traces: Array.from(Array(e.length).keys()),
@@ -186613,16 +186872,11 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 				frame: { duration: 500 }
 			});
 			let r = t.layout;
-			this.optimalXaxis && this.optimalXaxis.length != 0 || (this.optimalXaxis = r.xaxis.range, this.optimalYaxis = r.yaxis.range), t.on("plotly_legendclick", (e) => {
-				let t = e.curveNumber;
-				if (t === 0) return !1;
-				if (t === 1) return !0;
-				if (this.updatePlotOnSelection(t) == 0) return !1;
-			});
+			this.optimalXaxis && this.optimalXaxis.length != 0 || (this.optimalXaxis = r.xaxis.range, this.optimalYaxis = r.yaxis.range), t.removeListener("plotly_legendclick", this.onLegendClick), t.on("plotly_legendclick", this.onLegendClick), this.resizeChart();
 		});
 	}
 	toggleView() {
-		this.isOptimal = this.isOptimal !== void 0 && !this.isOptimal, this.optimal = this.optimal === "no" ? "yes" : "no", this.isOptimal ? this.setOptimalView() : this.setOriginalView();
+		this.isOptimal = !this.isOptimal, this.optimal = this.isOptimal ? "yes" : "no", this.isOptimal ? this.setOptimalView() : this.setOriginalView();
 	}
 	formatOptimalDisplay(e) {
 		let t = null;
@@ -186631,58 +186885,44 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 	updatePlotOnSelection(e) {
 		e -= 2;
 		let t = this.dataPoints[e].hidden;
-		if (t) this.showMessageError = !1;
-		else if (this.dataPoints.filter((e) => !e.hidden).length <= 4) {
-			this.showMessageError = !0, this.dismissCountDown = 5;
-			let e = setInterval(() => {
-				this.dismissCountDown > 0 ? --this.dismissCountDown : (this.showMessageError = !1, clearInterval(e));
-			}, 1e3);
-			return !1;
+		if (!t) {
+			let e = this.dataPoints.filter((e) => !e.hidden), t = this.viewKmeans ? 4 : 1;
+			if (e.length <= t) return this.selectionNotice = this.viewKmeans ? "K-means requires at least four visible participants." : "At least one participant must remain visible.", !1;
 		}
-		this.dataPoints[e].hidden = !t;
-		let n = this.dataPoints.filter((e) => !e.hidden);
-		if (this.optimalview != null) {
-			let e = this.formatOptimalDisplay(this.optimalview), t = rd.getParetoFrontier(n, { optimize: e });
-			this.newTraces = {
-				x: [t.map((e) => e[0])],
-				y: [t.map((e) => e[1])]
-			};
-		}
-		if (this.viewSquare === !0) {
-			let e = n.map((e) => e[0]), t = n.map((e) => e[1]), r = this.toolID.map((e, t) => ({
-				name: e,
-				hidden: this.dataPoints[t].hidden
-			})).filter((e) => !e.hidden).map((e) => e.name);
-			this.calculateQuartiles(e, t, r), this.setOptimalView();
+		this.selectionNotice = "", this.dataPoints[e].hidden = !t;
+		let n = this.dataPoints.filter((e) => !e.hidden), r = {
+			x: [...this.graphDiv.layout.xaxis.range],
+			y: [...this.graphDiv.layout.yaxis.range]
+		}, i = this.toolID.filter((e, t) => !this.dataPoints[t].hidden);
+		if (this.optimalview != null && (this.newTraces = this.getParetoTraceUpdate(n)), this.viewSquare === !0) {
+			let e = n.map((e) => e[0]), t = n.map((e) => e[1]);
+			this.calculateQuartiles(e, t, i, r);
 		}
 		if (this.viewDiagonal === !0) {
 			let e = n.map((e) => e[0]), t = n.map((e) => e[1]);
-			this.getDiagonalQuartile(e, t), this.setOptimalView();
+			this.calculateDiagonalQuartiles(e, t, i, r);
 		}
 		if (this.viewKmeans === !0) {
-			let e = this.toolID.map((e, t) => ({
-				name: e,
-				hidden: this.dataPoints[t].hidden
-			})).filter((e) => !e.hidden).map((e) => e.name), t = this.optimalview;
-			this.createShapeClustering(n, e, t, this.allToolID), this.showShapesKmeans = !0;
-			let r = {
+			let e = this.optimalview;
+			this.createShapeClustering(n, i, e, this.allToolID, r), this.showShapesKmeans = !0;
+			let t = {
 				shapes: this.showShapesKmeans ? this.shapes : [],
 				annotations: this.getOptimizationArrow(this.optimalview).concat(this.annotationKmeans)
 			};
-			ge.default.update(this.graphDiv, null, r, 1);
+			ge.default.update(this.graphDiv, null, t, 1);
 		}
 		ge.default.update(this.graphDiv, this.newTraces, {}, 1);
 	}
-	calculateQuartiles(e, t, n) {
-		let r = ld(e, .5), i = ld(t, .5), a = this.optimalview, o = this.allToolID;
-		this.sortToolsForSquare(a, o, n, r, i, e, t);
-		let s = {
+	calculateQuartiles(e, t, n, r) {
+		let i = sd(e, .5), a = sd(t, .5), o = this.optimalview, s = this.allToolID;
+		this.sortToolsForSquare(o, s, n, i, a, e, t);
+		let c = {
 			shapes: [{
 				type: "line",
-				x0: r,
-				x1: r,
-				y0: 0,
-				y1: Math.max(...t) + Math.max(i),
+				x0: i,
+				x1: i,
+				y0: this.lineStart(t, a),
+				y1: Math.max(...t) + Math.abs(a),
 				line: {
 					color: "#C0D4E8",
 					width: 2,
@@ -186690,68 +186930,40 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 				}
 			}, {
 				type: "line",
-				y0: i,
-				y1: i,
-				x0: 0,
-				x1: Math.max(...e) + Math.max(r),
+				y0: a,
+				y1: a,
+				x0: this.lineStart(e, i),
+				x1: Math.max(...e) + Math.abs(i),
 				line: {
 					color: "#C0D4E8",
 					width: 2,
 					dash: "dash"
 				}
 			}],
-			xaxis: { title: {
-				text: this.visualizationData.x_axis,
-				font: {
-					family: "Arial, sans-serif",
-					size: 18,
-					color: "black",
-					weight: "bold"
-				}
-			} },
-			yaxis: { title: {
-				text: this.visualizationData.y_axis,
-				font: {
-					family: "Arial, sans-serif",
-					size: 18,
-					color: "black",
-					weight: "bold"
-				}
-			} },
-			margin: {
-				l: 60,
-				r: 30,
-				t: 0,
-				b: 10,
-				pad: 4
-			},
-			legend: {
-				orientation: "h",
-				x: 0,
-				y: -.2,
-				xref: "paper",
-				yref: "paper",
-				font: { size: 16 },
-				itemdoubleclick: "toggle"
-			},
+			xaxis: { title: this.xAxisTitle() },
+			yaxis: { title: this.axisTitle(this.visualizationData.y_axis) },
+			...this.getChartFrame(),
 			images: this.getImagePosition(this.optimalview),
 			showlegend: !0
 		};
-		(this.isOptimal || this.optimal == "yes") && (s.xaxis.range = [this.optimalXaxis[0], this.optimalXaxis[1]], s.yaxis.range = [this.optimalYaxis[0], this.optimalYaxis[1]]), this.layout = s, this.annotationSquareQuartile(a), ge.default.relayout(this.graphDiv, this.layout);
+		r ? (c.xaxis.range = r.x, c.yaxis.range = r.y) : (this.isOptimal || this.optimal == "yes") && (c.xaxis.range = [this.optimalXaxis[0], this.optimalXaxis[1]], c.yaxis.range = [this.optimalYaxis[0], this.optimalYaxis[1]]), this.layout = c, this.annotationSquareQuartile(o), ge.default.relayout(this.graphDiv, this.layout);
 	}
-	calculateDiagonalQuartiles(e, t) {
-		let n = e.map((e, n) => [e, t[n]]), r = this.normalizeData(e, t), [i, a] = [r[0], r[1]], o = Math.max.apply(null, e), s = Math.max.apply(null, t), c = this.optimalview, l = [], u = {};
-		for (let r = 0; r < i.length; r++) c == "bottom-right" ? (l.push(i[r] + (1 - a[r])), u[i[r] + (1 - a[r])] = [e[r], t[r]], n[r].score = i[r] + (1 - a[r])) : c == "top-right" ? (l.push(i[r] + a[r]), u[i[r] + a[r]] = [e[r], t[r]], n[r].score = i[r] + a[r]) : c == "top-left" && (l.push(1 - i[r] + a[r]), u[1 - i[r] + a[r]] = [e[r], t[r]], n[r].score = 1 - i[r] + a[r]);
-		l.sort(function(e, t) {
+	calculateDiagonalQuartiles(e, t, n = this.allToolID, r) {
+		let i = e.map((e, n) => [e, t[n]]), a = this.normalizeData(e, t), [o, s] = [a[0], a[1]], c = Math.max(...e.map(Math.abs)), l = Math.max(...t.map(Math.abs)), u = this.optimalview, d = [], f = {};
+		for (let n = 0; n < o.length; n++) {
+			let r = this.getCornerScore(o[n], s[n], u);
+			d.push(r), f[r] = [e[n], t[n]], i[n].score = r;
+		}
+		d.sort(function(e, t) {
 			return t - e;
 		});
-		let d = ld(l, .25), f = ld(l, .5), p = ld(l, .75), m = [
-			this.getDiagonalLine(l, u, d, c, o, s),
-			this.getDiagonalLine(l, u, f, c, o, s),
-			this.getDiagonalLine(l, u, p, c, o, s)
-		], h = [];
-		for (let e = 0; e < m.length; e++) {
-			let [t, n] = [m[e][0], m[e][1]], r = {
+		let p = sd(d, .25), m = sd(d, .5), h = sd(d, .75), g = [
+			this.getDiagonalLine(d, f, p, u, c, l),
+			this.getDiagonalLine(d, f, m, u, c, l),
+			this.getDiagonalLine(d, f, h, u, c, l)
+		], _ = [];
+		for (let e = 0; e < g.length; e++) {
+			let [t, n] = [g[e][0], g[e][1]], r = {
 				type: "line",
 				x0: t[0],
 				y0: n[0],
@@ -186763,57 +186975,26 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 					dash: "dash"
 				}
 			};
-			h.push(r);
+			_.push(r);
 		}
-		let g = this.asigneQuartileDiagonal(n, d, f, p, c);
-		this.createTableDiagonal(n);
-		let _ = {
-			shapes: this.showShapesDiagonal ? h : [],
+		let v = this.asigneQuartileDiagonal(i, p, m, h, u);
+		this.createTableDiagonal(i, n);
+		let y = {
+			shapes: this.showShapesDiagonal ? _ : [],
 			xaxis: {
-				range: [this.optimalXaxis[0], this.optimalXaxis[1]],
-				title: {
-					text: this.visualizationData.x_axis,
-					font: {
-						family: "Arial, sans-serif",
-						size: 18,
-						color: "black",
-						weight: "bold"
-					}
-				}
+				range: r ? r.x : [this.optimalXaxis[0], this.optimalXaxis[1]],
+				title: this.xAxisTitle()
 			},
 			yaxis: {
-				range: [this.optimalYaxis[0], this.optimalYaxis[1]],
-				title: {
-					text: this.visualizationData.y_axis,
-					font: {
-						family: "Arial, sans-serif",
-						size: 18,
-						color: "black",
-						weight: "bold"
-					}
-				}
+				range: r ? r.y : [this.optimalYaxis[0], this.optimalYaxis[1]],
+				title: this.axisTitle(this.visualizationData.y_axis)
 			},
-			annotations: this.getOptimizationArrow(this.optimalview).concat(g),
-			margin: {
-				l: 60,
-				r: 30,
-				t: 0,
-				b: 10,
-				pad: 4
-			},
-			legend: {
-				orientation: "h",
-				x: 0,
-				y: -.2,
-				xref: "paper",
-				yref: "paper",
-				font: { size: 16 },
-				itemdoubleclick: "toggle"
-			},
+			annotations: this.getOptimizationArrow(this.optimalview).concat(v),
+			...this.getChartFrame(),
 			images: this.getImagePosition(this.optimalview),
 			showlegend: !0
 		};
-		this.layout && (this.layout.shapes = this.showShapesDiagonal ? h : []), this.layout = _, ge.default.relayout(this.graphDiv, this.layout);
+		this.layout && (this.layout.shapes = this.showShapesDiagonal ? _ : []), this.layout = y, ge.default.relayout(this.graphDiv, this.layout);
 	}
 	convertValuesToPath(e) {
 		if (e.length === 0) return "";
@@ -186843,18 +187024,18 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 		let t = e.reduce((e, t) => e + t[0], 0), n = e.reduce((e, t) => e + t[1], 0);
 		return [t / e.length, n / e.length];
 	}
-	createShapeClustering(e, t, n, r) {
-		vd.default.k(4), vd.default.iterations(500), vd.default.data(e);
-		let i = vd.default.clusters(), a = JSON.parse(JSON.stringify(i));
-		this.orderResultKMeans(a, n);
-		let o = this.assignGroupToDataPoints(e, a);
-		this.createDataPointForTables(t, o, r), this.shapes = a.map((e, t) => {
-			let n = this.convexHull(e.points).reduce((e, t, n) => e + (n === 0 ? `M ${t[0]},${t[1]}` : ` L ${t[0]},${t[1]}`), "") + " Z", r = this.calculateCentroid(e.points), i = e.points.map((e) => ({
+	createShapeClustering(e, t, n, r, i) {
+		gd.default.k(4), gd.default.iterations(500), gd.default.data(e);
+		let a = gd.default.clusters(), o = JSON.parse(JSON.stringify(a)).filter((e) => e.points.length > 0);
+		this.orderResultKMeans(o, n);
+		let s = this.assignGroupToDataPoints(e, o);
+		this.createDataPointForTables(t, s, r), this.shapes = o.map((e, t) => {
+			let n = this.convexHull(e.points), r = n.reduce((e, t, n) => e + (n === 0 ? `M ${t[0]},${t[1]}` : ` L ${t[0]},${t[1]}`), "") + " Z", i = this.calculateCentroid(e.points), a = e.points.map((e) => ({
 				type: "line",
 				x0: e[0],
 				y0: e[1],
-				x1: r[0],
-				y1: r[1],
+				x1: i[0],
+				y1: i[1],
 				line: {
 					color: "#2A6CAB",
 					width: 1,
@@ -186862,8 +187043,8 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 				}
 			}));
 			return this.layout.annotations || (this.layout.annotations = []), this.layout.annotations.push({
-				x: r[0],
-				y: r[1],
+				x: i[0],
+				y: i[1],
 				text: `Cluster ${t + 1}`,
 				showarrow: !1,
 				font: {
@@ -186874,25 +187055,31 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 				bordercolor: "#2A6CAB",
 				borderwidth: 1,
 				borderpad: 4
-			}), [{
+			}), [...n.length >= 3 ? [{
 				type: "path",
-				path: n,
+				path: r,
 				line: { color: "#2A6CAB" },
 				fillcolor: "rgba(0, 72, 129, 183)",
 				opacity: .2
-			}, ...i];
-		}).flat(), ge.default.relayout(this.graphDiv, this.layout);
-		let s = 0;
-		this.annotationKmeans = a.map((e) => {
+			}] : [], ...a];
+		}).flat(), i && (this.layout.xaxis = {
+			...this.layout.xaxis,
+			range: i.x
+		}, this.layout.yaxis = {
+			...this.layout.yaxis,
+			range: i.y
+		}), ge.default.relayout(this.graphDiv, this.layout);
+		let c = 0;
+		this.annotationKmeans = o.map((e) => {
 			let t = e.centroid[0], n = e.centroid[1];
-			return s++, {
+			return c++, {
 				xref: "x",
 				yref: "y",
 				x: t,
 				xanchor: "right",
 				y: n,
 				yanchor: "bottom",
-				text: s,
+				text: c,
 				showarrow: !1,
 				font: {
 					size: 30,
@@ -186900,31 +187087,21 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 				}
 			};
 		});
-		let c = {
+		let l = {
 			shapes: this.showShapesKmeans ? this.shapes : [],
 			annotations: this.getOptimizationArrow(this.optimalview).concat(this.annotationKmeans)
 		};
-		ge.default.update(this.graphDiv, {}, c);
+		ge.default.update(this.graphDiv, {}, l);
 	}
 	orderResultKMeans(e, t) {
 		let n = [], r = [];
 		e.forEach((e) => {
 			n.push(e.centroid[0]), r.push(e.centroid[1]);
 		});
-		let [i, a] = this.normalizeData(n, r), o = [];
-		if (t == "top-right") for (let t = 0; t < i.length; t++) {
-			let n = i[t] + a[t];
-			o.push(n), e[t].score = n;
-		}
-		else if (t == "bottom-right") for (let t = 0; t < i.length; t++) {
-			let n = i[t] + (1 - a[t]);
-			o.push(n), e[t].score = n;
-		}
-		else if (t == "top-left") for (let t = 0; t < i.length; t++) {
-			let n = 1 - i[t] + a[t];
-			o.push(n), e[t].score = n;
-		}
-		this.sortByKey(e, "score");
+		let [i, a] = this.normalizeData(n, r);
+		e.forEach((e, n) => {
+			e.score = this.getCornerScore(i[n], a[n], t);
+		}), this.sortByKey(e, "score");
 	}
 	sortByKey(e, t) {
 		return e.sort(function(e, n) {
@@ -186932,9 +187109,18 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 			return r < i ? -1 : +(r > i);
 		});
 	}
+	lineStart(e, t) {
+		let n = Math.min(...e);
+		return n < 0 ? n - Math.abs(t) : 0;
+	}
+	normalizeAxis(e) {
+		let t = Math.max(...e), n = Math.min(...e);
+		if (n >= 0) return e.map((e) => t === 0 ? 0 : e / t);
+		let r = t - n || 1;
+		return e.map((e) => (e - n) / r);
+	}
 	normalizeData(e, t) {
-		let n = Math.max.apply(null, e), r = Math.max.apply(null, t);
-		return [e.map((e) => e / n), t.map((e) => e / r)];
+		return [this.normalizeAxis(e), this.normalizeAxis(t)];
 	}
 	assignGroupToDataPoints(e, t) {
 		let n = [];
@@ -187004,6 +187190,7 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 		});
 		let o = [];
 		return a.forEach((e) => {
+			if (e.length === 0) return;
 			let t = this.getCentroid(e), n = {
 				xref: "x",
 				yref: "y",
@@ -187021,20 +187208,40 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 			o.push(n);
 		}), o;
 	}
-	createTableDiagonal(e) {
-		this.quartileDataArray = [], this.allToolID.forEach((t) => {
-			let n = t, r = e.find((e) => e[0] === this.xValues[this.allToolID.indexOf(t)]), i = 0, a = "--";
-			r && (i = r.quartile, a = i.toString()), this.quartileDataArray.push({
-				tool_id: n,
-				cuartil: i,
-				label: a
+	createTableDiagonal(e, t) {
+		this.quartileDataArray = [], this.allToolID.forEach((n) => {
+			let r = n, i = e[t.indexOf(n)], a = 0, o = "--";
+			i && (a = i.quartile, o = a.toString()), this.quartileDataArray.push({
+				tool_id: r,
+				cuartil: a,
+				label: o
 			});
 		});
+	}
+	getCornerDirections(e) {
+		return {
+			xHigher: e.endsWith("right"),
+			yHigher: e.startsWith("top")
+		};
+	}
+	getCornerScore(e, t, n) {
+		let { xHigher: r, yHigher: i } = this.getCornerDirections(n);
+		return (r ? e : 1 - e) + (i ? t : 1 - t);
+	}
+	isOnTopHalf(e, t, n) {
+		return this.getCornerDirections(n).yHigher ? e >= t : e > t;
+	}
+	getSquareRank(e, t, n) {
+		let { xHigher: r, yHigher: i } = this.getCornerDirections(n);
+		return 1 + (e === r ? 0 : 1) + (t === i ? 0 : 2);
+	}
+	getSquareLabel(e) {
+		return e === 1 ? "Top" : e === 4 ? "Bottom" : "Interquartile";
 	}
 	sortToolsForSquare(e, t, n, r, i, a, o) {
 		this.quartileDataArray = [], t.forEach((t) => {
 			let s = n.indexOf(t), c = s === -1 ? null : a[s], l = s === -1 ? null : o[s], u = 0, d = "--";
-			s !== -1 && (e === "bottom-right" ? c >= r && l <= i ? (u = 1, d = "Top") : c >= r && l > i ? (u = 3, d = "Interquartile") : c < r && l > i ? (u = 4, d = "Bottom") : c < r && l <= i && (u = 2, d = "Interquartile") : e === "top-right" ? c >= r && l < i ? (u = 3, d = "Interquartile") : c >= r && l >= i ? (u = 1, d = "Top") : c < r && l >= i ? (u = 2, d = "Interquartile") : c < r && l < i && (u = 4, d = "Bottom") : e === "top-left" && (c >= r && l < i ? (u = 4, d = "Bottom") : c >= r && l >= i ? (u = 2, d = "Interquartile") : c < r && l >= i ? (u = 1, d = "Top") : c < r && l < i && (u = 3, d = "Interquartile"))), this.quartileDataArray.push({
+			s !== -1 && (u = this.getSquareRank(c >= r, this.isOnTopHalf(l, i, e), e), d = this.getSquareLabel(u)), this.quartileDataArray.push({
 				tool_id: t,
 				cuartil: u,
 				label: d
@@ -187113,28 +187320,27 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 		this.layout && (this.layout.annotations = this.showAnnotationSquare ? n.concat(t) : []);
 	}
 	asignaPositionCuartil(e) {
-		let t, n, r, i;
-		return e == "bottom-right" ? (t = "Top", n = "Interquartile", r = "Interquartile", i = "Bottom") : e == "top-right" ? (t = "Interquartile", n = "Bottom", r = "Top", i = "Interquartile") : e == "top-left" && (t = "Bottom", n = "Interquartile", r = "Interquartile", i = "Top"), [
+		return [
 			{
 				position: "bottom-right",
-				numCuartil: t
+				numCuartil: this.getSquareLabel(this.getSquareRank(!0, !1, e))
 			},
 			{
 				position: "bottom-left",
-				numCuartil: n
+				numCuartil: this.getSquareLabel(this.getSquareRank(!1, !1, e))
 			},
 			{
 				position: "top-right",
-				numCuartil: r
+				numCuartil: this.getSquareLabel(this.getSquareRank(!0, !0, e))
 			},
 			{
 				position: "top-left",
-				numCuartil: i
+				numCuartil: this.getSquareLabel(this.getSquareRank(!1, !0, e))
 			}
 		];
 	}
 	resetChart() {
-		this.sorted = !1, ge.default.Plots.resize(this.graphDiv), this.quartileDataArray = [], this.viewDefault = !0, this.viewKmeans = !1, this.viewSquare = !1, this.viewDiagonal = !1, this.showShapesKmeans = !1, this.showShapesSquare = !1, this.showAnnotationSquare = !1, this.viewSelected = "Classification";
+		this.selectionNotice = "", this.sorted = !1, ge.default.Plots.resize(this.graphDiv), this.quartileDataArray = [], this.viewDefault = !0, this.viewKmeans = !1, this.viewSquare = !1, this.viewDiagonal = !1, this.showShapesKmeans = !1, this.showShapesSquare = !1, this.showAnnotationSquare = !1, this.viewSelected = "Classification";
 		let e = this.graphDiv.data;
 		if (e && e.length > 0) {
 			let t = e.length, n = Array(t).fill(!0);
@@ -187143,55 +187349,16 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 			});
 			let r = this.dataPoints.filter((e) => !e.hidden);
 			if (this.optimalview != null) {
-				let e = this.formatOptimalDisplay(this.optimalview), t = rd.getParetoFrontier(r, { optimize: e });
-				if (t.length == 1) {
-					let e = [t[0][0], 0], n = [Math.max(...this.xValues), t[0][1]];
-					t.unshift(e), t.push(n);
-				}
-				let n = {
-					x: [t.map((e) => e[0])],
-					y: [t.map((e) => e[1])]
-				}, i = {
+				let e = this.getParetoTraceUpdate(r, !0), t = {
 					shapes: [],
 					annotations: this.getOptimizationArrow(this.optimalview),
-					xaxis: { title: {
-						text: this.visualizationData.x_axis,
-						font: {
-							family: "Arial, sans-serif",
-							size: 18,
-							color: "black",
-							weight: "bold"
-						}
-					} },
-					yaxis: { title: {
-						text: this.visualizationData.y_axis,
-						font: {
-							family: "Arial, sans-serif",
-							size: 18,
-							color: "black",
-							weight: "bold"
-						}
-					} },
-					margin: {
-						l: 60,
-						r: 30,
-						t: 0,
-						b: 10,
-						pad: 4
-					},
-					legend: {
-						orientation: "h",
-						x: 0,
-						y: -.2,
-						xref: "paper",
-						yref: "paper",
-						font: { size: 16 },
-						itemdoubleclick: "toggle"
-					},
+					xaxis: { title: this.xAxisTitle() },
+					yaxis: { title: this.axisTitle(this.visualizationData.y_axis) },
+					...this.getChartFrame(),
 					images: this.getImagePosition(this.optimalview),
 					showlegend: !0
 				};
-				this.layout = i, ge.default.update(this.graphDiv, n, i, 1);
+				this.layout = t, ge.default.update(this.graphDiv, e, t, 1);
 			}
 			ge.default.restyle(this.graphDiv, { visible: n });
 		}
@@ -187306,17 +187473,11 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 	}
 	handleTableRowClick(e) {
 		let t = e + 2;
-		this.toggleTraceVisibility(t), this.updatePlotOnSelection(t);
+		this.updatePlotOnSelection(t) !== !1 && this.toggleTraceVisibility(t);
 	}
 	toggleTraceVisibility(e) {
-		let t = this.graphDiv.data, n = this.graphDiv.layout;
-		if (t.length <= 5) return;
-		let r = t[e].visible;
-		r === void 0 && (r = !0);
-		let i = 0;
-		t.forEach((e) => {
-			e.visible && i++;
-		}), (i !== 6 || r === "legendonly") && (t[e].visible = r !== !0 || "legendonly", ge.default.react(this.graphDiv, t, n));
+		let t = this.dataPoints[e - 2].hidden;
+		ge.default.restyle(this.graphDiv, { visible: !t || "legendonly" }, [e]);
 	}
 	setOptimalView() {
 		let e = {
@@ -187324,95 +187485,40 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 			height: 600,
 			xaxis: {
 				range: [this.optimalXaxis[0], this.optimalXaxis[1]],
-				title: {
-					text: this.visualizationData.x_axis,
-					font: {
-						family: "Arial, sans-serif",
-						size: 18,
-						color: "black",
-						weight: "bold"
-					}
-				}
+				title: this.xAxisTitle()
 			},
-			yaxis: { title: {
-				text: this.visualizationData.y_axis,
-				font: {
-					family: "Arial, sans-serif",
-					size: 18,
-					color: "black",
-					weight: "bold"
-				}
-			} },
-			margin: {
-				l: 60,
-				r: 30,
-				t: 0,
-				b: 10,
-				pad: 4
+			yaxis: {
+				range: [this.optimalYaxis[0], this.optimalYaxis[1]],
+				title: this.axisTitle(this.visualizationData.y_axis)
 			},
-			legend: {
-				orientation: "h",
-				x: 0,
-				y: -.2,
-				xref: "paper",
-				yref: "paper",
-				font: { size: 16 },
-				itemdoubleclick: "toggle"
-			},
+			...this.getChartFrame(),
 			images: this.getImagePosition(this.optimalview),
 			showlegend: !0
 		};
 		this.layout.shapes && (e.shapes = this.layout.shapes), this.layout.annotations && (e.annotations = this.layout.annotations), this.layout = e, ge.default.relayout(this.graphDiv, this.layout);
 	}
+	getFullRange(e, t) {
+		let n = Math.min(...e), r = Math.max(...e), i = n < 0 ? (r - n) * .05 : t;
+		return [n < 0 ? n - i : 0, r > 0 ? r + i : 0];
+	}
 	setOriginalView() {
 		let e = {
 			xaxis: {
-				range: [0, Math.max(...this.xValues) + Math.min(...this.xValues) / 3],
-				title: {
-					text: this.visualizationData.x_axis,
-					font: {
-						family: "Arial, sans-serif",
-						size: 18,
-						color: "black",
-						weight: "bold"
-					}
-				}
+				range: this.getFullRange(this.xValues, Math.min(...this.xValues) / 3),
+				title: this.xAxisTitle()
 			},
 			yaxis: {
-				range: [0, Math.max(...this.yValues) + .05],
-				title: {
-					text: this.visualizationData.y_axis,
-					font: {
-						family: "Arial, sans-serif",
-						size: 18,
-						color: "black",
-						weight: "bold"
-					}
-				}
+				range: this.getFullRange(this.yValues, .05),
+				title: this.axisTitle(this.visualizationData.y_axis)
 			},
-			margin: {
-				l: 60,
-				r: 30,
-				t: 0,
-				b: 10,
-				pad: 4
-			},
-			legend: {
-				orientation: "h",
-				x: 0,
-				y: -.2,
-				xref: "paper",
-				yref: "paper",
-				font: { size: 16 },
-				itemdoubleclick: "toggle"
-			},
+			...this.getChartFrame(),
 			images: this.getImagePosition(this.optimalview),
 			showlegend: !0
 		};
 		this.optimal = "no", ge.default.relayout(this.graphDiv, e);
 	}
 	setClassificationView(e) {
-		ge.default.redraw(this.graphDiv), e == "noClassification" ? this.resetChart() : e == "toggleQuartilesVisibility" ? this.setQuartilesVisibility() : e == "toggleDiagonalQuartile" ? this.setDiagonalQuartile() : this.setKMeansVisivility();
+		e === "toggleKmeansVisibility" && this.dataPoints.length < 4 ? this.selectionNotice = "K-means requires at least four participants." : (this.selectionNotice = "", ge.default.redraw(this.graphDiv), e == "noClassification" ? this.resetChart() : e == "toggleQuartilesVisibility" ? this.setQuartilesVisibility() : e == "toggleDiagonalQuartile" ? this.setDiagonalQuartile() : this.setKMeansVisivility());
 	}
 	setQuartilesVisibility() {
 		if (!this.optimalview) return;
@@ -187422,13 +187528,10 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 			this.sorted = !0, this.showShapesKmeans = !1, this.viewDefault = !1, this.viewKmeans = !1, this.viewDiagonal = !1, this.viewSquare = !0, this.showShapesSquare = !0, this.showAnnotationSquare = !0, this.viewSelected = this.viewText.square, this.dataPoints.forEach((e) => {
 				e.hidden = !1;
 			});
-			let n = this.dataPoints.filter((e) => !e.hidden), r = this.formatOptimalDisplay(this.optimalview), i = rd.getParetoFrontier(n, { optimize: r }), a = {
-				x: [i.map((e) => e[0])],
-				y: [i.map((e) => e[1])]
-			};
-			this.layout && (this.layout.annotation = this.getOptimizationArrow(this.optimalview)), this.getOptimizationArrow(this.optimalview), this.getImagePosition(this.optimalview);
-			let o = Array(t).fill(!0);
-			this.showAdditionalTable = !0, this.calculateQuartiles(this.xValues, this.yValues, this.allToolID), ge.default.update(this.graphDiv, a, this.layout, 1), ge.default.update(this.graphDiv, { visible: o }), this.updated();
+			let n = this.dataPoints.filter((e) => !e.hidden), r = this.getParetoTraceUpdate(n);
+			this.layout && (this.layout.annotations = this.getOptimizationArrow(this.optimalview)), this.getOptimizationArrow(this.optimalview), { ...this.getChartFrame() }, this.getImagePosition(this.optimalview);
+			let i = Array(t).fill(!0);
+			this.showAdditionalTable = !0, this.calculateQuartiles(this.xValues, this.yValues, this.allToolID), ge.default.update(this.graphDiv, r, this.layout, 1), ge.default.update(this.graphDiv, { visible: i }), this.updated();
 		}
 	}
 	setDiagonalQuartile() {
@@ -187439,58 +187542,24 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 			this.sorted = !0, this.viewDefault = !1, this.viewDiagonal = !0, this.viewSquare = !1, this.viewKmeans = !1, this.showShapesKmeans = !1, this.showShapesSquare = !1, this.showShapesDiagonal = !0, this.viewSelected = this.viewText.diagonal, this.dataPoints.forEach((e) => {
 				e.hidden = !1;
 			});
-			let n = this.dataPoints.filter((e) => !e.hidden), r = this.formatOptimalDisplay(this.optimalview), i = rd.getParetoFrontier(n, { optimize: r }), a = {
-				x: [i.map((e) => e[0])],
-				y: [i.map((e) => e[1])]
-			};
+			let n = this.dataPoints.filter((e) => !e.hidden), r = this.getParetoTraceUpdate(n);
 			this.layout && (this.layout.shapes = []);
-			let o = {
+			let i = {
 				shapes: [],
 				annotations: this.getOptimizationArrow(this.optimalview),
 				xaxis: {
 					range: [this.optimalXaxis[0], this.optimalXaxis[1]],
-					title: {
-						text: this.visualizationData.x_axis,
-						font: {
-							family: "Arial, sans-serif",
-							size: 18,
-							color: "black",
-							weight: "bold"
-						}
-					}
+					title: this.xAxisTitle()
 				},
 				yaxis: {
 					range: [this.optimalYaxis[0], this.optimalYaxis[1]],
-					title: {
-						text: this.visualizationData.y_axis,
-						font: {
-							family: "Arial, sans-serif",
-							size: 18,
-							color: "black",
-							weight: "bold"
-						}
-					}
+					title: this.axisTitle(this.visualizationData.y_axis)
 				},
-				margin: {
-					l: 60,
-					r: 30,
-					t: 0,
-					b: 10,
-					pad: 4
-				},
-				legend: {
-					orientation: "h",
-					x: 0,
-					y: -.2,
-					xref: "paper",
-					yref: "paper",
-					font: { size: 16 },
-					itemdoubleclick: "toggle"
-				},
+				...this.getChartFrame(),
 				images: this.getImagePosition(this.optimalview),
 				showlegend: !0
-			}, s = Array(t).fill(!0);
-			this.showAdditionalTable = !0, this.calculateDiagonalQuartiles(this.xValues, this.yValues), ge.default.update(this.graphDiv, a, o), ge.default.update(this.graphDiv, { visible: s }), this.updated();
+			}, a = Array(t).fill(!0);
+			this.showAdditionalTable = !0, this.calculateDiagonalQuartiles(this.xValues, this.yValues), ge.default.update(this.graphDiv, r, i), ge.default.update(this.graphDiv, { visible: a }), this.updated();
 		}
 	}
 	setKMeansVisivility() {
@@ -187498,23 +187567,24 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 		let e = this.graphDiv.data;
 		if (e && e.length > 0) {
 			let t = e.length;
-			this.sorted = !0, this.showShapesSquare = !1, this.showAnnotationSquare = !1, this.viewSquare = !1, this.viewDiagonal = !1, this.viewKmeans = !0, this.viewDefault = !1, this.showShapesKmeans = !0, this.viewSelected = this.viewText.kmeans, this.dataPoints.forEach((e) => {
+			this.sorted = !0, this.showShapesSquare = !1, this.showAnnotationSquare = !1, this.viewSquare = !1, this.viewDiagonal = !1, this.viewKmeans = !0, this.viewDefault = !1, this.showShapesKmeans = !0, this.showAdditionalTable = !0, this.viewSelected = this.viewText.kmeans, this.dataPoints.forEach((e) => {
 				e.hidden = !1;
 			});
-			let n = this.dataPoints.filter((e) => !e.hidden), r = this.formatOptimalDisplay(this.optimalview), i = rd.getParetoFrontier(n, { optimize: r });
-			i.map((e) => e[0]), i.map((e) => e[1]), Array(t).fill(!0), this.getOptimizationArrow(this.optimalview);
-			let a = this.optimalview;
-			this.createShapeClustering(this.dataPoints, this.toolID, a, this.allToolID), this.updated();
+			let n = this.dataPoints.filter((e) => !e.hidden);
+			this.getParetoTraceUpdate(n), Array(t).fill(!0), this.getOptimizationArrow(this.optimalview);
+			let r = this.optimalview;
+			this.createShapeClustering(this.dataPoints, this.toolID, r, this.allToolID), this.updated();
 		}
 	}
 	getDiagonalLine(e, t, n, r, i, a) {
 		let o;
-		for (let r = 0; r < e.length; r++) if (e[r] <= n) {
+		e.length === 1 && (o = [t[e[0]], t[e[0]]]);
+		for (let r = 0; r < e.length && !o; r++) if (e[r] <= n) {
 			r == 0 && (r = 1), o = [[t[e[r - 1]][0], t[e[r - 1]][1]], [t[e[r]][0], t[e[r]][1]]];
 			break;
 		}
-		let s = [(o[0][0] + o[1][0]) / 2, (o[0][1] + o[1][1]) / 2], c, l;
-		return r == "bottom-right" ? (c = [s[0] - 2 * i, s[0] + 2 * i], l = [s[1] - 2 * a, s[1] + 2 * a]) : r == "top-right" ? (c = [s[0] + 2 * i, s[0] - 2 * i], l = [s[1] - 2 * a, s[1] + 2 * a]) : r == "top-left" && (c = [s[0] + 2 * i, s[0] - 2 * i], l = [s[1] + 2 * a, s[1] - 2 * a]), [c, l];
+		let s = [(o[0][0] + o[1][0]) / 2, (o[0][1] + o[1][1]) / 2], c, l, { xHigher: u, yHigher: d } = this.getCornerDirections(r);
+		return c = d ? [s[0] + 2 * i, s[0] - 2 * i] : [s[0] - 2 * i, s[0] + 2 * i], l = u ? [s[1] - 2 * a, s[1] + 2 * a] : [s[1] + 2 * a, s[1] - 2 * a], [c, l];
 	}
 	getCentroid(e) {
 		return e.reduce(function(t, n) {
@@ -187600,12 +187670,9 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
 		};
 		return t.push(i), t;
 	}
-	getOptimalText() {
-		return this.isOptimal ? J` ${this.optimalTextReset} ` : J` ${this.optimalText} `;
-	}
 	render() {
 		return J`
-            <div class="bar-plot oeb-graph">
+            <div class="scatter-plot oeb-graph">
                 <div class="graph-row" id="graph-filters">
                     <div class="col-8">
                         <div class="btn-group btn-graphs" role="group" aria-label="">
@@ -187637,11 +187704,14 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" id="optimalBtn" class="btn btn-secondary"
-                                @click="${this.toggleView}">
-                                <span>${this.getOptimalText()}</span>
-                            </button>
-                            <button type="button" id="optimalBtn" class="btn btn-secondary"
+                            <div class="view-switch" role="group" aria-label="Chart view">
+                                <span class="view-switch-label">View</span>
+                                <button type="button" class="btn view-option" aria-pressed="${!this.isOptimal}"
+                                    @click="${() => this.isOptimal && this.toggleView()}">Original</button>
+                                <button type="button" class="btn view-option" aria-pressed="${this.isOptimal}"
+                                    @click="${() => !this.isOptimal && this.toggleView()}">Optimal</button>
+                            </div>
+                            <button type="button" id="resetBtn" class="btn btn-secondary"
                                 @click="${this.resetChart}">
                                 <span>Reset Chart</span>
                             </button>
@@ -187684,6 +187754,14 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
                         </div>
                     </div>
                 </div>
+                ${this.selectionNotice ? J`
+                    <div class="selection-notice" role="status">
+                        ${this.selectionNotice}
+                        <button type="button" @click=${() => {
+			this.selectionNotice = "";
+		}}>Dismiss</button>
+                    </div>
+                ` : ""}
                 <div class="graph-row" id="todownload">
                     <div class=${this.sorted ? "col-8" : "col-12"} id="chartCapture">
                         <div class="chart" id="scatter-chart"></div>
@@ -187712,9 +187790,8 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
                                                 <ui-tooltip
                                                     for="anchor"
                                                     icon="info"
-                                                    textTitle="The Square quartile label"
-                                                    textBody="Quartiles 2 and 3 are 'Mid (M)', representing average rankings, while 'Top (T)' 
-                                                        denotes quartiles above average and 'Bottom (B)' those below, offering clarity in ranking.">
+                                                    .textTitle=${this.viewKmeans ? "Clusters" : "Quartile classification"}
+                                                    .textBody=${this.viewKmeans ? "Participants are grouped into four clusters using both metrics. Hidden participants show --." : this.viewDiagonal ? "Quartile 1 is closest to the optimal corner; quartile 4 is furthest away. Hidden participants show --." : "Top is the optimal quadrant, Bottom is the opposite quadrant, and Interquartile covers the other two. Hidden participants show --."}>
                                                 </ui-tooltip>
                                             </th>
                                         </tr>
@@ -187723,7 +187800,7 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
                                         ${this.showAdditionalTable ? J`
                                             ${this.quartileDataArray.map((e, t) => J`
                                                 <tr>
-                                                    <td class="toolColumn" @click="${() => handleTableRowClick(t)}">
+                                                    <td class="toolColumn" @click="${() => this.handleTableRowClick(t)}">
                                                         <div class="color-box" style="background-color: ${this.markerColors[t % this.markerColors.length]}"></div>
                                                         <span>${e.tool_id}</span>
                                                     </td>
@@ -187741,13 +187818,13 @@ var vd = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t) => {
         `;
 	}
 };
-window.customElements.define("scatter-plot", bd);
+window.customElements.define("scatter-plot", vd);
 // src/box-plot.js
-var xd = {
+var yd = {
 	displayModeBar: !1,
 	responsive: !0,
 	hovermode: !1
-}, Sd = class extends me {
+}, bd = class extends me {
 	static get styles() {
 		return [_e, ve];
 	}
@@ -187761,7 +187838,8 @@ var xd = {
 		tracesTable: [],
 		orientation: "v",
 		graphStyleSelected: "empty",
-		isDownloading: !1
+		isDownloading: !1,
+		selectionNotice: { state: !0 }
 	};
 	constructor() {
 		super(), this.imgLogo = ye, this.orientationMenu = {
@@ -187805,21 +187883,21 @@ var xd = {
 				xref: "paper",
 				yref: "paper",
 				font: { size: 16 },
-				itemdoubleclick: "toggle"
+				itemdoubleclick: !1
 			},
 			images: this.getImagePosition(this.optimalview),
 			showlegend: !0
-		}, this.isDownloading = !1;
+		}, this.isDownloading = !1, this.selectionNotice = "", this.onLegendClick = (e) => (this.toggleParticipant(e.curveNumber), !1);
 	}
 	attributeChangedCallback(e, t, n) {
 		this.data = JSON.parse(n), super.attributeChangedCallback(e, t, JSON.parse(n));
 	}
-	updated() {
-		this.graphDiv = this.shadowRoot.querySelector("#box-chart"), this.todoDownload = this.shadowRoot.querySelector("#todownload"), this.chartCapture = this.shadowRoot.querySelector("#chartCapture"), this.tableColumn = this.shadowRoot.querySelector("#table-column"), this.benchmarkingTable = this.shadowRoot.querySelector("#benchmarkingTable"), this.myPlot = ge.default.newPlot(this.graphDiv, [], {}, {
+	updated(e) {
+		this.graphDiv = this.shadowRoot.querySelector("#box-chart"), this.todoDownload = this.shadowRoot.querySelector("#todownload"), this.chartCapture = this.shadowRoot.querySelector("#chartCapture"), this.tableColumn = this.shadowRoot.querySelector("#table-column"), this.benchmarkingTable = this.shadowRoot.querySelector("#benchmarkingTable"), e.size && [...e.keys()].every((e) => e === "selectionNotice" || e === "tracesTable") || (this.myPlot = ge.default.newPlot(this.graphDiv, [], {}, {
 			displayModeBar: !1,
 			responsive: !0,
 			hovermode: !1
-		}), this.renderChart();
+		}), this.renderChart());
 	}
 	firstUpdated() {
 		let e = this.data.inline_data;
@@ -187842,18 +187920,32 @@ var xd = {
 			};
 			t.push(i);
 		}
-		this.sorted && (this.sortedName == "minimum" ? t.sort((e, t) => e.median[0] > t.median[0]) : this.traces.sort((e, t) => e.median[0] < t.median[0]), this.viewSelected = this.viewText[this.sortedName]), this.originalTraces = t, this.traces = t;
+		this.originalTraces = [...t], this.sorted && (t.sort((e, t) => this.sortedName == "minimum" ? e.median[0] - t.median[0] : t.median[0] - e.median[0]), this.viewSelected = this.viewText[this.sortedName]), this.traces = t;
 	}
 	renderChart() {
-		this.sorted && (this.sortedName == "minimum" ? this.traces.sort((e, t) => e.median[0] > t.median[0]) : this.traces.sort((e, t) => e.median[0] < t.median[0]), this.viewSelected = this.viewText[this.sortedName], this.showAdditionalTable = !0, this.tracesTable = this.traces, this.isSorted = !0), this.orientation, delete this.layout.xaxis, this.layout.yaxis = { title: {
-			text: this.visualizationData.y_axis,
-			font: {
-				family: "Arial, sans-serif",
-				size: 18,
-				color: "black",
-				weight: "bold"
-			}
-		} };
+		this.sorted && (this.traces.sort((e, t) => this.sortedName == "minimum" ? e.median[0] - t.median[0] : t.median[0] - e.median[0]), this.viewSelected = this.viewText[this.sortedName], this.showAdditionalTable = !0, this.tracesTable = this.traces, this.isSorted = !0), this.orientation == "Horizontal" ? (delete this.layout.yaxis, this.layout.xaxis = {
+			title: {
+				text: this.visualizationData.y_axis,
+				font: {
+					family: "Arial, sans-serif",
+					size: 18,
+					color: "black",
+					weight: "bold"
+				}
+			},
+			hoverformat: ".5f"
+		}) : (delete this.layout.xaxis, this.layout.yaxis = {
+			title: {
+				text: this.visualizationData.y_axis,
+				font: {
+					family: "Arial, sans-serif",
+					size: 18,
+					color: "black",
+					weight: "bold"
+				}
+			},
+			hoverformat: ".5f"
+		});
 		let e = null;
 		this.layout == null || this.layout == null || this.layout.empty ? this.layout = {
 			title: "",
@@ -187866,7 +187958,7 @@ var xd = {
 				xref: "paper",
 				yref: "paper",
 				font: { size: 16 },
-				itemdoubleclick: "toggle"
+				itemdoubleclick: !1
 			},
 			showlegend: !0,
 			margin: {
@@ -187877,8 +187969,8 @@ var xd = {
 				pad: 4
 			},
 			images: this.getImagePosition(this.optimalview)
-		} : (e = this.layout, e.images = this.getImagePosition(this.optimalview)), ge.default.newPlot(this.graphDiv, this.traces, e, xd).then((t) => {
-			ge.default.animate(t, {
+		} : (e = this.layout, e.images = this.getImagePosition(this.optimalview)), ge.default.newPlot(this.graphDiv, this.traces, e, yd).then((t) => {
+			t.removeListener("plotly_legendclick", this.onLegendClick), t.on("plotly_legendclick", this.onLegendClick), ge.default.animate(t, {
 				data: this.traces.map((e, t) => ({ opacity: 1 })),
 				traces: Array.from(Array(this.traces.length).keys()),
 				layout: e,
@@ -187891,18 +187983,13 @@ var xd = {
 				frame: { duration: 500 }
 			});
 			let n = t.layout;
-			this.optimalXaxis && this.optimalXaxis.length != 0 || (this.optimalXaxis = n.xaxis.range, this.optimalYaxis = n.yaxis.range), t.on("plotly_legendclick", (e) => {
-				let t = e.curveNumber;
-				if (t === 0) return !1;
-				if (t === 1) return !0;
-				if (this.updatePlotOnSelection(t) == 0) return !1;
-			});
+			this.optimalXaxis && this.optimalXaxis.length != 0 || (this.optimalXaxis = n.xaxis.range, this.optimalYaxis = n.yaxis.range);
 		});
 	}
 	repaintGraph(e) {
 		let t = this.traces, n = this.layout;
-		ge.default.newPlot(this.graphDiv, t, n, xd).then((e) => {
-			ge.default.animate(e, {
+		ge.default.newPlot(this.graphDiv, t, n, yd).then((e) => {
+			e.removeListener("plotly_legendclick", this.onLegendClick), e.on("plotly_legendclick", this.onLegendClick), ge.default.animate(e, {
 				data: t.map((e, t) => ({ opacity: 1 })),
 				traces: Array.from(Array(t.length).keys()),
 				layout: n,
@@ -187915,18 +188002,20 @@ var xd = {
 				frame: { duration: 500 }
 			});
 			let r = e.layout;
-			this.optimalXaxis && this.optimalXaxis.length != 0 || (this.optimalXaxis = r.xaxis.range, this.optimalYaxis = r.yaxis.range), e.on("plotly_legendclick", (e) => {
-				let t = e.curveNumber;
-				if (t === 0) return !1;
-				if (t === 1) return !0;
-				if (this.updatePlotOnSelection(t) == 0) return !1;
-			});
+			this.optimalXaxis && this.optimalXaxis.length != 0 || (this.optimalXaxis = r.xaxis.range, this.optimalYaxis = r.yaxis.range);
 		});
 	}
 	handleChangeSort(e) {
 		this.tracesTable = [];
-		let t = this.traces;
-		e === "minimum" ? t.sort((e, t) => e.median[0] - t.median[0]) : e === "maximus" ? t.sort((e, t) => t.median[0] - e.median[0]) : t = this.originalTraces, this.tracesTable = t, this.sortedName = e, this.viewSelected = this.viewText[e], this.isSorted = e != "default", this.showAdditionalTable = e != "default", this.repaintGraph(t);
+		let t = e === "default" ? [...this.originalTraces] : [...this.traces];
+		e === "minimum" ? t.sort((e, t) => e.median[0] - t.median[0]) : e === "maximus" && t.sort((e, t) => t.median[0] - e.median[0]), this.traces = t, this.tracesTable = t, this.sorted = e !== "default" && e, this.sortedName = e, this.viewSelected = this.viewText[e], this.isSorted = e != "default", this.showAdditionalTable = e != "default", this.repaintGraph(t);
+	}
+	handleTableRowClick(e) {
+		this.toggleParticipant(e);
+	}
+	toggleParticipant(e) {
+		let t = this.traces[e], n = t.visible === "legendonly" || t.visible === !1;
+		!n && this.traces.filter((e) => e.visible !== "legendonly" && e.visible !== !1).length <= 1 ? this.selectionNotice = "At least one participant must remain visible." : (this.selectionNotice = "", t.visible = n ? !0 : "legendonly", this.tracesTable = [...this.traces], ge.default.restyle(this.graphDiv, { visible: t.visible }, [e]));
 	}
 	handleChangeOrientation(e) {
 		this.orientation = this.orientationMenu[e], this.traces.map((t) => {
@@ -187934,7 +188023,10 @@ var xd = {
 		}), this.layout = {
 			title: "",
 			autosize: !0,
-			legend: { orientation: "h" },
+			legend: {
+				orientation: "h",
+				itemdoubleclick: !1
+			},
 			showlegend: !0,
 			height: 600,
 			margin: {
@@ -187945,23 +188037,29 @@ var xd = {
 				pad: 4
 			},
 			images: this.getImagePosition(this.optimalview)
-		}, e == "h" ? (delete this.layout.yaxis, this.layout.xaxis = { title: {
-			text: this.visualizationData.y_axis,
-			font: {
-				family: "Arial, sans-serif",
-				size: 18,
-				color: "black",
-				weight: "bold"
-			}
-		} }) : (delete this.layout.xaxis, this.layout.yaxis = { title: {
-			text: this.visualizationData.y_axis,
-			font: {
-				family: "Arial, sans-serif",
-				size: 18,
-				color: "black",
-				weight: "bold"
-			}
-		} }), ge.default.react(this.graphDiv, this.traces, this.layout);
+		}, e == "h" ? (delete this.layout.yaxis, this.layout.xaxis = {
+			title: {
+				text: this.visualizationData.y_axis,
+				font: {
+					family: "Arial, sans-serif",
+					size: 18,
+					color: "black",
+					weight: "bold"
+				}
+			},
+			hoverformat: ".5f"
+		}) : (delete this.layout.xaxis, this.layout.yaxis = {
+			title: {
+				text: this.visualizationData.y_axis,
+				font: {
+					family: "Arial, sans-serif",
+					size: 18,
+					color: "black",
+					weight: "bold"
+				}
+			},
+			hoverformat: ".5f"
+		}), ge.default.react(this.graphDiv, this.traces, this.layout);
 	}
 	handleChangeStyle(e) {
 		this.graphStyleText = e === "empty" ? "Graph Style" : this.graphStyleMenu[e], this.graphStyleSelected = e, this.traces.map((t) => {
@@ -188175,6 +188273,14 @@ var xd = {
                         </div>
                     </div>
                 </div>
+                ${this.selectionNotice ? J`
+                    <div class="selection-notice" role="status">
+                        ${this.selectionNotice}
+                        <button type="button" @click=${() => {
+			this.selectionNotice = "";
+		}}>Dismiss</button>
+                    </div>
+                ` : ""}
                 <div class="graph-row" id="todownload">
                     <div class=${this.isSorted ? "col-8" : "col-12"} id="chartCapture">
                         <div class="chart" id="box-chart"></div>
@@ -188199,14 +188305,12 @@ var xd = {
                                         <tr>
                                             <th class="tools-th">Participants</th>
                                             <th class="classify-th">
-                                                <span>${this.viewKmeans ? "Clusters" : "Quartile"}</span>
+                                                <span>Median</span>
                                                 <ui-tooltip
                                                     for="anchor"
                                                     icon="info"
-                                                    textTitle="The performance label"
-                                                    textBody="The values will be displayed in the graph data order 'optimization'.<br/>
-                                                        Else, the default order should be the received data order.<br/>
-                                                        Its possible to change display order by click in 'Sort & Classify Data' button.">
+                                                    textTitle="Participant order"
+                                                    textBody="Participants follow the selected sort order. Default Sort restores the input order. Select a participant to show or hide it on the plot; hidden participants show --.">
                                                 </ui-tooltip>
                                             </th>
                                         </tr>
@@ -188215,11 +188319,11 @@ var xd = {
                                         ${this.showAdditionalTable ? J`
                                             ${this.tracesTable.map((e, t) => J`
                                                 <tr>
-                                                    <td class="toolColumn" @click="${() => handleTableRowClick(t)}">
+                                                    <td class="toolColumn" @click="${() => this.handleTableRowClick(t)}">
                                                         <div class="color-box" style="background-color: ${e.marker.color}"></div>
                                                         <span>${e.name}</span>
                                                     </td>
-                                                    <td class="">${e.median[0]}</td>
+                                                    <td class="">${e.visible === "legendonly" || e.visible === !1 ? "--" : e.median[0].toFixed(5)}</td>
                                                 </tr>
                                             `)}
                                     ` : ""}
@@ -188239,13 +188343,13 @@ var xd = {
         `;
 	}
 };
-window.customElements.define("box-plot", Sd);
+window.customElements.define("box-plot", bd);
 // src/radar-plot.js
-var Cd = {
+var xd = {
 	displayModeBar: !1,
 	responsive: !0,
 	hovermode: !1
-}, wd = class extends me {
+}, Sd = class extends me {
 	static get styles() {
 		return [_e, ve];
 	}
@@ -188328,7 +188432,7 @@ var Cd = {
 				r_value: [],
 				optimization: ""
 			}, e.inline_data.challenge_participants.push(n)), n.r_value = [...n.r_value, t.values[0].v], n.theta = [...n.theta, t.metric_id];
-		}), this.dataTraces = e.inline_data.challenge_participants.map((e, t) => {
+		}), this.normalized = this.representations.some((e) => e.scale), this.axisBounds = this.normalized ? this.getAxisBounds(e.inline_data.challenge_participants) : {}, this.dataTraces = e.inline_data.challenge_participants.map((e, t) => {
 			let n = e.theta.map((e) => {
 				let t = this.representations.find((t) => t.metric_id == e);
 				return t ? t.metric_id + " (<i>" + t.title + "</i>): " : "Unknown";
@@ -188337,9 +188441,9 @@ var Cd = {
 			let r = e.r_value.map((t, n) => {
 				let r = e.theta[n], i = this.representations.find((e) => e.metric_id == r);
 				return i && i.optimization === "minimize" ? -t : t;
-			});
-			r.push(r[0]);
-			let i = {
+			}), i = e.r_value.map((t, n) => this.formatRealValue(e.theta[n], t));
+			this.normalized && (r = e.r_value.map((t, n) => this.normalizeValue(e.theta[n], t)), i.push(i[0]), n = n.map((e, t) => `<b>${e}</b> ${i[t]}`)), r.push(r[0]);
+			let a = {
 				name: e.name,
 				mode: "markers+lines",
 				line: {
@@ -188358,9 +188462,9 @@ var Cd = {
 				marker: { color: this.markerColorsLines[t] },
 				fill: "toself",
 				fillcolor: this.markerColors[t],
-				hovertemplate: "<b>%{customdata}</b> %{r:.2f}<extra></extra>"
+				hovertemplate: this.normalized ? "%{customdata}<extra></extra>" : "<b>%{customdata}</b> %{r:.2f}<extra></extra>"
 			};
-			this.traces.push(i);
+			this.traces.push(a);
 		}), this.layout = {
 			autosize: !0,
 			height: 600,
@@ -188376,6 +188480,23 @@ var Cd = {
 			polar: {
 				radialaxis: {
 					visible: !0,
+					...this.normalized ? {
+						range: [0, 1],
+						tickvals: [
+							0,
+							.25,
+							.5,
+							.75,
+							1
+						],
+						ticktext: [
+							"worst",
+							"",
+							"",
+							"",
+							"best"
+						]
+					} : {},
 					color: "red",
 					gridcolor: "white",
 					linecolor: "white",
@@ -188405,6 +188526,35 @@ var Cd = {
 			images: this.getImagePosition()
 		};
 	}
+	getMetricSpec(e) {
+		return this.representations.find((t) => t.metric_id == e) ?? {};
+	}
+	getAxisBounds(e) {
+		let t = {};
+		return e.forEach((e) => {
+			e.theta.forEach((n) => {
+				let r = e.r_value.filter((t, r) => e.theta[r] === n), i = Math.min(...r), a = Math.max(...r), o = t[n] ?? {
+					min: Infinity,
+					max: -Infinity
+				};
+				t[n] = {
+					min: Math.min(o.min, i),
+					max: Math.max(o.max, a)
+				};
+			});
+		}), Object.entries(t).forEach(([e, t]) => {
+			let n = this.getMetricSpec(e);
+			n.scale === "log" ? (t.min = n.min ?? 10 ** Math.floor(Math.log10(t.min)), t.max = n.max ?? 10 ** Math.ceil(Math.log10(t.max))) : (t.min = n.min ?? Math.min(0, t.min), t.max = n.max ?? t.max);
+		}), t;
+	}
+	normalizeValue(e, t) {
+		let n = this.getMetricSpec(e), { min: r, max: i } = this.axisBounds[e], a = n.scale === "log" ? Math.log10 : (e) => e, o = a(i) - a(r), s = o > 0 ? (a(Math.max(t, r)) - a(r)) / o : .5;
+		return s = Math.min(1, Math.max(0, s)), n.optimization === "minimize" ? 1 - s : s;
+	}
+	formatRealValue(e, t) {
+		let n = this.getMetricSpec(e).unit, r = Math.abs(t) >= 1e3 ? t.toLocaleString("en-US") : +t.toPrecision(4);
+		return n ? `${r} ${n}` : `${r}`;
+	}
 	getLongDescription(e) {
 		switch (e = e.toUpperCase() ? e.toUpperCase() : e, e) {
 			case "OA": return "Overall accuracy";
@@ -188432,7 +188582,7 @@ var Cd = {
 	}
 	renderChart() {
 		let e = this.layout;
-		ge.default.newPlot(this.graphDiv, this.traces, e, Cd).then((t) => {
+		ge.default.newPlot(this.graphDiv, this.traces, e, xd).then((t) => {
 			ge.default.animate(t, {
 				data: this.traces,
 				layout: e,
@@ -188501,6 +188651,7 @@ var Cd = {
                     <div class="col-8">
                     </div>
                 </div>
+                <p class="legend-hint">Click a participant in the legend to show or hide it.</p>
                 <div class="graph-row" id="todownload">
                     <div class=${this.isSorted ? "col-8" : "col-12"} id="chartCapture">
                         <div class="chart" id="radar-chart"></div>
@@ -188522,16 +188673,16 @@ var Cd = {
         `;
 	}
 };
-window.customElements.define("radar-plot", wd);
+window.customElements.define("radar-plot", Sd);
 // node_modules/lit-html/directive.js
-var Td = {
+var Cd = {
 	ATTRIBUTE: 1,
 	CHILD: 2,
 	PROPERTY: 3,
 	BOOLEAN_ATTRIBUTE: 4,
 	EVENT: 5,
 	ELEMENT: 6
-}, Ed = class {
+}, wd = class {
 	constructor(e) {}
 	get _$AU() {
 		return this._$AM._$AU;
@@ -188545,9 +188696,9 @@ var Td = {
 	update(e, t) {
 		return this.render(...t);
 	}
-}, Dd = class extends Ed {
+}, Td = class extends wd {
 	constructor(e) {
-		if (super(e), this.it = X, e.type !== Td.CHILD) throw Error(this.constructor.directiveName + "() can only be used in child bindings");
+		if (super(e), this.it = X, e.type !== Cd.CHILD) throw Error(this.constructor.directiveName + "() can only be used in child bindings");
 	}
 	render(e) {
 		if (e === X || e == null) return this._t = void 0, this.it = e;
@@ -188563,9 +188714,9 @@ var Td = {
 		};
 	}
 };
-Dd.directiveName = "unsafeHTML", Dd.resultType = 1;
-// src/line-plot.js
-var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
+Td.directiveName = "unsafeHTML", Td.resultType = 1;
+// src/line-statistics.js
+var Ed = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 	(function(n, r) {
 		if (typeof define == "function" && define.amd) define(["module"], r);
 		else if (e !== void 0) r(t);
@@ -188759,11 +188910,56 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 		}
 		e.exports = l();
 	});
-})))(), 1), kd = {
+})))(), 1);
+function Dd(e) {
+	if (!e.length || e.some((e) => !Array.isArray(e.x) || !Array.isArray(e.y) || e.x.length < 2 || e.x.length !== e.y.length || e.x.some((e) => !Number.isFinite(e)) || e.y.some((e) => !Number.isFinite(e)))) return { error: "AUC classification requires at least two finite X and Y values for each participant." };
+	let t = [];
+	for (let n of e) {
+		let e = n.x.some((e, t) => t > 0 && e > n.x[t - 1]), r = n.x.some((e, t) => t > 0 && e < n.x[t - 1]);
+		if (e && r) return { error: "AUC classification requires each curve to have monotonic X values." };
+		let i = n.x.map((e, t) => [e, n.y[t]]);
+		t.push(r ? i.reverse() : i);
+	}
+	let n = Math.max(...t.map((e) => e[0][0])), r = Math.min(...t.map((e) => e[e.length - 1][0]));
+	if (n >= r) return { error: "AUC classification requires a shared X range across all participants." };
+	let i = t.map((e) => {
+		let t = 0;
+		for (let i = 1; i < e.length; i++) {
+			let [a, o] = e[i - 1], [s, c] = e[i], l = Math.max(a, n), u = Math.min(s, r);
+			if (u <= l) continue;
+			let d = o + (c - o) * (l - a) / (s - a), f = o + (c - o) * (u - a) / (s - a);
+			t += (u - l) * (d + f) / 2;
+		}
+		return t;
+	});
+	return i.some((e) => !Number.isFinite(e)) ? { error: "AUC classification could not calculate finite areas for these values." } : {
+		areas: i,
+		range: [n, r]
+	};
+}
+function Od(e) {
+	return e.reduce((t, n) => t + n / e.length, 0);
+}
+function kd(e, t) {
+	let n = e.map((e) => t ? -e : e), r = [...n].sort((e, t) => e - t), i = (e) => {
+		let t = e * (r.length - 1), n = Math.floor(t), i = Math.ceil(t), a = t - n;
+		return r[n] * (1 - a) + r[i] * a;
+	}, a = i(.25), o = i(.5), s = i(.75);
+	return n.map((e) => e >= s ? 1 : e >= o ? 2 : e >= a ? 3 : 4);
+}
+function Ad(e, t) {
+	let n = Od(e);
+	return e.map((r) => {
+		let i = r - n, a = 2 ** -52 * Math.max(Math.abs(r), Math.abs(n)) * e.length;
+		return Math.abs(i) <= a ? 0 : i * (t ? -1 : 1);
+	});
+}
+// src/line-plot.js
+var jd = {
 	displayModeBar: !1,
 	responsive: !0,
 	hovermode: !1
-}, Ad = class extends me {
+}, Md = class extends me {
 	static get styles() {
 		return [_e, ve];
 	}
@@ -188776,29 +188972,38 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 		showAverageTable: !1,
 		showInterquartileTable: !1,
 		showTrend: !1,
+		classificationNotice: { state: !0 },
+		selectionNotice: { state: !0 },
+		showRandomClassifier: { state: !0 },
 		viewSelected: "No Classification",
 		mode: "linesmarkers",
 		optimization: "default"
 	};
 	constructor() {
-		super(), this.imgLogo = ye, this.layout = {}, this.originalData = "", this.datasetModDate = "", this.viewSelected = "Default View", this.viewSelectedKey = "default", this.mode = "linesmarkers", this.threshold = [], this.quartileData = [], this.averageData = [], this.interquartileData = [], this.modeText = {
+		super(), this.imgLogo = ye, this.layout = {}, this.originalData = "", this.datasetModDate = "", this.viewSelected = "Default View", this.viewSelectedKey = "default", this.mode = "linesmarkers", this.threshold = [], this.quartileData = [], this.averageData = [], this.interquartileData = [], this.classificationNotice = "", this.selectionNotice = "", this.showRandomClassifier = !1, this.onLegendClick = (e) => {
+			if (e.curveNumber < this.participantCount) {
+				let t = this.graphDiv.data.slice(0, this.participantCount), n = t[e.curveNumber], r = (e) => e.visible !== "legendonly" && e.visible !== !1;
+				if (r(n) && t.filter(r).length <= 1) return this.selectionNotice = "At least one participant must remain visible.", !1;
+			}
+			this.selectionNotice = "";
+		}, this.modeText = {
 			lines: "lines",
 			markers: "markers",
 			linesmarkers: "lines+markers"
 		}, this.originalTraces = [], this.viewText = {
 			default: "Default View",
-			quartiles: "Quartiles",
-			average: "Average",
+			quartiles: "Quartiles (AUC)",
+			average: "Average (AUC)",
 			interquartile: "Interquartile range",
 			trend: "Trend"
 		}, this.viewTooltipTitle = {
-			quartiles: "The Square quartile label",
-			average: "The Average Value Indicator",
+			quartiles: "Quartile classification",
+			average: "Average AUC",
 			interquartile: "The Interquartile Range (IQR)"
 		}, this.viewTooltipBody = {
-			quartiles: "By default, the highest values will be displayed in the first quartile. Inversely if it is specified.",
-			average: "The average represents the central tendency, calculated by summing all values and dividing by the total count.",
-			interquartile: "The IQR highlights the spread of the middle 50% of data, calculated as the difference between the third and first quartiles."
+			quartiles: "Curves are ranked by area under the curve over their shared X range. Q1 is best; the Y-axis optimization determines whether higher or lower area is better.",
+			average: "Each curve's area over the shared X range is compared with the mean area. The Y-axis optimization determines whether higher or lower area is better.",
+			interquartile: "Values are pooled across all participant curves for each axis. Q1, Q2, and Q3 are the 25th percentile, median, and 75th percentile; IQR is Q3 minus Q1."
 		}, this.markerColors = [
 			"#D62728",
 			"#FF7F0E",
@@ -188852,6 +189057,7 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 		this.data = JSON.parse(n), super.attributeChangedCallback(e, t, JSON.parse(n));
 	}
 	firstUpdated() {
+		this.showRandomClassifier = this.data?.inline_data?.visualization?.show_random_classifier !== !1;
 		let e = {
 			_id: this.data._id,
 			dates: this.data.dates,
@@ -188923,11 +189129,11 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 				symbol: "square",
 				size: 5
 			}
-		})), this.dataTraces.push({
+		})), this.participantCount = this.dataTraces.length, this.showRandomClassifier && this.dataTraces.push({
 			x: [0, 1],
 			y: [0, 1],
 			mode: "lines",
-			name: "Clasificador Aleatorio",
+			name: "Random Classifier",
 			line: {
 				color: "rgba(0,0,0,0.3)",
 				dash: "dot",
@@ -188983,8 +189189,10 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 				itemdoubleclick: "toggle"
 			},
 			showlegend: !0
-		}, this.defaultOptimizationText = `X: ${r.visualization.x_optimization === "maximize" ? "maximize" : "minimize"}`, this.defaultOptimizationText += `<br/> Y: ${r.visualization.y_optimization === "maximize" ? "maximize" : "minimize"}`;
-		let i = this.annotations.map((e, t) => ({
+		}, this.defaultOptimizationText = `X: ${r.visualization.x_optimization === "maximize" ? "maximize" : "minimize"}`, this.defaultOptimizationText += `<br/> Y: ${r.visualization.y_optimization === "maximize" ? "maximize" : "minimize"}`, this.layout.annotations = this.getAucAnnotations();
+	}
+	getAucAnnotations() {
+		return this.annotations.map((e, t) => ({
 			x: 0,
 			y: 1 - t * .05,
 			xref: "paper",
@@ -188993,14 +189201,9 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 			showarrow: !1,
 			font: { size: 14 }
 		}));
-		this.layout.annotations = i;
 	}
-	updated() {
-		this.graphDiv = this.shadowRoot.querySelector("#line-chart"), this.todoDownload = this.shadowRoot.querySelector("#todownload"), this.chartCapture = this.shadowRoot.querySelector("#chartCapture"), this.tableColumn = this.shadowRoot.querySelector("#table-column"), this.benchmarkingTable = this.shadowRoot.querySelector("#benchmarkingTable"), this.myPlot = ge.default.newPlot(this.graphDiv, [], this.layout, {
-			displayModeBar: !1,
-			responsive: !0,
-			hovermode: !1
-		}), this.renderChart();
+	updated(e) {
+		this.graphDiv = this.shadowRoot.querySelector("#line-chart"), this.todoDownload = this.shadowRoot.querySelector("#todownload"), this.chartCapture = this.shadowRoot.querySelector("#chartCapture"), this.tableColumn = this.shadowRoot.querySelector("#table-column"), this.benchmarkingTable = this.shadowRoot.querySelector("#benchmarkingTable"), e.size && [...e.keys()].every((e) => e === "classificationNotice" || e === "selectionNotice") || this.renderChart();
 	}
 	calculateAUC(e, t) {
 		let n = 0;
@@ -189008,7 +189211,7 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 			let i = e[r + 1] - e[r], a = (t[r] + t[r + 1]) / 2;
 			n += i * a;
 		}
-		return n;
+		return e[e.length - 1] < e[0] ? -n : n;
 	}
 	formatDateString(e) {
 		return new Date(e).toLocaleString("en-US", {
@@ -189018,20 +189221,15 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 		});
 	}
 	renderChart(e) {
-		this.data && !e ? (this.threshold = this.data.inline_data.thresholds, ge.default.newPlot(this.graphDiv, this.dataTraces, this.layout, kd)) : e && e.length > 0 && (this.dataTraces = e, ge.default.newPlot(this.graphDiv, e, this.layout, kd));
+		if (this.data && !e) this.threshold = this.data.inline_data.thresholds;
+		else if (e && e.length > 0) this.dataTraces = e;
+		else return;
+		ge.default.newPlot(this.graphDiv, this.dataTraces, this.layout, jd).then((e) => {
+			e.removeListener("plotly_legendclick", this.onLegendClick), e.removeListener("plotly_legenddoubleclick", this.onLegendClick), e.on("plotly_legendclick", this.onLegendClick), e.on("plotly_legenddoubleclick", this.onLegendClick);
+		});
 	}
 	repaintGraph(e) {
-		let t = e;
-		this.layout, ge.default.react(this.graphDiv, [t, {
-			x: [0, 1],
-			y: [0, 1],
-			mode: "lines",
-			name: "Random Classifier",
-			line: {
-				dash: "dash",
-				color: "red"
-			}
-		}], this.layout);
+		ge.default.react(this.graphDiv, e, this.layout);
 	}
 	getImagePosition() {
 		return [{
@@ -189050,19 +189248,30 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 	handleChangeMode(e) {
 		this.mode = e;
 		let t = this.dataTraces;
-		e === "lines" ? t.forEach((e) => {
+		this.originalTraces.slice(0, this.participantCount).forEach((t) => {
+			t.mode = this.modeText[e];
+		}), e === "lines" ? t.slice(0, this.participantCount).forEach((e) => {
 			e.mode = "lines";
-		}) : e === "markers" ? t.forEach((e) => {
+		}) : e === "markers" ? t.slice(0, this.participantCount).forEach((e) => {
 			e.mode = "markers";
-		}) : e === "linesmarkers" && t.forEach((e) => {
+		}) : e === "linesmarkers" && t.slice(0, this.participantCount).forEach((e) => {
 			e.mode = "lines+markers";
 		}), this.repaintGraph(t);
 	}
 	resetQuartileTable() {
 		this.showAdditionalTable = !1, this.showQuartileTable = !1, this.showAverageTable = !1, this.showInterquartileTable = !1, this.quartileData = [], this.averageData = [], this.interquartileData = [];
 	}
-	async setClassificationView(e) {
-		if (this.resetQuartileTable(), e === "default") {
+	setClassificationView(e) {
+		let t, n;
+		if (e === "quartiles" || e === "average") {
+			let e = Dd(this.originalTraces.slice(0, this.participantCount));
+			if (e.error) {
+				this.classificationNotice = e.error;
+				return;
+			}
+			t = e.areas, n = e.range;
+		}
+		if (this.classificationNotice = "", this.selectionNotice = "", this.resetQuartileTable(), this.layout.annotations = this.getAucAnnotations(), e === "default") {
 			let e = [...this.originalTraces];
 			this.viewSelected = "Default View", this.viewSelectedKey = "default", this.sorted = !1, this.quartileData = [], this.tracesTable = [], this.layout = {
 				title: "",
@@ -189109,16 +189318,15 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 					font: { size: 16 },
 					itemdoubleclick: "toggle"
 				},
-				showlegend: !0
+				showlegend: !0,
+				annotations: this.getAucAnnotations()
 			}, this.renderChart(e);
 		} else if (e === "quartiles") {
-			let e = [...this.originalTraces];
-			this.viewSelected = "Quartiles", this.viewSelectedKey = "quartiles", this.sorted = !0, this.showAdditionalTable = !0, this.showQuartileTable = !0, this.tracesTable = e, e.splice(e.length - 1, 1), this.quartileData = this.calculateQuartiles(e), this.quartileData.forEach((t, n) => {
-				t.quartileName = e[n].name, t.quartile = this.quartileData[n].quartile, t.label = this.quartileData[n].label, t.bgColor = this.getQuartileBgColor(t.quartile).bgColor;
-			}), ge.default.Plots.resize(this.graphDiv), await new Promise((e) => setTimeout(e, 100)), this.addLinesBetweenQuartiles(), this.addQuartileLabels(), this.layout.height = 800, this.renderChart(this.originalTraces);
+			let e = this.originalTraces.slice(0, this.participantCount);
+			this.viewSelected = this.viewText.quartiles, this.viewSelectedKey = "quartiles", this.sorted = !0, this.showAdditionalTable = !0, this.showQuartileTable = !0, this.tracesTable = e, this.quartileData = this.calculateQuartiles(e, t), this.layout.annotations = [this.getComparisonAnnotation(n)], this.layout.height = 800, this.renderChart(this.getClassifiedTraces(this.quartileData, "label"));
 		} else if (e === "average") {
-			let e = [...this.originalTraces];
-			e.splice(e.length - 1, 1), this.viewSelected = "Average", this.viewSelectedKey = "average", this.showAdditionalTable = !0, this.showAverageTable = !0, this.sorted = !0, this.layout = {
+			let e = this.originalTraces.slice(0, this.participantCount);
+			this.viewSelected = this.viewText.average, this.viewSelectedKey = "average", this.showAdditionalTable = !0, this.showAverageTable = !0, this.sorted = !0, this.layout = {
 				title: "",
 				autosize: !0,
 				height: 800,
@@ -189164,19 +189372,19 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 					itemdoubleclick: "toggle"
 				},
 				showlegend: !0
-			}, this.setOptimitacionValuesLayout(this.optimization), this.averageData = this.calculateAverage(e), this.renderChart(this.originalTraces);
+			}, this.setOptimitacionValuesLayout(this.optimization), this.averageData = this.calculateAverage(e, t), this.layout.annotations = [this.getComparisonAnnotation(n, Od(t))], this.renderChart(this.getClassifiedTraces(this.averageData, "category"));
 		} else if (e === "interquartile") {
 			let e = [...this.originalTraces];
-			this.viewSelected = "Interquartile range", this.viewSelectedKey = "interquartile", this.sorted = !0, this.showAdditionalTable = !0, this.showInterquartileTable = !0, this.interquartileData = this.calculateIQR(e), this.addLinesBetweenQuartiles(), this.addQuartileLabels(), this.renderChart(e);
+			this.viewSelected = "Interquartile range", this.viewSelectedKey = "interquartile", this.sorted = !0, this.showAdditionalTable = !0, this.showInterquartileTable = !0, this.interquartileData = this.calculateIQR(e.slice(0, this.participantCount)), this.renderChart(e);
 		} else if (e === "trend") {
 			let e = [...this.originalTraces];
 			this.viewSelected = "Trend", this.viewSelectedKey = "trend", this.showTrend = !0, this.sorted = !1, this.tracesTable = e;
-			let t = this.calculateTrend(e), n = {
+			let t = this.calculateTrend(e.slice(0, this.participantCount)), n = {
 				name: "General Trendline",
 				x: t.regressionX,
 				y: t.regressionY,
 				type: "scatter",
-				mode: "linesmarkers",
+				mode: "lines",
 				line: {
 					color: "#1A1A19",
 					width: 1,
@@ -189232,116 +189440,45 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 			}, this.setOptimitacionValuesLayout(this.optimization), this.renderChart(e);
 		}
 	}
-	addLinesBetweenQuartiles() {
-		let e = this.graphDiv.layout;
-		e.shapes = e.shapes || [];
-		let t = Object.keys(this.quartileData);
-		for (let n = 1; n < t.length; n++) {
-			let r = this.quartileData[t[n]], i = this.quartileData[t[n - 1]];
-			if (r.quartile !== i.quartile) {
-				let t = (n + n - 1) / 2;
-				e.shapes.push({
-					type: "line",
-					xref: "x",
-					yref: "paper",
-					x0: t,
-					x1: t,
-					y0: 0,
-					y1: 0,
-					line: {
-						color: "rgba(11, 87, 159, 0.5)",
-						width: 2,
-						dash: "dashdot"
-					}
-				});
-			}
-		}
-		ge.default.relayout(this.graphDiv, { shapes: e.shapes });
+	getComparisonAnnotation(e, t) {
+		return {
+			x: 0,
+			y: 1.03,
+			xref: "paper",
+			yref: "paper",
+			xanchor: "left",
+			yanchor: "bottom",
+			align: "left",
+			text: `Shared X range: ${e[0]} to ${e[1]}` + (t === void 0 ? "" : `<br>Mean AUC ≈ ${t.toPrecision(5)}`),
+			showarrow: !1,
+			bgcolor: "rgba(255,255,255,0.85)",
+			font: { size: 14 }
+		};
 	}
-	addQuartileLabels() {
-		let e = this.graphDiv.layout;
-		e.annotations = e.annotations || [];
-		let t = Object.keys(this.quartileData), n = {};
-		t.forEach((e) => {
-			let t = this.quartileData[e].quartile;
-			n[t] = (n[t] || 0) + 1;
-		});
-		let r = /* @__PURE__ */ new Set();
-		t.forEach((i) => {
-			let a = this.quartileData[i].quartile, o;
-			if (n[a] === 1) o = t.indexOf(i);
-			else {
-				let e = t.reduce((e, t, n) => (this.quartileData[t].quartile === a && e.push(n), e), []);
-				o = e.reduce((e, t) => e + t, 0) / e.length;
-			}
-			r.has(o) || (e.annotations.push({
-				x: o,
-				y: 1.03,
-				xref: "x",
-				yref: "paper",
-				text: `Q${a}`,
-				showarrow: !1,
-				font: {
-					size: 16,
-					color: "rgba(11, 87, 159, 0.5)"
-				}
-			}), r.add(o));
-		}), this.layout = e, ge.default.relayout(this.graphDiv, { annotations: e.annotations });
+	getClassifiedTraces(e, t) {
+		return this.originalTraces.map((n, r) => r < this.participantCount ? {
+			...n,
+			name: `${n.name} — ${e[r][t]}`
+		} : n);
 	}
 	calculateTrend(e) {
-		let t = e.flatMap((e) => e.x.map((t, n) => [t, e.y[n]])), n = Od.default.linear(t).points;
+		let t = e.flatMap((e) => e.x.map((t, n) => [t, e.y[n]])), n = Ed.default.linear(t).points.sort((e, t) => e[0] - t[0]);
 		return {
 			regressionX: n.map((e) => e[0]),
 			regressionY: n.map((e) => e[1])
 		};
 	}
 	calculateIQR(e) {
-		let t = e.map((e) => e.x).flat(), n = e.map((e) => e.y).flat(), r = t.sort((e, t) => e - t), i = n.sort((e, t) => e - t), a = this.percentile(r, 25), o = this.percentile(r, 50), s = this.percentile(r, 75), c = this.percentile(i, 25), l = this.percentile(i, 50), u = this.percentile(i, 75), d = (s - a).toFixed(2), f = (u - c).toFixed(2);
+		let t = e.map((e) => e.x).flat(), n = e.map((e) => e.y).flat(), r = t.sort((e, t) => e - t), i = n.sort((e, t) => e - t), a = this.percentile(r, 25), o = this.percentile(r, 50), s = this.percentile(r, 75), c = this.percentile(i, 25), l = this.percentile(i, 50), u = this.percentile(i, 75);
 		return {
-			IQR_x: {
-				value: parseFloat(d).toFixed(2),
-				color: this.getInterquartileBgColor(parseFloat(d), a, o, s)
-			},
-			IQR_y: {
-				value: parseFloat(f).toFixed(2),
-				color: this.getInterquartileBgColor(parseFloat(f), c, l, u)
-			},
-			Q1_x: {
-				value: parseFloat(a).toFixed(2),
-				color: this.getInterquartileBgColor(parseFloat(a), a, o, s)
-			},
-			Q2_x: {
-				value: parseFloat(o).toFixed(2),
-				color: this.getInterquartileBgColor(parseFloat(o), a, o, s)
-			},
-			Q3_x: {
-				value: parseFloat(s).toFixed(2),
-				color: this.getInterquartileBgColor(parseFloat(s), a, o, s)
-			},
-			Q1_y: {
-				value: parseFloat(c).toFixed(2),
-				color: this.getInterquartileBgColor(parseFloat(c), c, l, u)
-			},
-			Q2_y: {
-				value: parseFloat(l).toFixed(2),
-				color: this.getInterquartileBgColor(parseFloat(l), c, l, u)
-			},
-			Q3_y: {
-				value: parseFloat(u).toFixed(2),
-				color: this.getInterquartileBgColor(parseFloat(u), c, l, u)
-			}
-		};
-	}
-	getInterquartileBgColor(e, t, n, r) {
-		return e < t ? {
-			category: "Low (below Q1)",
-			bgColor: "#D37676"
-		} : e >= t && e <= r ? {
-			category: "Medium (between Q1 and Q3)",
-			bgColor: "#FAEDCE"
-		} : {
-			category: "High (above Q3)",
-			bgColor: "#A5DD9B"
+			IQR_x: (s - a).toFixed(2),
+			IQR_y: (u - c).toFixed(2),
+			Q1_x: a.toFixed(2),
+			Q2_x: o.toFixed(2),
+			Q3_x: s.toFixed(2),
+			Q1_y: c.toFixed(2),
+			Q2_y: l.toFixed(2),
+			Q3_y: u.toFixed(2)
 		};
 	}
 	getQuartileBgColor(e) {
@@ -189350,46 +189487,34 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
 		if (e == 3) return { bgColor: "rgb(116, 196, 118)" };
 		if (e == 4) return { bgColor: "rgb(35, 139, 69)" };
 	}
-	calculateQuartilesSteps(e) {
-		e.sort((e, t) => e - t);
-		let t = e.flat();
-		return t.sort((e, t) => e - t), {
-			Q1: this.percentile(t, 25),
-			Q2: this.percentile(t, 50),
-			Q3: this.percentile(t, 75)
-		};
-	}
 	percentile(e, t) {
 		let n = t / 100 * (e.length - 1), r = Math.floor(n), i = Math.ceil(n), a = n - r;
 		return e[r] * (1 - a) + e[i] * a;
 	}
-	calculateQuartiles(e) {
-		let t = e.map((e) => e.x), n = e.map((e) => e.y), r = this.calculateQuartilesSteps(t), i = this.calculateQuartilesSteps(n), a = [];
-		for (let o = 0; o < t.length; o++) {
-			let s = t[o], c = n[o], l = e[o].name, u = 0, d = "";
-			s[o] >= r.Q2 && c[o] <= i.Q2 ? (u = 1, d = "Top") : s[o] >= r.Q2 && c[o] > i.Q2 ? (u = 3, d = "Interquartile") : s[o] < r.Q2 && c[o] > i.Q2 ? (u = 4, d = "Bottom") : s[o] < r.Q2 && c[o] <= i.Q2 && (u = 2, d = "Interquartile"), a.push({
-				x: s,
-				y: c,
-				quartileName: l,
-				quartile: u,
-				label: d
-			});
-		}
-		return a;
+	calculateQuartiles(e, t) {
+		let n = kd(t, this.data.inline_data.visualization.y_optimization === "minimize");
+		return e.map((e, r) => {
+			let i = n[r];
+			return {
+				quartileName: e.name,
+				quartile: i,
+				label: `Q${i}`,
+				area: t[r],
+				bgColor: this.getQuartileBgColor(i).bgColor
+			};
+		});
 	}
-	calculateAverage(e) {
-		let t = e.map((e) => e.x), n = e.map((e) => e.y), r = ad(t), i = ad(n), a = [];
-		for (let o = 0; o < t.length; o++) {
-			let s = t[o], c = n[o], l = e[o].name, u = "", d = "";
-			s >= r && c >= i ? (u = "High performance", d = "#A5DD9B") : s < r && c < i ? (u = "Low performance", d = "#D37676") : (u = "Medium performance", d = "#FAEDCE"), a.push({
-				x: s,
-				y: c,
-				quartileName: l,
-				bgColor: d,
-				category: u
-			});
-		}
-		return a;
+	calculateAverage(e, t) {
+		let n = Ad(t, this.data.inline_data.visualization.y_optimization === "minimize");
+		return e.map((e, r) => {
+			let i = n[r];
+			return {
+				quartileName: e.name,
+				area: t[r],
+				category: i > 0 ? "Better than average" : i < 0 ? "Worse than average" : "At average",
+				bgColor: i > 0 ? "#A5DD9B" : i < 0 ? "#D37676" : "#FAEDCE"
+			};
+		});
 	}
 	async downloadChart(e) {
 		try {
@@ -189499,11 +189624,11 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
                       @click="${() => this.setClassificationView("default")}">
                       ${this.viewText.default}
                   </div>
-                  <div class="${this.viewSelected == "Quartiles" ? "active disabled" : ""}"
+                  <div class="${this.viewSelectedKey == "quartiles" ? "active disabled" : ""}"
                       @click="${() => this.setClassificationView("quartiles")}">
                       ${this.viewText.quartiles}
                   </div>
-                  <div class="${this.viewSelected == "Average" ? "active disabled" : ""}"
+                  <div class="${this.viewSelectedKey == "average" ? "active disabled" : ""}"
                       @click="${() => this.setClassificationView("average")}">
                         ${this.viewText.average}
                   </div>
@@ -189519,7 +189644,7 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
               </div>
               <div class="dropdown orientation-dropdown">
                 <button type="button" class="btn btn-xl btn-center dropbtn mode">
-                  Mode: <span> ${this.mode == "linesmarkers" ? "Lines & Makers" : this.mode}</span>
+                  Mode: <span> ${this.mode == "linesmarkers" ? "Lines & Markers" : this.mode}</span>
                   <div class="btn-icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg></div>
                 </button>
                 <div class="dropdown-content">
@@ -189569,6 +189694,30 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
             </div>
           </div>
         </div>
+        <p class="legend-hint">
+          Click a legend entry to show or hide a curve. At least one participant must remain visible; statistics use all participants.
+          ${this.viewSelectedKey === "quartiles" ? "Q1–Q4 appear beside participant names in the legend; Q1 is best." : ""}
+          ${this.viewSelectedKey === "average" ? "Each participant’s comparison with the mean appears in the legend." : ""}
+        </p>
+        ${this.showRandomClassifier ? J`
+          <p class="legend-hint">The dotted random-classifier line is a chance baseline for ROC curves (true positive rate equals false positive rate), not a participant.</p>
+        ` : ""}
+        ${this.selectionNotice ? J`
+          <div class="selection-notice" role="status">
+            ${this.selectionNotice}
+            <button type="button" @click=${() => {
+			this.selectionNotice = "";
+		}}>Dismiss</button>
+          </div>
+        ` : ""}
+        ${this.classificationNotice ? J`
+          <div class="selection-notice" role="status">
+            ${this.classificationNotice}
+            <button type="button" @click=${() => {
+			this.classificationNotice = "";
+		}}>Dismiss</button>
+          </div>
+        ` : ""}
         <div class="graph-row" id="todownload">
           <div class=${this.sorted ? "col-8" : "col-12"} id="chartCapture">
             <div class="chart" id="line-chart"></div>
@@ -189591,9 +189740,20 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
                     <table class="tools-table" id="benchmarkingTable">
                         <thead>
                             <tr>
-                                <th class="tools-th">Participants</th>
+                                <th class="tools-th">${this.showInterquartileTable ? "Statistic" : "Participants"}</th>
+                                ${this.showQuartileTable || this.showAverageTable ? J`
+                                  <th>
+                                    Shared-range AUC
+                                    <ui-tooltip
+                                      for="anchor"
+                                      icon="info"
+                                      .textTitle=${"Shared-range AUC"}
+                                      .textBody=${"Area under a participant’s curve over the X interval covered by every participant. The interval is shown above the plot. Using the same interval makes the areas comparable; all participants are included, even when hidden."}>
+                                    </ui-tooltip>
+                                  </th>
+                                ` : ""}
                                 <th class="classify-th">
-                                    ${this.viewSelected == "Quartiles" ? "Quartile" : this.viewSelected == "Average" ? "Average" : this.viewSelected == "Interquartile range" ? "Interquartile range" : this.viewSelected == "Trend" ? "Trend" : ""}
+                                    ${this.viewSelectedKey == "quartiles" ? "AUC quartile" : this.viewSelectedKey == "average" ? "Compared with mean" : this.viewSelected == "Interquartile range" ? "Interquartile range" : this.viewSelected == "Trend" ? "Trend" : ""}
 
                                     <ui-tooltip 
                                         for="anchor"
@@ -189609,6 +189769,7 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
                                 ${this.quartileData.map((e) => J`
                                     <tr>
                                         <td>${e.quartileName}</td>
+                                        <td>${e.area.toPrecision(5)}</td>
                                         <td style="background-color: ${e.bgColor}">${e.label}</td>
                                     </tr>
                                 `)}
@@ -189617,6 +189778,7 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
                                 ${this.averageData.map((e) => J`
                                     <tr>
                                         <td>${e.quartileName}</td>
+                                        <td>${e.area.toPrecision(5)}</td>
                                         <td style="background-color: ${e.bgColor}">${e.category}</td>
                                     </tr>
                                 `)}
@@ -189625,7 +189787,7 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
                                 ${Object.entries(this.interquartileData).map(([e, t]) => J`
                                     <tr>
                                         <td>${e}</td>
-                                        <td style="background-color: ${t.color.bgColor}">${t.value}</td>
+                                        <td>${t}</td>
                                     </tr>
                                 `)}
                             ` : ""}
@@ -189639,9 +189801,9 @@ var Od = /* @__PURE__ */ e((/* @__PURE__ */ t(((e, t, n) => {
     `;
 	}
 };
-window.customElements.define("line-plot", Ad);
+window.customElements.define("line-plot", Md);
 // src/widget-element.js
-var jd = class extends me {
+var Nd = class extends me {
 	static properties = {
 		data: {},
 		type: ""
@@ -189670,5 +189832,5 @@ var jd = class extends me {
     `;
 	}
 };
-window.customElements.define("widget-element", jd);
-export { jd as WidgetElement };
+window.customElements.define("widget-element", Nd);
+export { Nd as WidgetElement };
