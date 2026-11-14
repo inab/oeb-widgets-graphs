@@ -2,52 +2,31 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="{{ site.baseurl }}/assets/image/favicon.ico">
-  <title>OEB-Widgets-Graphs A graph collection made by OEB services</title>
-<meta name="generator" content="Jekyll v4.3.3" />
-<meta property="og:title" content="OEB-Widgets-Graphs A graph collection made by OEB services" />
-<meta property="og:locale" content="en_US" />
-<meta name="description" content="This is a collection of graphs made by OEB services" />
-<meta property="og:description" content="This is a collection of graphs made by OEB services" />
-<link rel="canonical" href="http://localhost:4000/" />
-<meta property="og:url" content="http://localhost:4000/" />
-<meta property="og:site_name" content="OEB-Widgets-Graphs A graph collection made by OEB services" />
-<meta property="og:type" content="website" />
-<meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="OEB-Widgets-Graphs A graph collection made by OEB services" />
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","description":"Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.","headline":"OEB-Widgets-Graphs A graph collection made by OEB services","name":"OEB-Widgets-Graphs A graph collection made by OEB services","url":"http://localhost:4000/"}</script>
-
-<!-- End Jekyll SEO tag -->
+  <title>OpenEBench Graph Widgets</title>
+<meta name="description" content="{{ site.description | escape }}">
+<link rel="canonical" href="{{ page.url | absolute_url }}">
 <link rel="stylesheet" href="{{ site.baseurl }}/assets/main.css">
 <link rel="stylesheet" href="{{ site.baseurl }}/assets/prism.css">
 <script src="{{ site.baseurl }}/assets/prism.js" defer="defer"></script>
-<link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="OEB-Widgets-Graphs | A graph collection made by OEB services" /></head>
+</head>
 <body>
   <header class="site-header" role="banner">
     <div class="wrapper">
       <nav class="site-nav">
         <div class="site-title">
-          <a class="site-title-link" rel="author" href="{{ site.baseurl }}/">
-            <img src="{{ site.baseurl }}/assets/image/opeb_logo_white_minimal.png" alt="OEB Logo" style="width: 100px; height: 70px;" />
+          <a class="site-title-link" href="https://openebench.bsc.es/">
+            <img src="{{ site.baseurl }}/assets/image/opeb_logo_white_minimal.png" alt="OpenEBench" style="width: 100px; height: 70px;" />
           </a>
           <span class="site-title-text">
-            OEB Widgets Graphs Docs
+            <a href="{{ site.baseurl }}/">OEB Widgets Graphs Docs</a>
           </span>
           <div class="site-title-version">
-            V1.1.3
+            v{{ site.version }}
             <span class="site-title-version-git"><a href="https://github.com/inab/oeb-widgets-graphs" ref="GITHUB">GITHUB</a></span>
           </div>
         </div>
-        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
-        <label for="nav-trigger">
-          <span class="menu-icon">
-            <svg viewBox="0 0 18 15" width="18px" height="15px">
-              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
-            </svg>
-          </span>
-        </label>
       </nav>
     </div>
 </header>
@@ -81,59 +60,36 @@
           <div class="home-description-section">
             <div class="subtitle mediu-large-text color-primary">Usage</div>
             <div class="subtitle-section">
-              In base javasctipt applications
+              In JavaScript applications
             </div>
             <p>
               Add the installed package to your javascript file.
               <pre><code class="language-javascript">import '@inb/oeb-widgets-graphs';</code></pre>
               Then you can use the graphs in your application.
-              <pre><code class="language-html">&lt;widget-element 
-  id="widget-element"
-  :data=graphData
-  :type=graphType&gt;
-&lt;/widget-element&gt;
-</code></pre>
+              <pre><code class="language-html">&lt;widget-element id="widget-element"&gt;&lt;/widget-element&gt;</code></pre>
             </p>
             <div class="subtitle-section">
-              In base HTML applications (without a framework)
+              In HTML applications (without a framework)
             </div>
             <p>
               Add the installed package to your HTML file.
-              <pre><code class="language-html">&lt;script type="module" src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@refs/heads/main/dist/oeb-widgets-graphs.umd.js"&gt;&lt;/script&gt;</code></pre>
+              <pre><code class="language-html">&lt;script src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@{{ site.demo_revision }}/dist/oeb-widgets-graphs.umd.js"&gt;&lt;/script&gt;</code></pre>
 
               Then you can use the graphs in your application.
-              <pre><code class="language-html">&lt;widget-element 
-  id="widget-element"
-  data=graphData
-  type=graphType&gt;
-&lt;/widget-element&gt;
-</code></pre>
+              <pre><code class="language-html">&lt;widget-element id="widget-element"&gt;&lt;/widget-element&gt;</code></pre>
             </p>
-            <pre><code class="language-javascript">const graphType=JSON.stringify("bar-plot");
-const myComp = document.getElementById('widget-element');
-// Change the type and data of the graph
-let type = JSON.parse(graphType);
-myComp.type = type;
-myComp.data = graphData;
+            <pre><code class="language-javascript">const widget = document.getElementById('widget-element');
+widget.type = 'bar-plot';
+widget.data = JSON.stringify(graphData);
 </code></pre>
+            <p>Use a sample below for the data format. The CDN example is pinned to
+              the current demo build; it is not an npm publication of v{{ site.version }}.</p>
           </div>
       </div>
   </div>
   <div class="widgets-examples-wrapper">
     <div class="widgets-examples">
       <div class="widget-card" title="Go to Bar plot full example">
-          {% if jekyll.environment == "production" %}
-          <div class="widget-box">
-            <a href="https://inab.github.io/oeb-widgets-graphs/_examples/barplot.html">
-              <div class="widget-card-header">
-                <h3>Bar plot graph</h3>
-                <div class="widget-card-img">
-                  <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/bar-plot.gif" />
-                </div>
-              </div>
-            </a>
-          </div>
-          {% else %}
           <div class="widget-box">
             <a href="{% link _examples/barplot.md %}">
               <div class="widget-card-header">
@@ -144,21 +100,8 @@ myComp.data = graphData;
               </div>
             </a>
           </div>
-          {% endif %}
       </div>
       <div class="widget-card" title="Go to Scatter plot full example">
-          {% if jekyll.environment == "production" %}
-          <div class="widget-box">
-            <a href="https://inab.github.io/oeb-widgets-graphs/_examples/scatterplot.html">
-              <div class="widget-card-header">
-                <h3>Scatter plot graph</h3>
-                <div class="widget-card-img">
-                  <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/scatter-plot.gif" />
-                </div>
-              </div>
-            </a>
-          </div>
-          {% else %}
           <div class="widget-box">
             <a href="{% link _examples/scatterplot.md %}">
               <div class="widget-card-header">
@@ -169,23 +112,10 @@ myComp.data = graphData;
               </div>
             </a>
           </div>
-          {% endif %}
       </div>
     </div>
     <div class="widgets-examples">
       <div class="widget-card" title="Go to Box plot full example">
-          {% if jekyll.environment == "production" %}
-          <div class="widget-box">
-            <a href="https://inab.github.io/oeb-widgets-graphs/_examples/boxplot.html">
-              <div class="widget-card-header">
-                <h3>Box plot graph</h3>
-                <div class="widget-card-img">
-                  <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/box-plot.gif" />
-                </div>
-              </div>
-            </a>
-          </div>
-          {% else %}
           <div class="widget-box">
             <a href="{% link _examples/boxplot.md %}">
               <div class="widget-card-header">
@@ -196,21 +126,8 @@ myComp.data = graphData;
               </div>
             </a>
           </div>
-          {% endif %}
       </div>
       <div class="widget-card" title="Go to Radar plot full example">
-          {% if jekyll.environment == "production" %}
-          <div class="widget-box">
-            <a href="https://inab.github.io/oeb-widgets-graphs/_examples/radarplot.html">
-              <div class="widget-card-header">
-                <h3>Radar plot graph</h3>
-                <div class="widget-card-img">
-                  <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/radar-plot.gif" />
-                </div>
-              </div>
-            </a>
-          </div>
-          {% else %}
           <div class="widget-box">
             <a href="{% link _examples/radarplot.md %}">
               <div class="widget-card-header">
@@ -221,23 +138,10 @@ myComp.data = graphData;
               </div>
             </a>
           </div>
-          {% endif %}
       </div>
     </div>
     <div class="widgets-examples">
-      <div class="widget-card" title="Go to Radar plot full example">
-        {% if jekyll.environment == "production" %}
-        <div class="widget-box">
-          <a href="https://inab.github.io/oeb-widgets-graphs/_examples/lineplot.html">
-            <div class="widget-card-header">
-              <h3>Line plot graph</h3>
-              <div class="widget-card-img">
-                <img width="320" height="240" src="{{ site.baseurl }}/assets/videos/line-plot-new.gif" />
-              </div>
-            </div>
-          </a>
-        </div>
-        {% else %}
+      <div class="widget-card" title="Go to Line plot full example">
         <div class="widget-box">
           <a href="{% link _examples/lineplot.md %}">
             <div class="widget-card-header">
@@ -248,7 +152,6 @@ myComp.data = graphData;
             </div>
           </a>
         </div>
-        {% endif %}
       </div>
     </div>
   </div>

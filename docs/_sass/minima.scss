@@ -280,6 +280,9 @@
   font-weight: 600;
   color: white;
  }
+ .site-title-text a {
+  color: white;
+ }
  .site-title-version {
   float: right;
   display: flex;
@@ -324,13 +327,26 @@
  }
  @media screen and (max-width: 600px) {
    .site-nav {
-     position: absolute;
-     top: 9px;
-     right: 15px;
-     background-color: #fdfdfd;
-     border: 1px solid #e8e8e8;
-     border-radius: 5px;
-     text-align: right;
+     position: static;
+     background: transparent;
+     border: 0;
+     text-align: left;
+   }
+   .site-title {
+     flex-wrap: wrap;
+     gap: 0 10px;
+     font-size: 18px;
+     line-height: 1.4;
+   }
+   .site-title-version {
+     font-size: 14px;
+   }
+   .home-title {
+     font-size: 40px;
+     line-height: 1.1;
+   }
+   .home-description {
+     padding-top: 40px;
    }
    .site-nav label[for=nav-trigger] {
      display: block;
@@ -734,6 +750,7 @@
  }
  .widgets-examples a {
   text-decoration: none;
+  display: block;
  }
  .widget-card {
   background: #f5f2f0;
@@ -751,4 +768,11 @@
  .widget-box {
   background-color: rgba(255, 255, 255, .8);
   padding: 10px 15px;
+ }
+
+ @media screen and (max-width: 600px) {
+  .widgets-examples {
+   grid-template-columns: minmax(0, 1fr);
+   gap: 16px;
+  }
  }

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title | escape }} | OEB Widgets Graphs</title>
+  <link rel="icon" href="{{ site.baseurl }}/assets/image/favicon.ico">
+  <link rel="stylesheet" href="{{ site.baseurl }}/assets/main.css">
+  <link rel="stylesheet" href="{{ site.baseurl }}/assets/prism.css">
+  <link rel="stylesheet" href="{{ site.baseurl }}/assets/examples.css">
+  <script defer src="{{ site.baseurl }}/assets/prism.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@{{ site.demo_revision }}/dist/oeb-widgets-graphs.umd.js"></script>
+  <script defer src="{{ site.baseurl }}/assets/examples.js"></script>
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="wrapper">
+      <nav class="site-nav" aria-label="Documentation">
+        <div class="site-title">
+          <a class="site-title-link" href="https://openebench.bsc.es/">
+            <img src="{{ site.baseurl }}/assets/image/opeb_logo_white_minimal.png" alt="OpenEBench" style="width: 100px; height: 70px;">
+          </a>
+          <span class="site-title-text"><a href="{{ site.baseurl }}/">OEB Widgets Graphs Docs</a></span>
+          <div class="site-title-version">
+            v{{ site.version }}
+            <span class="site-title-version-git"><a href="https://github.com/inab/oeb-widgets-graphs">GITHUB</a></span>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+  <main class="page-content">
+    <div class="wrapper example-page">
+      <p class="example-back"><a href="{{ site.baseurl }}/">&larr; All plots</a></p>
+      <section class="example-overview">
+        <h1>{{ page.title | escape }} overview</h1>
+        {{ content }}
+      </section>
+      <section class="live-example"
+        data-widget-type="{{ page.widget_type | escape }}"
+        data-bundle-url="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@{{ site.demo_revision }}/dist/oeb-widgets-graphs.umd.js"
+        data-sample-root="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@{{ site.demo_revision }}/src/demo/files/"
+        data-source-root="https://github.com/inab/oeb-widgets-graphs/blob/{{ site.demo_revision }}/src/demo/files/">
+        <h2>Interactive examples</h2>
+        <div class="example-samples">
+          <p>Choose a sample, then use the chart controls and legend to explore it.</p>
+          <div class="sample-list" role="group" aria-label="Sample">
+            {% for sample in page.samples %}
+            <button type="button" class="sample-button" data-file="{{ sample.file | escape }}"
+              data-description="{{ sample.description | escape }}" aria-pressed="false">{{ sample.label | escape }}</button>
+            {% endfor %}
+          </div>
+          <p class="sample-description"></p>
+          <p class="sample-source-wrapper"><a class="sample-source" target="_blank" rel="noopener noreferrer"
+            href="https://github.com/inab/oeb-widgets-graphs/tree/{{ site.demo_revision }}/src/demo/files">View sample JSON (opens in a new tab)</a></p>
+        </div>
+        <p class="example-status" role="status">Loading example...</p>
+        <div class="example-chart"></div>
+      </section>
+      <section class="example-usage">
+        <h2>How to use this plot</h2>
+        <p>This HTML example includes the selected sample JSON. Select another sample above to update the code, or replace the data with your own.</p>
+        <pre><code class="language-html example-usage-code">Loading example...</code></pre>
+        <p>For npm installation, see the <a href="{{ site.baseurl }}/">documentation home</a>.</p>
+      </section>
+      <p class="example-back"><a href="{{ site.baseurl }}/">&larr; Back to all plots</a></p>
+    </div>
+  </main>
+  <footer class="site-footer"><div class="wrapper">OpenEBench Graph Widgets</div></footer>
+</body>
+</html>

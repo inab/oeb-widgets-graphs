@@ -19,13 +19,13 @@
 # in the templates via {{ site.myvariable }}.
 
 title: OEB-Widgets-Graphs | A graph collection made by OEB services
+version: "1.2.0"
+demo_revision: "bd3a1e3cd45e41e7f4472469aeadbfa28f122f2f"
 description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+  Interactive benchmarking charts and examples from OpenEBench.
 baseurl: "/oeb-widgets-graphs" # the subpath of your site, e.g. /blog
 url: "https://inab.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-github_username:  JessicaFM
+github_username:  Androidbeingx
 #baseurl: /oeb-widgets-graphs/docs
 #url: https://inab.github.io
 #root: /oeb-widgets-graphs/docs
