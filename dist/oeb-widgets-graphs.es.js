@@ -189812,7 +189812,7 @@ var Nd = class extends me {
 		super();
 	}
 	attributeChangedCallback(e, t, n) {
-		super.attributeChangedCallback(e, t, n);
+		console.log("name: ", e), console.log("oldVal: ", t), console.log("newVal: ", n), super.attributeChangedCallback(e, t, n);
 	}
 	renderComponent() {
 		return this.type == "bar-plot" ? J`<bar-plot data = ${this.data}></bar-plot>` : this.type == "2D-plot" ? J`<scatter-plot data = ${this.data}></scatter-plot>` : this.type == "box-plot" ? J`<box-plot data = ${this.data}></box-plot>` : this.type == "radar-plot" ? J`<radar-plot data = ${this.data}></radar-plot>` : this.type == "line-plot" ? J`<line-plot data = ${this.data}></line-plot>` : J`<p>No element</p>`;

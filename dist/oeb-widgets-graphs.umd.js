@@ -6561,7 +6561,7 @@ end`};t.events.push([`putFont`,function(t){(function(t){var n=t.font,i=t.out,a=t
             `:``}
         </div>
       </div>
-    `}};window.customElements.define(`line-plot`,Ny);var Py=class extends Ce{static properties={data:{},type:``};constructor(){super()}attributeChangedCallback(e,t,n){super.attributeChangedCallback(e,t,n)}renderComponent(){return this.type==`bar-plot`?ie`<bar-plot data = ${this.data}></bar-plot>`:this.type==`2D-plot`?ie`<scatter-plot data = ${this.data}></scatter-plot>`:this.type==`box-plot`?ie`<box-plot data = ${this.data}></box-plot>`:this.type==`radar-plot`?ie`<radar-plot data = ${this.data}></radar-plot>`:this.type==`line-plot`?ie`<line-plot data = ${this.data}></line-plot>`:ie`<p>No element</p>`}render(){return ie`
+    `}};window.customElements.define(`line-plot`,Ny);var Py=class extends Ce{static properties={data:{},type:``};constructor(){super()}attributeChangedCallback(e,t,n){console.log(`name: `,e),console.log(`oldVal: `,t),console.log(`newVal: `,n),super.attributeChangedCallback(e,t,n)}renderComponent(){return this.type==`bar-plot`?ie`<bar-plot data = ${this.data}></bar-plot>`:this.type==`2D-plot`?ie`<scatter-plot data = ${this.data}></scatter-plot>`:this.type==`box-plot`?ie`<box-plot data = ${this.data}></box-plot>`:this.type==`radar-plot`?ie`<radar-plot data = ${this.data}></radar-plot>`:this.type==`line-plot`?ie`<line-plot data = ${this.data}></line-plot>`:ie`<p>No element</p>`}render(){return ie`
       <div class="widget-element">
         <div>${this.renderComponent()}</div>
       </div>
