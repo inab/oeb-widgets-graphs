@@ -38,6 +38,10 @@
 
 - [Full documentation and live demos](https://inab.github.io/oeb-widgets-graphs/)
 - [Example applications](https://github.com/inab/demo_oeb-widgets-graphs)
+- [Changelog](https://github.com/inab/oeb-widgets-graphs/blob/main/CHANGELOG.md)
+- [Contributing](https://github.com/inab/oeb-widgets-graphs/blob/main/CONTRIBUTING.md)
+- [Citation](https://github.com/inab/oeb-widgets-graphs/blob/main/CITATION.cff)
+- [Related poster (2025)](https://doi.org/10.7490/f1000research.1120180.1)
 
 ## Requirements and dependencies
 

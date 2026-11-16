@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "OpenEBench Graph Widgets"
+authors:
+  - name: "OpenEBench contributors"
+  - name: "Barcelona Supercomputing Center (BSC)"
+repository-code: "https://github.com/inab/oeb-widgets-graphs"
+license: Apache-2.0
