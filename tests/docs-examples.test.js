@@ -6,7 +6,7 @@ import { setImmediate } from 'node:timers/promises';
 
 const script = await readFile(new URL('../docs/assets/examples.js', import.meta.url), 'utf8');
 
-function setup(fetch, libraryAvailable = true) {
+function setup(fetch, libraryAvailable = true, graph = { _fullData: [{}], querySelector() { return {}; } }) {
   const buttons = ['first.json', 'second.json'].map((file) => ({
     dataset: { file, description: `Description for ${file}` },
     attributes: {},
@@ -16,14 +16,20 @@ function setup(fetch, libraryAvailable = true) {
   }));
   const description = { textContent: '' };
   const source = { href: '' };
-  const status = { textContent: '' };
-  const usage = { textContent: '' };
-  const chart = { children: [], replaceChildren(...children) { this.children = children; } };
+  const status = { textContent: '', dataset: {} };
+  const usage = { textContent: '', dataset: {} };
+  const chart = {
+    children: [], attributes: {},
+    replaceChildren(...children) { this.children = children; },
+    setAttribute(name, value) { this.attributes[name] = value; },
+  };
+  const chartContainer = { dataset: {} };
   const elements = {
     '.sample-description': description,
     '.sample-source': source,
     '.example-status': status,
-    '.example-chart': chart,
+    '.example-chart': chartContainer,
+    '.example-chart-content': chart,
   };
   const example = {
     dataset: { widgetType: 'line-plot', bundleUrl: '/bundle.js', sampleRoot: '/samples/', sourceRoot: '/source/' },
@@ -34,14 +40,21 @@ function setup(fetch, libraryAvailable = true) {
   vm.runInNewContext(script, {
     document: {
       querySelector(selector) { return selector === '.live-example' ? example : usage; },
-      createElement(tag) { return { tag }; },
+      createElement(tag) {
+        return { tag, shadowRoot: { querySelector() {
+          return { shadowRoot: { querySelector() {
+            return graph;
+          } } };
+        } } };
+      },
     },
     customElements: { get() { return libraryAvailable; } },
     console: { error(...args) { errors.push(args); } },
     fetch,
     encodeURIComponent,
+    setTimeout,
   });
-  return { buttons, description, source, status, usage, chart, errors };
+  return { buttons, description, source, status, usage, chart, chartContainer, errors };
 }
 
 const response = data => ({ ok: true, json: async () => data });
@@ -51,6 +64,10 @@ test('loads and switches samples with the correct widget data', async () => {
   await setImmediate();
   assert.equal(app.buttons[0].attributes['aria-pressed'], 'true');
   assert.equal(app.chart.children[0].type, 'line-plot');
+  assert.equal(app.chart.attributes['aria-busy'], 'false');
+  assert.equal(app.status.dataset.state, 'ready');
+  assert.equal(app.chartContainer.dataset.state, 'ready');
+  assert.equal(app.usage.dataset.copyReady, 'true');
   assert.deepEqual(JSON.parse(app.chart.children[0].data), { url: '/samples/first.json' });
   assert.match(app.usage.textContent, /"url": "\/samples\/first\.json"/);
   assert.doesNotMatch(app.usage.textContent, /fetch\(/);
@@ -65,13 +82,30 @@ test('loads and switches samples with the correct widget data', async () => {
   assert.match(app.usage.textContent, /"url": "\/samples\/second\.json"/);
 });
 
+test('keeps the loading indicator until the plot has rendered', async () => {
+  const graph = { _fullData: [], querySelector() { return {}; } };
+  const app = setup(async () => response({}), true, graph);
+  await setImmediate();
+  assert.equal(app.status.dataset.state, 'loading');
+  assert.equal(app.chartContainer.dataset.state, 'loading');
+  assert.equal(app.chart.attributes['aria-busy'], 'true');
+  graph._fullData.push({});
+  await new Promise(resolve => setTimeout(resolve, 150));
+  assert.equal(app.status.dataset.state, 'ready');
+  assert.equal(app.chart.attributes['aria-busy'], 'false');
+});
+
 test('reports sample and widget loading errors', async () => {
   const failed = setup(async () => ({ ok: false, status: 404 }));
   await setImmediate();
   assert.match(failed.status.textContent, /404/);
   assert.equal(failed.errors.length, 1);
   assert.equal(failed.chart.children.length, 0);
+  assert.equal(failed.status.dataset.state, 'error');
+  assert.equal(failed.chartContainer.dataset.state, 'error');
+  assert.equal(failed.chart.attributes['aria-busy'], 'false');
   assert.match(failed.usage.textContent, /could not load/i);
+  assert.equal(failed.usage.dataset.copyReady, 'false');
 
   const missingLibrary = setup(async () => response({}), false);
   await setImmediate();

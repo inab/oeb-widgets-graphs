@@ -3,9 +3,21 @@ const buttons = [...example.querySelectorAll('.sample-button')];
 const description = example.querySelector('.sample-description');
 const source = example.querySelector('.sample-source');
 const status = example.querySelector('.example-status');
-const chart = example.querySelector('.example-chart');
+const chartContainer = example.querySelector('.example-chart');
+const chart = example.querySelector('.example-chart-content');
 const usage = document.querySelector('.example-usage-code');
 let requestId = 0;
+
+async function waitForPlot(widget, currentRequest) {
+  const deadline = Date.now() + 20000;
+  while (currentRequest === requestId && Date.now() < deadline) {
+    const plot = widget.shadowRoot?.querySelector('bar-plot, scatter-plot, box-plot, radar-plot, line-plot');
+    const graph = plot?.shadowRoot?.querySelector('.js-plotly-plot');
+    if (graph?._fullData?.length && graph.querySelector('.main-svg')) return;
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  if (currentRequest === requestId) throw new Error('The plot did not finish rendering.');
+}
 
 async function showSample(button) {
   const currentRequest = ++requestId;
@@ -14,8 +26,12 @@ async function showSample(button) {
   }
   description.textContent = button.dataset.description;
   source.href = example.dataset.sourceRoot + encodeURIComponent(button.dataset.file);
-  status.textContent = 'Loading example...';
+  status.textContent = 'Loading plot...';
+  status.dataset.state = 'loading';
+  chartContainer.dataset.state = 'loading';
+  chart.setAttribute('aria-busy', 'true');
   usage.textContent = 'Loading example...';
+  usage.dataset.copyReady = 'false';
   chart.replaceChildren();
 
   try {
@@ -41,13 +57,23 @@ async function showSample(button) {
   widget.type = ${JSON.stringify(example.dataset.widgetType)};
   widget.data = JSON.stringify(graphData);
 </script>`;
+    usage.dataset.copyReady = 'true';
     if (globalThis.Prism) globalThis.Prism.highlightElement(usage);
+    await waitForPlot(widget, currentRequest);
+    if (currentRequest !== requestId) return;
     status.textContent = '';
+    status.dataset.state = 'ready';
+    chartContainer.dataset.state = 'ready';
+    chart.setAttribute('aria-busy', 'false');
   } catch (error) {
     if (currentRequest !== requestId) return;
     console.error('Could not load the example:', error);
     status.textContent = `Could not load the example: ${error.message}`;
+    status.dataset.state = 'error';
+    chartContainer.dataset.state = 'error';
+    chart.setAttribute('aria-busy', 'false');
     usage.textContent = 'Could not load the example data.';
+    usage.dataset.copyReady = 'false';
   }
 }
 

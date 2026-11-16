@@ -33,7 +33,6 @@ github_username:  Androidbeingx
 theme: minima
 plugins:
   - jekyll-feed
-  - jekyll-prismjs-compile
 
 include:
   - _examples

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="{{ site.baseurl }}/assets/prism.css">
   <link rel="stylesheet" href="{{ site.baseurl }}/assets/examples.css">
   <script defer src="{{ site.baseurl }}/assets/prism.js"></script>
+  <script defer src="{{ site.baseurl }}/assets/copy-code.js"></script>
   <script defer src="https://cdn.jsdelivr.net/gh/inab/oeb-widgets-graphs@{{ site.demo_revision }}/dist/oeb-widgets-graphs.umd.js"></script>
   <script defer src="{{ site.baseurl }}/assets/examples.js"></script>
 </head>
@@ -54,13 +55,15 @@
           <p class="sample-source-wrapper"><a class="sample-source" target="_blank" rel="noopener noreferrer"
             href="https://github.com/inab/oeb-widgets-graphs/tree/{{ site.demo_revision }}/src/demo/files">View sample JSON (opens in a new tab)</a></p>
         </div>
-        <p class="example-status" role="status">Loading example...</p>
-        <div class="example-chart"></div>
+        <div class="example-chart" data-state="loading">
+          <p class="example-status" role="status" data-state="loading">Loading plot...</p>
+          <div class="example-chart-content" aria-busy="true"></div>
+        </div>
       </section>
       <section class="example-usage">
         <h2>How to use this plot</h2>
         <p>This HTML example includes the selected sample JSON. Select another sample above to update the code, or replace the data with your own.</p>
-        <pre><code class="language-html example-usage-code">Loading example...</code></pre>
+        <pre><code class="language-html example-usage-code" data-copy-ready="false">Loading example...</code></pre>
         <p>For npm installation, see the <a href="{{ site.baseurl }}/">documentation home</a>.</p>
       </section>
       <p class="example-back"><a href="{{ site.baseurl }}/">&larr; Back to all plots</a></p>

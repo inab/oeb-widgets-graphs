@@ -32,20 +32,20 @@
 
 .sample-button {
   padding: 0.4rem 0.8rem;
-  border: 1px solid #0b7285;
+  border: 1px solid #0b579f;
   border-radius: 1rem;
   background: white;
-  color: #075967;
+  color: #0b579f;
   cursor: pointer;
 }
 
 .sample-button[aria-pressed="true"] {
-  background: #0b7285;
+  background: #0b579f;
   color: white;
 }
 
 .sample-button:focus-visible {
-  outline: 2px solid #075967;
+  outline: 2px solid #0b579f;
   outline-offset: 2px;
 }
 
@@ -58,11 +58,17 @@
 }
 
 .example-chart {
+  position: relative;
   margin-top: 1rem;
   padding: 1rem;
   background: #fff;
   border: 1px solid #d5dce3;
   border-radius: 4px;
+}
+
+.example-chart[data-state="loading"],
+.example-chart[data-state="error"] {
+  min-height: 320px;
 }
 
 .example-usage pre {
@@ -72,6 +78,47 @@
 
 .example-status:empty {
   display: none;
+}
+
+.example-status[data-state="loading"],
+.example-status[data-state="error"] {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 1rem;
+  background: #fff;
+  text-align: center;
+  color: #0b579f;
+}
+
+.example-status[data-state="error"] {
+  color: #9c2f25;
+}
+
+.example-status[data-state="loading"]::before {
+  content: "";
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid #b3c9df;
+  border-top-color: #0b579f;
+  border-radius: 50%;
+  animation: example-spin 0.8s linear infinite;
+}
+
+@keyframes example-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .example-status[data-state="loading"]::before {
+    animation: none;
+  }
 }
 
 @media screen and (max-width: 600px) {
