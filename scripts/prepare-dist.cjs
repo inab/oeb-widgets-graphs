@@ -10,6 +10,12 @@ const rootPkg = JSON.parse(fs.readFileSync(rootPkgPath, 'utf8'));
 const distPkg = {
   name: rootPkg.name,
   version: rootPkg.version,
+  description: rootPkg.description,
+  keywords: rootPkg.keywords,
+  repository: rootPkg.repository,
+  homepage: rootPkg.homepage,
+  bugs: rootPkg.bugs,
+  author: rootPkg.author,
   main: 'oeb-widgets-graphs.umd.js',
   module: 'oeb-widgets-graphs.es.js',
   exports: {
