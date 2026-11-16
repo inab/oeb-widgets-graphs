@@ -167,9 +167,20 @@ Samples: [minimum](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo
 ### Radar plot
 
 Compare multiple metrics and use the legend to show or hide participants.
-Metrics with a declared scale are normalized per axis to 0–1, respecting
-optimization direction; hover shows the original values. Normalization does
-not make different units directly comparable.
+In standard mode, values are displayed without normalization, so metrics
+should have similar scales.
+
+When any metric declares a `linear` or `log` scale, all metrics are mapped
+independently to a shared 0–1 radial axis. Each metric uses its own raw
+bounds and scale; metrics without a declared scale use a linear scale.
+Bounds come from `min` and `max` when provided, or are derived from the data.
+The outer edge represents the preferred end of each range: lower values for
+minimized metrics and higher values otherwise. Hover shows the original value.
+Normalization does not make different units directly comparable.
+
+The npm widget displays a table of the scales, bounds and directions used.
+The live demo currently uses an earlier pinned build and does not show that
+table.
 
 Samples: [standard](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT.json),
 [synthetic technical metrics](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT_TECHNICAL.json).
