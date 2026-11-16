@@ -188351,17 +188351,31 @@ var xd = {
 	hovermode: !1
 }, Sd = class extends me {
 	static get styles() {
-		return [_e, ve];
+		return [
+			_e,
+			ve,
+			l`
+                .scale-details { margin: 0 25px 20px; }
+                .scale-details summary { cursor: pointer; font-weight: 600; }
+                .scale-table-wrapper { overflow-x: auto; }
+                .scale-table { min-width: 500px; }
+                .scale-table th, .scale-table td { padding: 6px; }
+                @media (max-width: 640px) {
+                    .scale-details { margin-left: 0; margin-right: 0; }
+                }
+            `
+		];
 	}
 	static properties = {
 		data: "",
 		datasetId: "",
 		sorted: !1,
 		showAdditionalTable: !1,
-		tracesTable: []
+		tracesTable: [],
+		normalized: { state: !0 }
 	};
 	constructor() {
-		super(), this.imgLogo = ye, this.layout = {
+		super(), this.imgLogo = ye, this.normalized = !1, this.layout = {
 			autosize: !0,
 			height: 600,
 			margin: {
@@ -188652,9 +188666,36 @@ var xd = {
                     </div>
                 </div>
                 <p class="legend-hint">Click a participant in the legend to show or hide it.</p>
+                ${this.normalized ? J`
+                    <p class="legend-hint">Each metric uses its own scale and bounds, mapped to a shared 0–1 chart scale. See metric scales below the chart.</p>
+                ` : ""}
                 <div class="graph-row" id="todownload">
                     <div class=${this.isSorted ? "col-8" : "col-12"} id="chartCapture">
                         <div class="chart" id="radar-chart"></div>
+                        ${this.normalized ? J`
+                            <details class="scale-details" open>
+                                <summary>Metric scales and bounds</summary>
+                                <p>Raw ranges are mapped independently; the outer edge represents the preferred direction for each metric. Hover over the chart for original values.</p>
+                                <div class="scale-table-wrapper">
+                                    <table class="custom-table scale-table">
+                                        <thead>
+                                            <tr><th scope="col">Metric</th><th scope="col">Scale</th><th scope="col">Raw range</th><th scope="col">Outer edge</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            ${Object.entries(this.axisBounds).map(([e, t]) => {
+			let n = this.getMetricSpec(e);
+			return J`<tr>
+                                                    <th scope="row">${e}${n.title ? ` (${n.title})` : ""}</th>
+                                                    <td>${n.scale === "log" ? "Logarithmic" : "Linear"}</td>
+                                                    <td>${t.min} – ${t.max}${n.unit ? ` ${n.unit}` : ""}</td>
+                                                    <td>${n.optimization === "minimize" ? "Lower" : "Higher"}</td>
+                                                </tr>`;
+		})}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </details>
+                        ` : ""}
                         <div class="info-table">
                             <table class="custom-table">
                                 <tbody>

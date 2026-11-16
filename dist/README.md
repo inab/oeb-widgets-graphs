@@ -16,11 +16,12 @@
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/1c1a2f2025bdc0f0bb545e657408bc4e1c749e6c/docs/assets/videos/scatter-plot.gif?raw=true" alt="Example scatter plot" />
+  <img src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/docs/docs/assets/videos/scatterplot-preview.gif" alt="Example scatter plot" />
 </p>
 
 ## Contents
 
+- [Contents](#contents)
 - [Documentation and examples](#documentation-and-examples)
 - [Requirements and dependencies](#requirements-and-dependencies)
 - [Development](#development)
@@ -143,7 +144,7 @@ or optimal axis range is active.
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/barplot.html) |
 [Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BARPLOT.json)
 
-<img width="320" height="240" alt="Bar plot example" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/bar-plot.gif?raw=true" />
+<img width="320" height="240" alt="Bar plot example" src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/docs/docs/assets/videos/barplot-preview.gif" />
 
 ### Scatter plot
 
@@ -159,7 +160,7 @@ below the chart. Scroll the legend to reach additional participants.
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/scatterplot.html) |
 [Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/SCATTERPLOT.json)
 
-<img width="320" height="240" alt="Scatter plot example" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/scatter-plot.gif?raw=true" />
+<img width="320" height="240" alt="Scatter plot example" src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/docs/docs/assets/videos/scatterplot-preview.gif" />
 
 ### Box plot
 
@@ -173,7 +174,7 @@ visible.
 [Live demo](https://inab.github.io/oeb-widgets-graphs/_examples/boxplot.html) |
 [Example data](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/BOXPLOT.json)
 
-<img width="320" height="240" alt="Box plot example" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/box-plot.gif?raw=true" />
+<img width="320" height="240" alt="Box plot example" src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/docs/docs/assets/videos/boxplot-preview.gif" />
 
 ### Radar plot
 
@@ -191,7 +192,11 @@ metric declares `"scale": "linear"` or `"log"`, optionally with `unit`, `min`
 and `max`. Every axis is then normalized to 0-1 with the best result on the
 outside (minimized metrics are inverted). Use `"log"` for values spanning orders
 of magnitude (MB vs. GB) and `min`/`max` to fix ranges such as 0-1 vs. 0-100
-(or more for parallel CPU usage). Hover shows the real value with its unit.
+(or more for parallel CPU usage). Plotly displays a shared 0-1 radial axis,
+but each metric is converted using its own scale and raw bounds. When bounds
+are not specified, they are derived from the data. The table below the chart
+shows each metric's scale, bounds and direction; hover shows the real value
+with its unit.
 
 ```json
 { "metric_id": "PEAK_RAM", "title": "Peak RAM usage", "optimization": "minimize",
@@ -202,7 +207,7 @@ of magnitude (MB vs. GB) and `min`/`max` to fix ranges such as 0-1 vs. 0-100
 Example data: [standard](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT.json),
 [normalized](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/RADARPLOT_TECHNICAL.json)
 
-<img width="320" height="240" alt="Radar plot example" src="https://github.com/inab/oeb-widgets-graphs/blob/0b17d40c325f55df986153659a737abc3f1aa12c/docs/assets/videos/radar-plot.gif?raw=true" />
+<img width="320" height="240" alt="Radar plot example" src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/docs/docs/assets/videos/radarplot-preview.gif" />
 
 ### Line plot
 
@@ -233,7 +238,7 @@ The interquartile-range table instead pools all participant points on each axis.
 Example data: [ROC](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT.json),
 [precision-recall](https://github.com/inab/oeb-widgets-graphs/blob/main/src/demo/files/LINEPLOT_PRECISION_RECALL.json)
 
-<img width="500" height="400" alt="Line plot example" src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/25e27732a42364a677df669c70f1512d5058e7d3/docs/assets/videos/line-plot-new.gif?raw=true" />
+<img width="320" height="240" alt="Line plot example" src="https://raw.githubusercontent.com/inab/oeb-widgets-graphs/docs/docs/assets/videos/lineplot-preview.gif" />
 
 ## Project structure
 
