@@ -1,4 +1,4 @@
-import { html, LitElement } from 'lit';
+import { css, html, LitElement } from 'lit';
 import Plotly from 'plotly.js-dist'
 import { plotlyStyles } from "./plotly-styles.js";
 import { graphStyles } from './graph-styles.js';
@@ -18,7 +18,17 @@ export class RadarPlot extends LitElement {
     static get styles() {
         return [
             plotlyStyles,
-            graphStyles
+            graphStyles,
+            css`
+                .scale-details { margin: 0 25px 20px; }
+                .scale-details summary { cursor: pointer; font-weight: 600; }
+                .scale-table-wrapper { overflow-x: auto; }
+                .scale-table { min-width: 500px; }
+                .scale-table th, .scale-table td { padding: 6px; }
+                @media (max-width: 640px) {
+                    .scale-details { margin-left: 0; margin-right: 0; }
+                }
+            `
         ];
     }
 
@@ -28,12 +38,14 @@ export class RadarPlot extends LitElement {
         sorted: false,
         showAdditionalTable: false,
         tracesTable: [],
+        normalized: { state: true },
     };
 
     constructor() {
         super();
 
         this.imgLogo = oebIcon;
+        this.normalized = false;
         this.layout = {
             autosize: true,
             height: 600,
@@ -377,9 +389,36 @@ export class RadarPlot extends LitElement {
                     </div>
                 </div>
                 <p class="legend-hint">Click a participant in the legend to show or hide it.</p>
+                ${this.normalized ? html`
+                    <p class="legend-hint">Each metric uses its own scale and bounds, mapped to a shared 0–1 chart scale. See metric scales below the chart.</p>
+                ` : ''}
                 <div class="graph-row" id="todownload">
                     <div class=${ this.isSorted ? 'col-8': 'col-12' } id="chartCapture">
                         <div class="chart" id="radar-chart"></div>
+                        ${this.normalized ? html`
+                            <details class="scale-details" open>
+                                <summary>Metric scales and bounds</summary>
+                                <p>Raw ranges are mapped independently; the outer edge represents the preferred direction for each metric. Hover over the chart for original values.</p>
+                                <div class="scale-table-wrapper">
+                                    <table class="custom-table scale-table">
+                                        <thead>
+                                            <tr><th scope="col">Metric</th><th scope="col">Scale</th><th scope="col">Raw range</th><th scope="col">Outer edge</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            ${Object.entries(this.axisBounds).map(([metricId, bounds]) => {
+                                                const spec = this.getMetricSpec(metricId);
+                                                return html`<tr>
+                                                    <th scope="row">${metricId}${spec.title ? ` (${spec.title})` : ''}</th>
+                                                    <td>${spec.scale === 'log' ? 'Logarithmic' : 'Linear'}</td>
+                                                    <td>${bounds.min} – ${bounds.max}${spec.unit ? ` ${spec.unit}` : ''}</td>
+                                                    <td>${spec.optimization === 'minimize' ? 'Lower' : 'Higher'}</td>
+                                                </tr>`;
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </details>
+                        ` : ''}
                         <div class="info-table">
                             <table class="custom-table">
                                 <tbody>
